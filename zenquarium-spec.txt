@@ -1,0 +1,543 @@
+ZENQUARIUM — Complete Application Specification
+=================================================
+
+Build a premium, single-file HTML application called "Zenquarium" — a meditative aquarium game. The ENTIRE application must be self-contained in one index.html file with inline CSS and JavaScript. No external dependencies, no frameworks, no CDN links. It should work by simply opening the file in a modern browser.
+
+The app is approximately 4,700+ lines and consists of a splash/theme-selection screen, a full-screen aquarium simulation, and an interactive control system. Everything renders with SVG, CSS animations, and the Web Audio API.
+
+=== ARCHITECTURE ===
+
+Single index.html with three sections:
+1. <style> block — all CSS (~1,200 lines)
+2. HTML body — splash screen, about overlay, game screen with tank, HUD, controls, modals
+3. <script> block — JavaScript organized as IIFEs/modules:
+   - Utils (utility functions)
+   - ZenAudio (Web Audio API sound system)
+   - Themes (5 theme definitions)
+   - Fish class (SVG fish with AI behavior)
+   - FishFactory (simple factory wrapper)
+   - Tank (environment: caustics, light rays, plants, particles, bubbles)
+   - Food (food flakes system)
+   - Creatures (easter egg creature visitors: jellyfish, octopus, squid)
+   - UI (splash screen, HUD, modals, status messages)
+   - App (game state, game loop, controls, auto mode, reproduction)
+
+=== SPLASH SCREEN ===
+
+Full-screen dark oceanic splash with:
+- Title "ZENQUARIUM" in large, elegant uppercase, gradient gold text (#e8dcc8 to #c9a96e), with a subtle shimmer animation
+- Subtitle "A meditative aquarium experience" below in muted text
+- Animated rising bubble particles (15 small circles with radial gradient, rising from bottom to top in random positions, staggered timing)
+- Kelp decoration on both sides of the content area:
+  * 3-5 kelp strands per side, positioned just outside the content area (left: -70px and right: -70px from the content edges)
+  * Each strand is a narrow vertical stipe (6px wide) in brown tones (#3d2b1a to #503a25) with gentle multi-step swaying animation
+  * 3-6 green blade fronds per strand (20-40px wide, 8-16px tall, tapered rounded shapes), alternating sides, each with independent swaying animation
+  * Small round gas bladder (bulb) at the top of each strand in green tones
+  * Green/brown palette: stipes brown (#3d2b1a, #4a3520, #352818, #503a25), blades green (#2d5a2a, #3a6830, #2a4e22, #4a7040), bulbs lighter green
+  * Semi-transparent (opacity 0.5-0.8), with randomized animation timing
+
+Theme Selection:
+- "CHOOSE YOUR THEME" label
+- 5 theme cards in a horizontal grid (5 columns), each showing theme name and short description
+- Cards have gradient backgrounds matching their theme colors
+- Click to select (active state with border glow), then click "Begin" button to start
+- Begin button is disabled until a theme is selected
+
+Footer area with:
+- "About" button — opens an overlay modal with game description, how to play, interactions, auto mode, themes, and "Created by Coffee Czar ☕" byline
+- Mute button (🔊/🔇 emoji toggle) — controls splash screen ambient sound
+
+Splash ambient audio:
+- Starts on first user click/keydown (AudioContext gesture requirement)
+- Soft filtered noise (water presence, lpf 150Hz, hpf 30Hz, gain 0.15)
+- Tonal drone on C2 (65Hz) and G2 (97.5Hz) open fifth, sine waves with slow vibrato
+- Occasional gentle chime tones (C5, E5, G5, C6) every ~4 seconds at 40% probability
+- Stops when entering game, restarts when returning to splash (unless muted)
+
+Transition: splash fades out (opacity 0, slight scale up) over 1 second before showing game screen.
+
+=== GAME SCREEN ===
+
+Full-screen aquarium tank with layered visual elements (ordered by z-index):
+
+1. WATER EFFECTS SVG (z-index 1):
+   - Caustic light patterns: 12 semi-transparent ellipses scattered across upper 60% of tank, with shimmer animation (opacity cycles 0.04-0.12 over 4-8 seconds). Set initial CSS opacity to 0.06 to prevent flash-to-invisible.
+   - Light rays: 5 trapezoidal polygons from surface downward (70% tank height), opacity 0.05-0.12, with shimmer animation
+   - SVG defs include: caustics displacement filter (feTurbulence + feDisplacementMap), bubble radial gradient, light-ray linear gradient
+
+2. PARTICLES LAYER (z-index 2):
+   - 15 tiny floating particles (1-3px) representing dust/plankton
+   - Drift upward with subtle horizontal movement, themed colors
+   - CSS animation with custom properties (--dx, --dy)
+
+3. PLANTS LAYER (z-index 3):
+   - 8-14 aquatic plants anchored to tank bottom
+   - Each plant: 2-4 stems with curved paths (SVG quadratic beziers), 2-5 leaves per stem as stroke-only curved paths
+   - Plant colors from theme's plantColors array (8 colors per theme)
+   - Gentle swaying animation (±2° rotation, varying duration 3-7s)
+   - Ink theme: thinner, more delicate strokes (1-2.5px)
+
+4. FISH LAYER (z-index 5):
+   - SVG layer for all fish and easter egg creatures
+   - Fish are detailed SVG groups (see Fish section)
+
+5. FOOD LAYER (z-index 6):
+   - SVG layer for food flakes
+
+6. BUBBLES LAYER (z-index 7):
+   - Rising bubble circles with gradient fill
+   - Spawned periodically (every 0.5-2 seconds), with occasional clusters
+   - Rise from bottom to top over 4-8 seconds, removed after animation
+
+7. SURFACE RIPPLES (z-index 10):
+   - 6px tall strip at top with theme surface color
+   - Animated gradient overlay translating back and forth (8s cycle)
+
+8. TANK CLOUDINESS OVERLAY (z-index 12):
+   - Full-tank div with radial gradient (murky green-brown tones: rgba(120,115,80,0.6) center, rgba(70,80,60,0.3) edges)
+   - Opacity driven by tank health: starts at 0 when healthy, increases as health drops below 70
+   - Formula: cloudiness = max(0, (70 - tankHealth) / 70) * 0.7
+   - 2 second CSS transition on opacity for smooth changes
+   - Resets to 0 on restart
+
+9. VIGNETTE (z-index 15):
+   - Radial gradient from transparent center to rgba(0,0,0,0.4) edges
+
+10. GLASS REFLECTION (z-index 16):
+    - Subtle diagonal light reflection effect
+
+Tank background: CSS gradient using theme's --water-top, --water-mid, --water-bottom colors
+Tank bottom: pseudo-element (::after) with sand gradient colors
+
+=== HUD (Heads-Up Display) ===
+
+Fixed position bar at top of screen with semi-transparent dark background and subtle border:
+
+Left section:
+- Score display: "Score: {value}" with formatted numbers (commas)
+- Tank Health: "Tank Health" label with horizontal bar, color-coded (green > 60%, yellow 30-60%, red < 30%)
+
+Center section:
+- Status line: displays game messages with fade-in/fade-out transitions, queued processing (3 second display per message)
+
+Right section:
+- Fish Count: "{current}/{max}" — clickable to toggle a fish detail panel showing breakdown by species (colored dot + name + count)
+
+=== CONTROLS BAR ===
+
+Fixed bottom bar with control buttons, collapsible via a chevron toggle:
+
+Buttons (each with icon + label):
+- Feed (🍽 / cost display) — drops 4-8 food flakes
+- Clean (✨ / cost display) — resets cleanliness decay, +30 tank health
+- Buy Fish (🐟 / cost display) — opens fish shop modal
+- Pause/Resume (⏸/▶) — toggles game pause
+- Restart (🔄) — opens styled restart confirmation modal (not browser confirm())
+
+Additional controls:
+- Auto mode toggle: labeled checkbox "Auto" with custom styling
+- Volume slider: range input 0-100, controls master audio gain
+
+Chevron toggle (▲/▼):
+- Positioned just above the controls bar
+- Click to collapse/expand the controls bar
+- Controls bar slides down when collapsed
+
+=== MODALS ===
+
+Buy Fish Modal:
+- Grid of fish types (2 columns) for current theme
+- Each item shows: SVG preview of fish, name, cost
+- Disabled state if player can't afford it
+- Close button (×)
+
+Restart Confirmation Modal:
+- "Restart Zenquarium?" title
+- "This will end your current session" description
+- "Restart" (accent colored) and "Cancel" buttons
+- Click outside to dismiss
+- Styled to match game aesthetic (not browser confirm())
+
+=== FISH SYSTEM ===
+
+Fish Class with complete AI and rendering:
+
+Properties per fish:
+- Identity: id, type (from theme fishTypes), typeName
+- Appearance: bodyColor, finColor, accentColor, shape (standard/round/slim/tall), inkStyle flag, glowColor
+- Size: baseSize (from type definition), actual size (with ±15% variation), baby starts at 30%
+- Position: x, y within tank bounds
+- Movement: baseSpeed, current speed, vx, vy (velocity), facingRight, targetX, targetY
+- State: hunger (starts 50, max 100, decays at 1.5/s), health (starts 100), alive flag
+- Animation: tailPhase, bodyWave, finPhase, bubbleTimer, isBubbling
+- Behavior: aggression (from type), pursuingFood, pursuingPrey, dartCooldown
+
+SVG Construction (detailed, multi-element fish):
+Build order is CRITICAL, especially for ink theme:
+1. Shadow: dark ellipse below fish for depth
+2. Glow outline (optional, for dark themes with fishGlow: true): larger, softer ellipse with glowColor
+3. Tail fin: SVG path with bezier curves forming a V-shape, with rotation anchor point for animation
+4. Body: ellipse sized by shape type (standard: rx=20 ry=10, round: rx=16 ry=13, slim: rx=24 ry=7, tall: rx=14 ry=16), scaled by size * 40
+5. Sheen: small lighter ellipse on upper body for shine highlight — THIS MUST EXIST BEFORE INK STYLE BLOCK
+6. INK STYLE BLOCK (if inkStyle is true): calligraphic brush strokes on body outline, inner contour curves, belly line, sparse cross-hatching, stipple dots, spine line — all drawn with the fish's accentColor as stroke, no fill. Also adds a very subtle inkWash fill (rgba at 0.06 opacity)
+7. Dorsal fin: triangular path on top, with skew animation
+8. Pectoral fin: small fin on side, with rotation animation
+9. Eye: white circle with smaller dark pupil circle
+10. Mouth: subtle curved path
+
+Each fish type has unique colors. Ink theme fish have bodyColor 'none' and use accentColor for all strokes:
+- Each ink fish type has a different accent color (sepia #5c3a1a, navy #2a3a6a, forest #2a5a3a, rust #8a3a2a)
+
+Animation (in updateTransform, called every frame):
+- Translate to position, horizontal flip when facing left
+- Tail: ±10° rotation via sine wave (tailPhase)
+- Dorsal fin: ±3° skew
+- Pectoral fin: ±10° rotation at different frequency
+- Baby fish scale from 0.3 to 1.0 during growth
+
+Fish AI (update method, called each frame):
+
+1. Growth: babies grow at 0.02/s until growthProgress reaches 1.0
+2. Hunger decay: -1.5/s continuously
+3. Health: drops at -3/s when hunger < 15, recovers at +2/s when hunger > 60
+4. Death: if health ≤ 0, fish dies (alive = false)
+5. Random darting: 15% chance when picking new target, speed burst to 2.5-4x for 1.5-4s
+6. Aggression interactions (when not pursuing food/prey):
+   - Check all nearby fish within 150px
+   - If our aggression is 0.15+ higher → chase the less aggressive fish (territorial, 1.5x speed)
+   - If our aggression is 0.15+ lower → flee (1.8x speed, 200px away)
+   - Same aggression level → no interaction
+7. SEPARATION FORCE (prevents fish overlapping):
+   - For each nearby fish, if distance < minDist (sum of sizes * 25 + 15), apply repulsion force
+   - Force proportional to (minDist - distance) / minDist
+   - Applied as velocity adjustment: vx/vy += separationX/Y * 2.5 * dt * 60
+8. Food pursuit (when hunger < 70): find closest food within 400px, move toward it at 2x speed. Eat when within 20px (+30 hunger)
+9. Predation (when hunger < 20, size > 0.9, not baby): hunt smaller fish (< 70% of predator size) within 300px at 2.5x speed. Kill when within 15px (+50 hunger)
+10. Wandering: pick new random target every 1.5-4 seconds, ±150px from current position
+11. Movement: lerp velocity toward target direction (smoothing factor 0.1), apply velocity to position, clamp to tank bounds
+12. Direction: face direction of movement (never swim backwards)
+13. Mouth bubbles: every 8-25 seconds, fish stops (0.3x speed) and emits small rising bubble every 0.25s for 0.8-1.5s. Each bubble: SVG circle at mouth position, rises 120px, sways horizontally via sine wave, fades out over 1.5-3 seconds
+
+Fish Death Animation:
+- When removeFish is called, don't immediately remove the SVG element
+- Animate over 1500ms: fish flips over (rotates 180°), wobbles sideways (sine wave ±8px), floats upward (80px, eased), and fades out (opacity 1→0)
+- Remove SVG element after animation completes
+
+=== FOOD SYSTEM ===
+
+Food Module:
+- dropFood(count): creates food flakes at random position spread near center
+- Each flake: irregular polygon SVG (5-8 segments, varying radii), warm golden colors
+- Ink theme: no fill, stroke only in sepia
+- Fall animation: sinks at 15-30px/s with horizontal wobble (sine wave, amplitude 10-30px, freq 1-3Hz), continuous rotation
+- Settles on bottom (tankH - 70) and decays after 15 seconds
+- Eaten flag set by fish when consumed
+
+=== EASTER EGG CREATURES ===
+
+Creatures Module — occasional large visitors that swim across the tank:
+
+Spawn timing: first after 30-60 seconds, then every 45-90 seconds
+Enter from one side, swim across, exit the other side
+Removed when >180px offscreen
+
+Three creature types with theme-specific variants:
+
+JELLYFISH:
+- Large size (2.0-2.6 scale, multiplied by 40 for SVG)
+- Bell dome: mushroom-shaped path with scalloped rim (8 small semicircle bumps)
+- Interior radial pattern: 4 lines from center outward
+- 4 oral arms hanging from center (wavy paths)
+- 8 trailing tentacles of varying lengths (60-100% of size), gently waving with sine animation
+- Soft outer glow ellipse
+- Movement: slow bobbing (vertical sine wave ±20px), gradual horizontal drift
+
+OCTOPUS:
+- Size 2.0-2.2 scale
+- Bulbous mantle (rounded rect shape) with expressive eyes (white circles with highlights and dark pupils)
+- 8 curling arms with tapered tips and sucker dots along each arm
+- Movement: undulating horizontal motion, arms trail behind
+
+SQUID:
+- Size 1.8-2.8 scale
+- Torpedo-shaped mantle with swept-back triangular fins
+- 8 short arms clustered at front
+- 2 long feeding tentacles with club-shaped tips
+- Movement: fast darting with pauses
+
+Theme-specific creature definitions:
+- Koi: Moon Jelly (#f0c8c8), Firefly Squid (#e8c060)
+- Tropical: Blue Blubber jelly (#4090e0), Blue-Ring Octopus (#d09040)
+- Deep Ocean: Crystal Jelly (#a060e0, biggest glow), Giant Squid (#804020), Dumbo Octopus (#e08080)
+- Zen: Ghost Jelly (#c0c0b8), Glass Squid (#a0a090)
+- Ink: Ink Jelly (no fill, stroke only), Sketch Octopus (no fill, stroke only)
+
+Each creature has color, color2 (secondary), accent, and glow properties.
+
+Fish flee behavior: fish within 250px of a creature swim away quickly
+
+=== AUDIO SYSTEM (Web Audio API) ===
+
+ZenAudio Module — entirely synthesized, no audio files:
+
+Architecture:
+- AudioContext with node chain: oscillators/sources → filters → gain nodes → masterGain → destination
+- masterGain → ambientGain (0.8) for background music
+- masterGain → sfxGain (0.6) for sound effects
+- Default volume: 0.5
+
+Ambient Sound System (per theme):
+
+Water ambient (all themes):
+- Looping filtered noise buffer (4 seconds, white noise)
+- Low-pass filter (200Hz, Q=1) + high-pass filter (40Hz)
+- LFO modulating the LPF frequency at 0.1Hz with 30Hz depth
+- Gain: 0.4
+
+Tonal Pad (per theme):
+- 3 layered oscillators (sine + 2 triangle) playing chord intervals
+- Each with slow vibrato (0.03-0.07Hz, 1.5-2.5Hz depth)
+- Theme-specific chord intervals:
+  * Koi: Japanese pentatonic miyako-bushi [1, 1.125, 1.333, 1.5, 1.778] from C2 (65Hz)
+  * Tropical: Major with added 6th [1, 1.25, 1.5, 1.667, 2] from E2 (82Hz)
+  * Deep Ocean: Minor with b5 [1, 1.189, 1.414, 1.587, 1.888] from A1 (55Hz)
+  * Zen: Open fifths/fourths [1, 1.333, 1.5, 2, 2.667] from D2 (73Hz)
+  * Ink: Whole-tone scale [1, 1.122, 1.26, 1.414, 1.587] from D#2 (78Hz)
+- Gain: 0.18 / 0.10 / 0.06 for the three oscillators
+
+Periodic Melody Phrases (every 5-8 seconds, 70% probability):
+- Short melodic sequences (3-5 notes) from theme-specific note arrays
+- Each note: oscillator with envelope (attack 50ms, exponential decay)
+- Soft low-pass filter for warmth
+- Theme melodies:
+  * Koi: Pentatonic koto [262, 294, 330, 392, 440], sine, 1.5s decay, 0.4s interval
+  * Tropical: Steel drum arpeggio [330, 392, 494, 523, 659], triangle, 0.8s decay, 0.25s interval
+  * Deep Ocean: Sub-oceanic [65, 82, 98, 110, 131], sine, 3.5s decay, 0.9s interval, LPF 900Hz, volume 0.14
+  * Zen: Singing bowl [392, 523, 659, 784], sine, 3.0s decay, 1.2s interval, high Q filter
+  * Ink: Impressionist piano [330, 370, 415, 466, 523], sine, 1.8s decay, 0.35s interval
+
+Texture Sounds (every 3 seconds, 40% probability):
+- Koi: Wind chime (high sine tones 1318-2637Hz, 2s decay)
+- Tropical: Bird-like chirp (frequency sweep 1800-3000Hz up then down, 0.2s)
+- Deep Ocean: Layered sub-bass drone (33-55Hz, 5s) + whale sweep (70-140Hz with 2x harmonic, exponential frequency sweep up then back down, LPF 400-800Hz) + metallic resonance ping (triangle wave through bandpass filter, high Q)
+- Zen: Singing bowl harmonics (fundamental + 2.71x + 5.4x partials, 4s decay)
+- Ink: Piano hammer tone (triangle wave, sharp attack then fast initial decay then slow release, LPF 1800Hz)
+
+Sound Effects:
+- playPlop(): food drop — sine 400→80Hz sweep in 0.1s, gain 0.15
+- playBubble(): fish bubble — sine 600-1000→1200-1800Hz in 0.08s, highpass 800Hz, very soft (0.04)
+- playBirth(): baby born — ascending chime C5-E5-G5-C6, 0.12s apart, 0.6s decay each
+- playEaten(): predation — sine 150→40Hz in 0.15s, gain 0.12
+- playCleaning(): sparkle — 5 random high sine tones (2000-5000Hz), 0.08s apart, fast decay
+- playDrip(): water drip — sine 1200→300Hz through bandpass 600Hz, 0.3s
+- playTapGlass(intensity): glass tap — three layers:
+  1. Low thud: sine 180→60Hz, 0.2s, gain scaled by intensity
+  2. Glass ring: 3 high frequencies (2200, 3400, 4800Hz) through narrow bandpass (Q=15), 0.6-1.2s decay
+  3. Noise burst: 50ms white noise through highpass 1000Hz
+
+Splash screen ambient: separate system with its own node array and interval timer (separate from game ambient)
+
+=== THEMES ===
+
+5 themes, each defining: id, name, description, cssClass, cardBg, fishTypes (4 per theme), plantColors (8), bubbleColor, particleColor, hasSpecialParticles, and optional flags (fishGlow, inkTheme).
+
+CSS custom properties per theme applied to body class:
+--water-top, --water-bottom, --water-mid, --accent, --accent-glow, --text-primary, --text-secondary, --hud-bg, --hud-border, --btn-bg, --btn-hover, --sand, --sand-light, --plant-primary, --plant-secondary, --surface-color, --caustic-color
+
+THEME 1: Koi Garden (id: 'koi', class: 'theme-koi')
+- Colors: Warm blue waters (#1a3a5c → #0a1628), orange accent (#e8845c), warm sand (#2a1f14)
+- Fish: Orange Koi (1.2 size, orange), White Koi (1.3, cream), Red Koi (1.1, red, round), Goldfish (0.8, gold, round)
+- Plants: Lush greens (#2d5a3a through #6aad78)
+- Special particles: pink cherry blossom petals
+
+THEME 2: Tropical Reef (id: 'tropical', class: 'theme-tropical')
+- Colors: Vibrant blue (#0a4a6e → #061428), cyan accent (#00d4aa)
+- Fish: Clownfish (0.7, orange, round), Blue Tang (0.9, blue, slim), Angelfish (1.1, yellow, tall, high aggression), Neon Tetra (0.5, cyan, slim, fast)
+- Plants: Coral colors (reds, pinks, oranges, purples, greens)
+
+THEME 3: Deep Ocean (id: 'deep', class: 'theme-deep')
+- Colors: Very dark (#060d18 → #020810), light cyan accent (#4dc9f6)
+- Fish: Anglerfish (1.4, dark, round, high aggression, glowing), Jellyfish (0.9, purple, tall), Lanternfish (0.6, blue, slim, glowing), Glowfin (0.8, dark blue, glowing)
+- All fish have glowColor property and fishGlow: true (glow outline rendered behind fish)
+- Plants: Dark blue-greens (#1a3040 through #305868)
+- Special particles: bioluminescent glow dots
+
+THEME 4: Zen Garden (id: 'zen', class: 'theme-zen')
+- Colors: Dark minimalist (#1a1a1a → #0a0a08), burnt orange accent (#d4742c)
+- Fish: Golden Carp (1.0, orange-brown, glowing), Silver Minnow (0.6, gray, slim, fast), Ink Koi (1.2, nearly black, round, high aggression, glowing), Pearl Koi (1.1, cream, glowing)
+- fishGlow: true — all fish get subtle glow outlines for visibility on dark background
+- Plants: Dark earth tones (#2a2a20 through #4a4838)
+
+THEME 5: Pen & Ink (id: 'ink', class: 'theme-ink')
+- Colors: LIGHT theme — cream/beige background (#f5f0e8), dark text (#2a2a2a), paper texture
+- ALL CSS extensively overridden: light backgrounds, dark text, visible borders
+- Fish: ALL have bodyColor: 'none', finColor: 'none' — rendered as ink line drawings only
+  * Ink Koi: sepia accent (#5c3a1a), standard shape
+  * Sketch Angel: navy accent (#2a3a6a), tall shape
+  * Line Tetra: forest accent (#2a5a3a), slim shape, fast
+  * Doodle Puffer: rust accent (#8a3a2a), round shape
+- Each fish has inkWash property (very subtle rgba fill at 0.06 opacity)
+- inkTheme: true — affects plant rendering (thinner strokes), food rendering (no fill, stroke only)
+- Card background: dark (#2a2520 to #1a1815) — NOT light, so it's readable among other cards
+- Plants: Grays (#1a1a1a through #6a6a6a)
+- Extensive CSS overrides for: tank bg, sand, HUD, controls, buttons, modals, health bar, surface color, scroll thumb, etc.
+
+CRITICAL Pen & Ink notes:
+- The ink theme CSS class MUST be applied to document.body so all CSS overrides work
+- On restart, document.body.className must be reset to '' before showing splash
+- Fish rendering: sheen variable must be declared/created BEFORE the ink style block references it
+- Volume slider border should be visible (dark border on light background)
+
+=== TAP THE GLASS ===
+
+When player clicks the tank:
+1. Check if any fish are within scatter radius (150px base + fish.size * 30)
+2. If fish found: TAP THE GLASS
+   - Calculate crowd intensity: min(nearbyFish.length / 3, 2)
+   - Each nearby fish: calculate flee angle away from click + random ±0.3 radians
+   - Flee distance: 250-500px * (1 + crowdIntensity * 0.4)
+   - Burst speed: baseSpeed * 6-10x * (1 + crowdIntensity * 0.3)
+   - Set velocity directly for immediate response (vx, vy from flee angle)
+   - Dart cooldown 1-2 seconds
+   - Play glass tap sound with intensity scaling
+   - Visual ripple effect: expanding border circle at click position (80px + 15px per nearby fish)
+   - Second ripple ring after 100ms if 3+ fish nearby (1.4x larger)
+   - Stress system: tapStressAccum += 3 per tap, decays at 0.5/s
+   - If tapStressAccum > 10: tank health -2, stress warning message
+3. If no fish found: drop food at click position (if affordable)
+
+=== AUTO MODE ===
+
+Toggle via checkbox in controls. When enabled:
+- Auto-feed: every 3s check, if any fish hunger < 50 and can afford → drop 3-6 food flakes
+- Auto-clean: every 5s check, if tank health < 60 and can afford → clean tank
+- Auto-buy: every 8s check, if alive fish < 5 and total < 10 → buy random affordable fish type
+- Fish cap at 10 for both buying and reproduction when auto mode is on
+- Status messages indicate auto actions ("Auto: Added a {name} 🤖")
+
+=== REPRODUCTION ===
+
+When tank has 2+ healthy, well-fed adult fish of the same type:
+- Cooldown per fish type: 20-40 seconds after each birth
+- Conditions: average hunger > 65, average health > 70, tank health > 50
+- 2% chance per frame (when conditions met)
+- Baby spawns near parent, starts at 30% size, grows to adult
+- Max fish check: respects auto mode cap (10) or regular max (20)
+- Birth chime sound effect + celebration status message
+
+=== GAME LOOP ===
+
+requestAnimationFrame-based loop:
+1. Calculate delta time (capped at 0.1s)
+2. Update Tank environment (bubble spawning)
+3. Update Food (sinking, wobbling, decay)
+4. Update Creatures (spawning, movement, fish flee behavior)
+5. Update each Fish (AI, movement, eating, predation)
+6. Collect dead fish → animate death (flip, float, fade) → remove
+7. Collect eaten fish → remove with sound effect
+8. Check reproduction conditions
+9. Run auto mode logic (if enabled)
+10. Decay tap stress
+11. Calculate score: healthy fish (health > 50, not baby) × 0.5 per second
+12. Update tank health: 100 - cleanlinessDecay - (overcrowding penalty if > 12 fish)
+13. If tank health < 30: all fish lose health at 2/s
+14. Update cloudiness overlay opacity based on tank health
+15. Update all UI elements (score, health bar, fish count, button states, fish detail panel)
+
+=== GAME STATE ===
+
+Initial state:
+- score: 100
+- tankHealth: 100
+- cleanlinessDecay: 0 (increases at 0.3/s)
+- maxFish: 20
+- feedCost: 5
+- cleanCost: 10
+- buyCost: 20
+- scoreRate: 0.5 (per healthy fish per second)
+- Starts with 2 fish (first two types from selected theme)
+
+=== RESTART FLOW ===
+
+1. Click restart → show styled confirmation modal
+2. If confirmed (doRestart):
+   - Cancel animation frame
+   - Remove all fish SVG elements, clear fish array
+   - Clear food and creatures
+   - Reset all state values to initial
+   - Reset auto mode toggle checkbox
+   - Reset controls bar visibility (un-collapse)
+   - Reset cloudiness overlay to opacity 0
+   - Stop ambient audio
+   - Reset document.body.className to '' (critical for ink theme cleanup)
+   - Show splash screen
+   - If not muted, restart splash ambient audio
+
+=== RESPONSIVE DESIGN ===
+
+- Media queries at 768px and 480px breakpoints
+- Theme card grid adjusts columns (3 on medium, 2 on small)
+- Font sizes scale down on smaller screens
+- Controls adapt to smaller screens
+
+=== CRITICAL IMPLEMENTATION NOTES ===
+
+1. VARIABLE DECLARATION ORDER: In the Fish createSVG method, the `sheen` SVG element MUST be created and assigned to a variable BEFORE the ink style block that references it. If ink style code runs before sheen exists, the Pen & Ink theme will crash.
+
+2. THEME CLEANUP: When restarting from any theme (especially Pen & Ink), document.body.className MUST be set to '' before showing the splash screen. Otherwise, theme-specific CSS will affect splash screen rendering (causing dim overlays on cards, wrong colors, etc.)
+
+3. CONTROLS BINDING: Use a `controlsBound` boolean flag to prevent re-binding event listeners on restart. Controls should only be bound once.
+
+4. SPLASH AUDIO LIFECYCLE: Splash ambient uses separate node arrays from game ambient. Must stop splash ambient when entering game. Must restart when returning to splash (unless muted). Check mute button text content ('🔇') to determine muted state.
+
+5. AUDIO CONTEXT: Requires user gesture to start. Use one-time click/keydown listener to initialize. Call ensureCtx() before any audio operation.
+
+6. GLOW OUTLINES: For themes with fishGlow: true (Deep Ocean, Zen Garden), render a larger, softer ellipse behind each fish using the fish's glowColor. This makes dark fish visible on dark backgrounds.
+
+7. CAUSTIC OPACITY: Set initial CSS opacity 0.06 on caustic elements. The animation should cycle between 0.04 and 0.12. Without initial opacity, caustics flash visible then immediately disappear.
+
+8. FOOD IN INK THEME: Check document.body.classList.contains('theme-ink') when creating food flakes. Ink theme food should have no fill, only stroke in sepia (#5c3a1a).
+
+9. DEATH ANIMATION: Use requestAnimationFrame for the death animation, not CSS transitions, since fish are SVG elements with transform attributes. The animation should complete (1.5 seconds) before removing the SVG element from the DOM.
+
+10. SEPARATION FORCE: Must be calculated AFTER aggression logic but BEFORE food pursuit. The minDist calculation uses both fish sizes to prevent large fish from overlapping small fish.
+
+=== ABOUT OVERLAY CONTENT ===
+
+Title: "Zenquarium"
+
+Sections with h3 headings:
+- Description: "...a meditative aquarium experience — a living, breathing digital fishtank designed to bring a moment of calm to your screen..."
+- How to Play: Tamagotchi-style care — feed, clean, buy fish. Healthy fish generate value. Neglect causes starvation and predation.
+- Interactions: Click tank to drop food. Control bar for all actions. Click fish counter for species breakdown. Tap glass near fish to scatter them (but stress warning).
+- Auto Mode: Toggle for self-managing aquarium, maintains 5-20 fish population.
+- Themes: Five distinct environments with unique fish, plants, colors, and soundscapes.
+- Why Zenquarium?: "Created as a digital retreat — something beautiful to leave running on a second monitor..."
+
+Byline: "Created by Coffee Czar ☕" (styled as centered, muted text with coffee emoji)
+
+Close button at bottom of overlay.
+
+=== FILE STRUCTURE ===
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a1628">
+    <meta name="description" content="Zenquarium - A meditative aquarium experience">
+    <title>Zenquarium</title>
+    <style>
+        /* ~1,200 lines of CSS */
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <!-- About Overlay -->
+    <!-- Game Screen with Tank, HUD, Controls, Modals -->
+    <script>
+        /* ~3,500 lines of JavaScript */
+    </script>
+</body>
+</html>
