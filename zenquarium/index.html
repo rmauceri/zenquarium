@@ -1,0 +1,4754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a1628">
+    <meta name="description" content="Zenquarium - A meditative aquarium experience">
+    <title>Zenquarium</title>
+    <style>
+/* ============================================
+   ZENQUARIUM - Premium Aquarium PWA Styles
+   ============================================ */
+
+:root {
+    /* Default theme (Koi Garden) */
+    --water-top: #1a3a5c;
+    --water-bottom: #0a1628;
+    --water-mid: #12294a;
+    --accent: #e8845c;
+    --accent-glow: rgba(232, 132, 92, 0.3);
+    --text-primary: #e8dcc8;
+    --text-secondary: rgba(232, 220, 200, 0.6);
+    --hud-bg: rgba(10, 22, 40, 0.85);
+    --hud-border: rgba(232, 220, 200, 0.15);
+    --btn-bg: rgba(10, 22, 40, 0.9);
+    --btn-hover: rgba(30, 50, 80, 0.9);
+    --sand: #2a1f14;
+    --sand-light: #3d2e1f;
+    --plant-primary: #2d5a3a;
+    --plant-secondary: #1a3d28;
+    --surface-color: rgba(255, 255, 255, 0.08);
+    --caustic-color: rgba(255, 255, 255, 0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text-primary);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ============================================
+   SPLASH SCREEN
+   ============================================ */
+
+.splash-screen {
+    position: fixed; inset: 0;
+    background: linear-gradient(180deg, #0d1b2a 0%, #1b2838 40%, #0a1628 100%);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+    transition: opacity 1s ease, transform 1s ease;
+}
+
+.splash-screen.fade-out {
+    opacity: 0;
+    transform: scale(1.05);
+    pointer-events: none;
+}
+
+.splash-content {
+    text-align: center;
+    max-width: 700px;
+    padding: 40px;
+    position: relative;
+}
+
+.splash-title h1 {
+    font-size: 4rem;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #e8dcc8 0%, #c9a96e 50%, #e8dcc8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleShimmer 4s ease-in-out infinite;
+    margin-bottom: 8px;
+}
+
+@keyframes titleShimmer {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
+}
+
+.splash-subtitle {
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    color: var(--text-secondary);
+    margin-bottom: 48px;
+}
+
+.splash-bubbles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.splash-bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.3), rgba(255,255,255,0.05));
+    animation: splashBubbleRise linear infinite;
+}
+
+@keyframes splashBubbleRise {
+    0% { transform: translateY(100%) scale(0.5); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.3; }
+    100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+}
+
+/* Splash screen kelp */
+.splash-seaweed {
+    position: absolute;
+    bottom: 0;
+    width: 100px;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 0;
+}
+
+.splash-seaweed-left {
+    left: -70px;
+}
+
+.splash-seaweed-right {
+    right: -70px;
+}
+
+.kelp-stipe {
+    position: absolute;
+    bottom: 0;
+    width: 6px;
+    border-radius: 3px 3px 0 0;
+    transform-origin: bottom center;
+    animation: kelpSway ease-in-out infinite alternate;
+}
+
+@keyframes kelpSway {
+    0% { transform: rotate(-3deg) translateX(-2px); }
+    25% { transform: rotate(1deg) translateX(1px); }
+    50% { transform: rotate(-2deg) translateX(-1px); }
+    75% { transform: rotate(2deg) translateX(2px); }
+    100% { transform: rotate(-1deg) translateX(-1px); }
+}
+
+.kelp-blade {
+    position: absolute;
+    border-radius: 60% 40% 50% 50% / 50%;
+    transform-origin: bottom center;
+    animation: bladeSway ease-in-out infinite alternate;
+}
+
+.kelp-blade.left-blade {
+    transform-origin: bottom right;
+}
+
+.kelp-blade.right-blade {
+    transform-origin: bottom left;
+}
+
+@keyframes bladeSway {
+    0% { transform: rotate(-12deg) scaleY(1); }
+    30% { transform: rotate(4deg) scaleY(0.97); }
+    60% { transform: rotate(-6deg) scaleY(1.02); }
+    100% { transform: rotate(8deg) scaleY(0.98); }
+}
+
+.kelp-bulb {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transform-origin: bottom center;
+}
+
+.theme-selection h2 {
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.theme-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.theme-card {
+    position: relative;
+    padding: 20px 12px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.theme-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 12px;
+    opacity: 0.8;
+    z-index: 0;
+}
+
+.theme-card > * { position: relative; z-index: 1; }
+
+.theme-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.theme-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.theme-card-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+}
+
+.theme-card-desc {
+    font-size: 0.65rem;
+    opacity: 0.7;
+    line-height: 1.4;
+}
+
+.start-btn {
+    padding: 14px 48px;
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent), #c9a96e);
+    color: #0a1628;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.4;
+}
+
+.start-btn:not(:disabled) {
+    opacity: 1;
+}
+
+.start-btn:not(:disabled):hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.splash-footer {
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.about-btn {
+    background: transparent;
+    border: 1px solid rgba(232, 220, 200, 0.2);
+    border-radius: 20px;
+    color: var(--text-secondary);
+    padding: 8px 24px;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.about-btn:hover {
+    border-color: rgba(232, 220, 200, 0.4);
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.05);
+}
+
+.splash-mute-btn {
+    background: transparent;
+    border: 1px solid rgba(232, 220, 200, 0.2);
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+}
+
+.splash-mute-btn:hover {
+    border-color: rgba(232, 220, 200, 0.4);
+    background: rgba(255,255,255,0.05);
+}
+
+.about-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1100;
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.about-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.about-content {
+    background: linear-gradient(180deg, #1a2a3a 0%, #0d1b2a 100%);
+    border: 1px solid rgba(232, 220, 200, 0.15);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 560px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: #e8dcc8;
+}
+
+.about-content h2 {
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 1.3rem;
+}
+
+.about-content h3 {
+    font-weight: 400;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c9a96e;
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+
+.about-content p {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    font-weight: 300;
+    color: rgba(232, 220, 200, 0.8);
+    margin-bottom: 12px;
+}
+
+.about-close {
+    display: block;
+    margin: 24px auto 0;
+    padding: 10px 32px;
+    background: transparent;
+    border: 1px solid rgba(232, 220, 200, 0.2);
+    border-radius: 20px;
+    color: #e8dcc8;
+    cursor: pointer;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    transition: all 0.2s ease;
+}
+
+.about-close:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(232, 220, 200, 0.4);
+}
+
+.about-byline {
+    text-align: center;
+    font-style: italic;
+    color: rgba(232, 220, 200, 0.5) !important;
+    margin-top: 20px !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 0.05em;
+}
+
+/* Tap the glass ripple */
+.tap-ripple {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+    pointer-events: none;
+    z-index: 12;
+    animation: tapRippleExpand 0.6s ease-out forwards;
+}
+
+@keyframes tapRippleExpand {
+    0% { transform: scale(0); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
+/* ============================================
+   GAME SCREEN & TANK
+   ============================================ */
+
+.game-screen {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+}
+
+.hidden { display: none !important; }
+
+.tank {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--water-top) 0%, var(--water-mid) 50%, var(--water-bottom) 100%);
+    transition: background 1.5s ease;
+}
+
+/* Sand bottom */
+.tank::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(180deg, transparent 0%, var(--sand) 40%, var(--sand-light) 100%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Water surface */
+.surface-ripples {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: var(--surface-color);
+    z-index: 10;
+    overflow: hidden;
+}
+
+.surface-ripples::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.1) 20%,
+        transparent 40%,
+        rgba(255,255,255,0.08) 60%,
+        transparent 80%
+    );
+    animation: surfaceRipple 8s ease-in-out infinite;
+}
+
+@keyframes surfaceRipple {
+    0%, 100% { transform: translateX(-20%); }
+    50% { transform: translateX(20%); }
+}
+
+/* Vignette */
+.vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%);
+    pointer-events: none;
+    z-index: 15;
+}
+
+/* Tank cloudiness overlay */
+.tank-cloudiness {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 60%,
+        rgba(120, 115, 80, 0.6) 0%,
+        rgba(90, 95, 70, 0.4) 40%,
+        rgba(70, 80, 60, 0.3) 100%);
+    pointer-events: none;
+    z-index: 12;
+    opacity: 0;
+    transition: opacity 2s ease;
+}
+
+/* Glass reflection */
+.glass-reflection {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg,
+        rgba(255,255,255,0.03) 0%,
+        transparent 30%,
+        transparent 70%,
+        rgba(255,255,255,0.02) 100%
+    );
+    pointer-events: none;
+    z-index: 16;
+}
+
+/* SVG Layers */
+.water-effects, .plants-layer, .fish-layer, .food-layer, .bubbles-layer {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+}
+
+.water-effects { z-index: 1; }
+.plants-layer { z-index: 3; }
+.fish-layer { z-index: 5; }
+.food-layer { z-index: 6; }
+.bubbles-layer { z-index: 8; }
+.particles-layer {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Caustic light animation */
+.caustic-cell {
+    opacity: 0.06;
+    animation: causticShimmer 6s ease-in-out infinite alternate;
+}
+
+@keyframes causticShimmer {
+    0% { opacity: 0.04; }
+    50% { opacity: 0.12; }
+    100% { opacity: 0.06; }
+}
+
+/* ============================================
+   HUD
+   ============================================ */
+
+.hud {
+    position: absolute;
+    top: 12px; left: 12px; right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.hud-left, .hud-center, .hud-right {
+    display: flex; align-items: center; gap: 16px;
+}
+
+.hud-item {
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+}
+
+.hud-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    display: block;
+}
+
+.hud-value {
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+}
+
+.health-bar {
+    width: 120px; height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.health-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #4ade80, #22c55e);
+    border-radius: 3px;
+    transition: width 0.5s ease, background 0.5s ease;
+}
+
+.health-fill.warning { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+.health-fill.danger { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+.status-line {
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-size: 0.75rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    backdrop-filter: blur(10px);
+    min-width: 250px;
+    text-align: center;
+    transition: opacity 0.3s ease;
+}
+
+/* Fish count detail */
+.fish-detail-panel {
+    position: absolute;
+    top: 55px; right: 12px;
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    backdrop-filter: blur(10px);
+    z-index: 21;
+    min-width: 150px;
+}
+
+.fish-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    font-size: 0.75rem;
+}
+
+.fish-detail-row .fish-type-color {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+/* ============================================
+   CONTROLS
+   ============================================ */
+
+.controls {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: 12px;
+    padding: 8px 16px;
+    backdrop-filter: blur(10px);
+    z-index: 20;
+}
+
+.ctrl-btn {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 2px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.ctrl-btn:hover {
+    background: var(--btn-hover);
+    border-color: var(--hud-border);
+}
+
+.ctrl-btn:active { transform: scale(0.95); }
+
+.ctrl-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.ctrl-icon { font-size: 1.3rem; }
+.ctrl-label { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.ctrl-cost {
+    font-size: 0.55rem;
+    color: #f59e0b;
+    position: absolute;
+    top: 2px; right: 4px;
+}
+
+.ctrl-separator {
+    width: 1px; height: 36px;
+    background: var(--hud-border);
+    margin: 0 4px;
+}
+
+.volume-control {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 8px;
+}
+
+.auto-control {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 8px;
+    cursor: pointer;
+}
+
+.auto-control input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 32px; height: 16px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    outline: none;
+}
+
+.auto-control input[type="checkbox"]::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    transition: transform 0.3s ease;
+}
+
+.auto-control input[type="checkbox"]:checked {
+    background: var(--accent);
+}
+
+.auto-control input[type="checkbox"]:checked::after {
+    transform: translateX(16px);
+}
+
+.auto-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+}
+
+.theme-ink .auto-control input[type="checkbox"] {
+    background: rgba(42, 42, 42, 0.2);
+}
+
+.volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    outline: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    cursor: pointer;
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+
+.modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: linear-gradient(180deg, #1a2a3a 0%, #0d1b2a 100%);
+    border: 1px solid var(--hud-border);
+    border-radius: 16px;
+    padding: 32px;
+    min-width: 500px;
+    max-width: 600px;
+}
+
+.modal-content h2 {
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.fish-shop {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.shop-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--hud-border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.shop-item:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: var(--accent);
+}
+
+.shop-item:disabled, .shop-item.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.shop-fish-preview {
+    width: 48px; height: 32px;
+}
+
+.shop-fish-info {
+    flex: 1;
+}
+
+.shop-fish-name {
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+.shop-fish-cost {
+    font-size: 0.7rem;
+    color: #f59e0b;
+}
+
+.modal-close {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 32px;
+    background: transparent;
+    border: 1px solid var(--hud-border);
+    border-radius: 20px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: var(--btn-hover);
+}
+
+/* Restart Confirmation Modal */
+.restart-modal-content {
+    background: linear-gradient(180deg, #1a2a3a 0%, #0d1b2a 100%);
+    border: 1px solid var(--hud-border);
+    border-radius: 16px;
+    padding: 32px 40px;
+    text-align: center;
+    min-width: 320px;
+    max-width: 400px;
+}
+
+.restart-modal-content h3 {
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0 0 12px 0;
+    font-size: 1.1rem;
+}
+
+.restart-modal-content p {
+    margin: 0 0 24px 0;
+    opacity: 0.7;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.restart-modal-btns {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.restart-modal-btns button {
+    padding: 10px 28px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.restart-btn-confirm {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #fca5a5;
+}
+
+.restart-btn-confirm:hover {
+    background: rgba(239, 68, 68, 0.35);
+}
+
+.restart-btn-cancel {
+    background: transparent;
+    border: 1px solid var(--hud-border);
+    color: var(--text-primary);
+}
+
+.restart-btn-cancel:hover {
+    background: var(--btn-hover);
+}
+
+/* Controls Chevron Toggle */
+.controls-chevron {
+    position: absolute;
+    bottom: 68px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 18px;
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 21;
+    backdrop-filter: blur(10px);
+    transition: bottom 0.3s ease;
+    color: var(--text-primary);
+    font-size: 0.65rem;
+    opacity: 0.7;
+}
+
+.controls-chevron:hover {
+    opacity: 1;
+}
+
+.controls.collapsed {
+    transform: translateX(-50%) translateY(calc(100% + 20px));
+    opacity: 0;
+    pointer-events: none;
+}
+
+.controls.collapsed + .controls-chevron,
+.controls-chevron.collapsed {
+    bottom: 4px;
+}
+
+.controls {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.controls-chevron .chevron-icon {
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.controls-chevron.collapsed .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.theme-ink .restart-modal-content {
+    background: linear-gradient(180deg, #f5f0e8 0%, #ede6d8 100%);
+    border-color: #baa88a;
+    color: #2a2a2a;
+}
+
+.theme-ink .restart-btn-confirm {
+    background: rgba(180, 60, 40, 0.15);
+    border-color: rgba(180, 60, 40, 0.5);
+    color: #8a3a2a;
+}
+
+.theme-ink .restart-btn-cancel {
+    color: #2a2a2a;
+    border-color: #baa88a;
+}
+
+/* ============================================
+   FISH SVG ANIMATIONS
+   ============================================ */
+
+.fish-group {
+    transition: transform 0.05s linear;
+}
+
+.fish-body-path {
+    transition: fill 0.5s ease;
+}
+
+.fish-fin {
+    transform-origin: center;
+}
+
+.fish-tail {
+}
+
+.fish-dorsal-fin {
+}
+
+/* Easter egg creatures */
+.creature-group {
+    transition: transform 0.1s linear;
+}
+
+.creature-group .tentacle {
+    animation: tentacleWave 2s ease-in-out infinite alternate;
+}
+
+.creature-group .tentacle:nth-child(odd) {
+    animation-delay: -0.5s;
+}
+
+@keyframes tentacleWave {
+    0% { transform: rotate(-3deg) translateX(-1px); }
+    100% { transform: rotate(3deg) translateX(1px); }
+}
+
+.fish-pectoral-fin {
+}
+
+/* Bubble animations */
+.bubble {
+    animation: bubbleRise linear forwards;
+}
+
+@keyframes bubbleRise {
+    0% { transform: translateY(0) scale(0.7); opacity: 0.6; }
+    50% { opacity: 0.4; }
+    100% { transform: translateY(-100vh) scale(1.2); opacity: 0; }
+}
+
+/* Food - animated via JS */
+.food-flake {
+}
+
+/* Plant sway */
+.plant-group {
+    transform-origin: bottom center;
+}
+
+/* Particle float */
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    animation: particleFloat linear infinite;
+}
+
+@keyframes particleFloat {
+    0% { transform: translate(0, 0); opacity: 0; }
+    10% { opacity: 0.5; }
+    90% { opacity: 0.3; }
+    100% { transform: translate(var(--dx), var(--dy)); opacity: 0; }
+}
+
+/* ============================================
+   THEME OVERRIDES
+   ============================================ */
+
+/* Koi Garden */
+.theme-koi {
+    --water-top: #1a3a5c;
+    --water-bottom: #0a1628;
+    --water-mid: #12294a;
+    --accent: #e8845c;
+    --sand: #2a1f14;
+    --sand-light: #3d2e1f;
+    --plant-primary: #2d5a3a;
+    --plant-secondary: #1a3d28;
+}
+
+/* Tropical Reef */
+.theme-tropical {
+    --water-top: #0a4a6e;
+    --water-bottom: #061a2e;
+    --water-mid: #083858;
+    --accent: #00d4aa;
+    --accent-glow: rgba(0, 212, 170, 0.3);
+    --sand: #3a2a18;
+    --sand-light: #4d3a24;
+    --plant-primary: #e04060;
+    --plant-secondary: #c03050;
+}
+
+/* Deep Ocean */
+.theme-deep {
+    --water-top: #060d18;
+    --water-bottom: #020508;
+    --water-mid: #040a14;
+    --accent: #4dc9f6;
+    --accent-glow: rgba(77, 201, 246, 0.3);
+    --sand: #0a0f18;
+    --sand-light: #121824;
+    --plant-primary: #1a3040;
+    --plant-secondary: #0d1a28;
+    --caustic-color: rgba(77, 201, 246, 0.07);
+}
+
+/* Zen Garden */
+.theme-zen {
+    --water-top: #1a1a1a;
+    --water-bottom: #0a0a0a;
+    --water-mid: #141414;
+    --accent: #d4742c;
+    --accent-glow: rgba(212, 116, 44, 0.3);
+    --text-primary: #d4cec4;
+    --sand: #1a1810;
+    --sand-light: #24221a;
+    --plant-primary: #2a2a20;
+    --plant-secondary: #1a1a14;
+    --caustic-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Pen and Ink */
+.theme-ink {
+    --water-top: #f5f0e8;
+    --water-bottom: #e8e0d4;
+    --water-mid: #ede5da;
+    --accent: #2a2a2a;
+    --accent-glow: rgba(42, 42, 42, 0.3);
+    --text-primary: #1a1a1a;
+    --text-secondary: rgba(42, 42, 42, 0.6);
+    --hud-bg: rgba(245, 240, 232, 0.9);
+    --hud-border: rgba(42, 42, 42, 0.15);
+    --btn-bg: rgba(245, 240, 232, 0.9);
+    --btn-hover: rgba(220, 215, 205, 0.9);
+    --sand: #d4cec4;
+    --sand-light: #ddd7cd;
+    --plant-primary: #3a3a3a;
+    --plant-secondary: #5a5a5a;
+    --surface-color: rgba(0, 0, 0, 0.03);
+    --caustic-color: rgba(0, 0, 0, 0.04);
+}
+
+.theme-ink .tank {
+    background: linear-gradient(180deg, var(--water-top), var(--water-mid), var(--water-bottom));
+}
+
+.theme-ink .vignette {
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(200, 190, 175, 0.4) 100%);
+}
+
+.theme-ink .hud,
+.theme-ink .controls {
+    color: #2a2a2a;
+}
+
+.theme-ink .ctrl-btn {
+    border-color: rgba(42, 42, 42, 0.3);
+    color: #2a2a2a;
+}
+
+.theme-ink .ctrl-btn:hover {
+    background: rgba(42, 42, 42, 0.1);
+}
+
+.theme-ink .tank {
+    background: linear-gradient(180deg, #f5f0e8, #ede5da, #e8e0d4) !important;
+}
+
+.theme-ink .sand-bottom {
+    background: linear-gradient(180deg, transparent, #d4cec4) !important;
+}
+
+.theme-ink .modal-content {
+    background: linear-gradient(180deg, #f5f0e8, #e8e0d4);
+    color: #1a1a1a;
+}
+
+.theme-ink .shop-item {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(42, 42, 42, 0.15);
+}
+
+.theme-ink .shop-item:hover {
+    background: rgba(0,0,0,0.08);
+}
+
+.theme-ink .status-line {
+    color: #2a2a2a;
+}
+
+.theme-ink .volume-slider {
+    background: rgba(42, 42, 42, 0.25);
+}
+
+.theme-ink .volume-slider::-webkit-slider-thumb {
+    background: #2a2a2a;
+}
+
+.theme-ink .volume-slider::-moz-range-thumb {
+    background: #2a2a2a;
+}
+
+.theme-ink .volume-slider::-moz-range-track {
+    background: rgba(42, 42, 42, 0.25);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .splash-title h1 { font-size: 2.5rem; }
+    .theme-cards { grid-template-columns: repeat(2, 1fr); }
+    .modal-content { min-width: auto; margin: 16px; }
+    .controls { flex-wrap: wrap; }
+}
+
+@media (max-width: 480px) {
+    .splash-title h1 { font-size: 2rem; letter-spacing: 0.15em; }
+    .theme-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .hud { flex-direction: column; gap: 8px; }
+}
+
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-title">
+                <h1>Zenquarium</h1>
+                <p class="splash-subtitle">A meditative aquarium experience</p>
+            </div>
+            <div class="splash-bubbles" id="splash-bubbles"></div>
+            <div class="splash-seaweed splash-seaweed-left" id="splash-seaweed-left"></div>
+            <div class="splash-seaweed splash-seaweed-right" id="splash-seaweed-right"></div>
+            <div class="theme-selection">
+                <h2>Choose Your Theme</h2>
+                <div class="theme-cards" id="theme-cards"></div>
+            </div>
+            <button class="start-btn" id="start-btn" disabled>Begin</button>
+            <div class="splash-footer">
+                <button class="about-btn" id="about-btn">About</button>
+                <button class="splash-mute-btn" id="splash-mute-btn" title="Toggle Sound">🔊</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Overlay -->
+    <div id="about-overlay" class="about-overlay">
+        <div class="about-content">
+            <h2>Zenquarium</h2>
+            <p>Zenquarium is a meditative aquarium experience — a living, breathing digital fishtank designed to bring a moment of calm to your screen. Watch beautiful fish swim, feed, and interact in a lovingly crafted underwater world.</p>
+            
+            <h3>How to Play</h3>
+            <p>Choose a theme and tend to your aquarium Tamagotchi-style. Feed your fish, keep the tank clean, and buy new species to build a thriving ecosystem. Healthy, well-fed fish generate value over time which you spend on food and cleaning. Neglect your tank and fish will grow hungry — big fish may even eat smaller ones.</p>
+
+            <h3>Interactions</h3>
+            <p><strong>Click the tank</strong> to drop food. Use the control bar to feed, clean, buy fish, pause, or restart. Click the fish counter to see a breakdown by species. Tap the glass near fish to watch them scatter — but don't do it too often or it stresses them out!</p>
+            
+            <h3>Auto Mode</h3>
+            <p>Toggle Auto mode in the control bar to let the aquarium manage itself. The game will feed, clean, and maintain a healthy population of 5–20 fish automatically. Perfect for when you just want to sit back and enjoy the view.</p>
+
+            <h3>Themes</h3>
+            <p>Five distinct environments, each with unique fish, plants, colors, and ambient soundscapes: the warm tones of <strong>Koi Garden</strong>, vibrant <strong>Tropical Reef</strong>, mysterious <strong>Deep Ocean</strong>, minimalist <strong>Zen Garden</strong>, and the artistic <strong>Pen &amp; Ink</strong>.</p>
+
+            <h3>Why Zenquarium?</h3>
+            <p>Created as a digital retreat — something beautiful to leave running on a second monitor, a desk companion that asks for just a little care in return. No ads, no accounts, no pressure. Just fish, water, and a quiet moment.</p>
+
+            <p class="about-byline">Created by Coffee Czar ☕</p>
+
+            <button class="about-close" id="about-close">Close</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="game-screen hidden">
+        <!-- Tank Container -->
+        <div id="tank" class="tank">
+            <!-- Water effects layer -->
+            <svg id="water-effects" class="water-effects" preserveAspectRatio="none">
+                <defs>
+                    <filter id="caustics-filter">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" seed="1" result="noise"/>
+                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+                    </filter>
+                    <radialGradient id="bubble-gradient" cx="35%" cy="35%">
+                        <stop offset="0%" stop-color="rgba(255,255,255,0.6)"/>
+                        <stop offset="100%" stop-color="rgba(255,255,255,0.1)"/>
+                    </radialGradient>
+                    <linearGradient id="light-ray" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+                        <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+                    </linearGradient>
+                </defs>
+                <!-- Caustic light patterns -->
+                <g id="caustics-layer"></g>
+                <!-- Light rays from surface -->
+                <g id="light-rays"></g>
+            </svg>
+
+            <!-- Background particles -->
+            <div id="particles-layer" class="particles-layer"></div>
+
+            <!-- Plants layer -->
+            <svg id="plants-layer" class="plants-layer" preserveAspectRatio="none"></svg>
+
+            <!-- Fish layer -->
+            <svg id="fish-layer" class="fish-layer" preserveAspectRatio="none"></svg>
+
+            <!-- Food layer -->
+            <svg id="food-layer" class="food-layer" preserveAspectRatio="none"></svg>
+
+            <!-- Bubbles layer -->
+            <svg id="bubbles-layer" class="bubbles-layer" preserveAspectRatio="none"></svg>
+
+            <!-- Surface ripples -->
+            <div id="surface-ripples" class="surface-ripples"></div>
+
+            <!-- Tank cloudiness overlay -->
+            <div id="tank-cloudiness" class="tank-cloudiness"></div>
+
+            <!-- Vignette overlay -->
+            <div class="vignette"></div>
+
+            <!-- Tank glass reflection -->
+            <div class="glass-reflection"></div>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" class="hud">
+            <div class="hud-left">
+                <div class="hud-item" id="score-display">
+                    <span class="hud-label">Value</span>
+                    <span class="hud-value" id="score-value">100</span>
+                </div>
+                <div class="hud-item" id="health-display">
+                    <span class="hud-label">Tank Health</span>
+                    <div class="health-bar">
+                        <div class="health-fill" id="health-fill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="hud-center">
+                <div class="status-line" id="status-line">Welcome to Zenquarium</div>
+            </div>
+            <div class="hud-right">
+                <div class="hud-item" id="fish-count-display">
+                    <span class="hud-label">Fish</span>
+                    <span class="hud-value" id="fish-count-value">0/20</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fish Count Detail Panel -->
+        <div id="fish-detail-panel" class="fish-detail-panel hidden">
+            <div id="fish-detail-list"></div>
+        </div>
+
+        <!-- Controls -->
+        <div id="controls" class="controls">
+            <button class="ctrl-btn" id="btn-feed" title="Feed Fish">
+                <span class="ctrl-icon"></span>
+                <span class="ctrl-label">Feed</span>
+                <span class="ctrl-cost" id="feed-cost">-5</span>
+            </button>
+            <button class="ctrl-btn" id="btn-clean" title="Clean Tank">
+                <span class="ctrl-icon"></span>
+                <span class="ctrl-label">Clean</span>
+                <span class="ctrl-cost" id="clean-cost">-10</span>
+            </button>
+            <button class="ctrl-btn" id="btn-buy" title="Buy Fish">
+                <span class="ctrl-icon"></span>
+                <span class="ctrl-label">Buy Fish</span>
+                <span class="ctrl-cost" id="buy-cost">-20</span>
+            </button>
+            <div class="ctrl-separator"></div>
+            <button class="ctrl-btn" id="btn-pause" title="Pause">
+                <span class="ctrl-icon"></span>
+                <span class="ctrl-label">Pause</span>
+            </button>
+            <button class="ctrl-btn" id="btn-restart" title="Restart">
+                <span class="ctrl-icon"></span>
+                <span class="ctrl-label">Restart</span>
+            </button>
+            <div class="ctrl-separator"></div>
+            <label class="auto-control" title="Auto Mode">
+                <input type="checkbox" id="auto-toggle">
+                <span class="auto-label">Auto</span>
+            </label>
+            <div class="ctrl-separator"></div>
+            <div class="volume-control">
+                <span class="ctrl-icon"></span>
+                <input type="range" id="volume-slider" min="0" max="100" value="50" class="volume-slider">
+            </div>
+        </div>
+
+        <!-- Controls Chevron Toggle -->
+        <div id="controls-chevron" class="controls-chevron" title="Toggle Controls">
+            <span class="chevron-icon">▲</span>
+        </div>
+
+        <!-- Buy Fish Modal -->
+        <div id="buy-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Buy Fish</h2>
+                <div id="fish-shop" class="fish-shop"></div>
+                <button class="modal-close" id="modal-close">Close</button>
+            </div>
+        </div>
+
+        <!-- Restart Confirmation Modal -->
+        <div id="restart-modal" class="modal hidden">
+            <div class="restart-modal-content">
+                <h3>Restart?</h3>
+                <p>All progress will be lost. Your fish, score, and tank state will be reset.</p>
+                <div class="restart-modal-btns">
+                    <button class="restart-btn-confirm" id="restart-confirm">Restart</button>
+                    <button class="restart-btn-cancel" id="restart-cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+/* ============================================
+   ZENQUARIUM - Utility Functions
+   ============================================ */
+
+const Utils = {
+    // Random number in range
+    rand(min, max) {
+        return Math.random() * (max - min) + min;
+    },
+
+    randInt(min, max) {
+        return Math.floor(this.rand(min, max + 1));
+    },
+
+    // Clamp value
+    clamp(val, min, max) {
+        return Math.max(min, Math.min(max, val));
+    },
+
+    // Lerp
+    lerp(a, b, t) {
+        return a + (b - a) * t;
+    },
+
+    // Distance between two points
+    dist(x1, y1, x2, y2) {
+        return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    },
+
+    // Easing functions
+    easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+    },
+
+    easeOutCubic(t) {
+        return 1 - (1 - t) ** 3;
+    },
+
+    easeInOutQuad(t) {
+        return t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+    },
+
+    // Create SVG element with attributes
+    svgEl(tag, attrs = {}) {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (const [k, v] of Object.entries(attrs)) {
+            el.setAttribute(k, v);
+        }
+        return el;
+    },
+
+    // Create HTML element
+    htmlEl(tag, className, text) {
+        const el = document.createElement(tag);
+        if (className) el.className = className;
+        if (text) el.textContent = text;
+        return el;
+    },
+
+    // Pick random from array
+    pick(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    },
+
+    // Weighted random pick
+    weightedPick(items, weights) {
+        const total = weights.reduce((a, b) => a + b, 0);
+        let r = Math.random() * total;
+        for (let i = 0; i < items.length; i++) {
+            r -= weights[i];
+            if (r <= 0) return items[i];
+        }
+        return items[items.length - 1];
+    },
+
+    // Color helpers
+    hexToRgb(hex) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return { r, g, b };
+    },
+
+    rgbToHex(r, g, b) {
+        return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+    },
+
+    // Lighten/darken color
+    adjustColor(hex, amount) {
+        const { r, g, b } = this.hexToRgb(hex);
+        return this.rgbToHex(
+            this.clamp(r + amount, 0, 255),
+            this.clamp(g + amount, 0, 255),
+            this.clamp(b + amount, 0, 255)
+        );
+    },
+
+    // Generate unique ID
+    uid() {
+        return '_' + Math.random().toString(36).slice(2, 9);
+    },
+
+    // Debounce
+    debounce(fn, ms) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn(...args), ms);
+        };
+    },
+
+    // Format number with commas
+    formatNum(n) {
+        return Math.round(n).toLocaleString();
+    },
+
+    // Angle between two points (radians)
+    angle(x1, y1, x2, y2) {
+        return Math.atan2(y2 - y1, x2 - x1);
+    },
+
+    // Smooth step
+    smoothstep(edge0, edge1, x) {
+        const t = this.clamp((x - edge0) / (edge1 - edge0), 0, 1);
+        return t * t * (3 - 2 * t);
+    }
+};
+
+
+/* ============================================
+   ZENQUARIUM - Audio System (Web Audio API)
+   ============================================ */
+
+const ZenAudio = (() => {
+    let ctx = null;
+    let masterGain = null;
+    let ambientGain = null;
+    let sfxGain = null;
+    let volume = 0.5;
+    let ambientNodes = [];
+    let isPlaying = false;
+
+    function init() {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = ctx.createGain();
+        masterGain.gain.value = volume;
+        masterGain.connect(ctx.destination);
+
+        ambientGain = ctx.createGain();
+        ambientGain.gain.value = 0.8;
+        ambientGain.connect(masterGain);
+
+        sfxGain = ctx.createGain();
+        sfxGain.gain.value = 0.6;
+        sfxGain.connect(masterGain);
+    }
+
+    function ensureCtx() {
+        if (!ctx) init();
+        if (ctx.state === 'suspended') ctx.resume();
+    }
+
+    // Create filtered noise for water sounds
+    function createNoise(duration) {
+        const bufferSize = ctx.sampleRate * duration;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+        return buffer;
+    }
+
+    // Gentle water ambience
+    function startWaterAmbient() {
+        const noise = ctx.createBufferSource();
+        noise.buffer = createNoise(4);
+        noise.loop = true;
+
+        const lpf = ctx.createBiquadFilter();
+        lpf.type = 'lowpass';
+        lpf.frequency.value = 200;
+        lpf.Q.value = 1;
+
+        const hpf = ctx.createBiquadFilter();
+        hpf.type = 'highpass';
+        hpf.frequency.value = 40;
+
+        const gain = ctx.createGain();
+        gain.gain.value = 0.4;
+
+        // Subtle modulation
+        const lfo = ctx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.1;
+        const lfoGain = ctx.createGain();
+        lfoGain.gain.value = 30;
+        lfo.connect(lfoGain);
+        lfoGain.connect(lpf.frequency);
+        lfo.start();
+
+        noise.connect(hpf);
+        hpf.connect(lpf);
+        lpf.connect(gain);
+        gain.connect(ambientGain);
+        noise.start();
+
+        ambientNodes.push(noise, lfo);
+    }
+
+    // Gentle tonal pad with theme-specific character
+    function startTonalPad(baseFreq = 65, themeId = 'koi') {
+        // Each theme gets a distinct musical flavor
+        const themeChords = {
+            // Koi: Japanese pentatonic (miyako-bushi) - warm, contemplative
+            koi: [1, 1.125, 1.333, 1.5, 1.778],
+            // Tropical: Major with added 6th - bright, island feel
+            tropical: [1, 1.25, 1.5, 1.667, 2],
+            // Deep: Minor with b5 - mysterious, dark
+            deep: [1, 1.189, 1.414, 1.587, 1.888],
+            // Zen: Open fifths/fourths - sparse, meditative
+            zen: [1, 1.333, 1.5, 2, 2.667],
+            // Ink: Whole-tone scale - impressionistic, floating
+            ink: [1, 1.122, 1.26, 1.414, 1.587]
+        };
+
+        const intervals = themeChords[themeId] || themeChords.koi;
+
+        // Create 3 layered oscillators from the chord
+        const oscCount = 3;
+        for (let i = 0; i < oscCount; i++) {
+            const osc = ctx.createOscillator();
+            osc.type = i === 0 ? 'sine' : 'triangle';
+            osc.frequency.value = baseFreq * intervals[i];
+
+            const gain = ctx.createGain();
+            gain.gain.value = i === 0 ? 0.18 : (i === 1 ? 0.10 : 0.06);
+
+            // Slow evolving vibrato
+            const vibrato = ctx.createOscillator();
+            vibrato.type = 'sine';
+            vibrato.frequency.value = 0.03 + i * 0.02;
+            const vibGain = ctx.createGain();
+            vibGain.gain.value = 1.5 + i * 0.5;
+            vibrato.connect(vibGain);
+            vibGain.connect(osc.frequency);
+
+            osc.connect(gain);
+            gain.connect(ambientGain);
+            osc.start();
+            vibrato.start();
+
+            ambientNodes.push(osc, vibrato);
+        }
+    }
+
+    // Theme-specific melodic patterns that play periodically
+    function playThemeMelody(themeId) {
+        if (!ctx || !isPlaying) return;
+
+        const melodies = {
+            // Koi: Pentatonic koto-like plucks (C D E G A)
+            koi: { notes: [262, 294, 330, 392, 440, 392, 330, 294], type: 'sine', decay: 1.5, vol: 0.07, interval: 0.4 },
+            // Tropical: Steel drum / marimba arpeggios (C E G B C')
+            tropical: { notes: [330, 392, 494, 523, 659, 523, 494, 392], type: 'triangle', decay: 0.8, vol: 0.06, interval: 0.25 },
+            // Deep: Sub-oceanic resonance — very low, long sustain
+            deep: { notes: [65, 82, 98, 110, 131, 110, 82, 65], type: 'sine', decay: 3.5, vol: 0.14, interval: 0.9 },
+            // Zen: Singing bowl tones - resonant, sparse
+            zen: { notes: [392, 523, 659, 784], type: 'sine', decay: 3.0, vol: 0.06, interval: 1.2 },
+            // Ink: Piano-like impressionist phrases (whole-tone scale)
+            ink: { notes: [330, 370, 415, 466, 523, 466, 370, 330], type: 'sine', decay: 1.8, vol: 0.06, interval: 0.35 }
+        };
+
+        const m = melodies[themeId] || melodies.koi;
+        const noteCount = Utils.randInt(3, Math.min(5, m.notes.length));
+        const startIdx = Utils.randInt(0, m.notes.length - noteCount);
+
+        for (let i = 0; i < noteCount; i++) {
+            const freq = m.notes[startIdx + i];
+            const t = ctx.currentTime + i * m.interval;
+
+            const osc = ctx.createOscillator();
+            osc.type = m.type;
+            osc.frequency.value = freq;
+
+            // Add subtle pitch drift for organic feel
+            osc.frequency.setValueAtTime(freq, t);
+            osc.frequency.linearRampToValueAtTime(freq * (1 + Utils.rand(-0.003, 0.003)), t + m.decay * 0.5);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(m.vol, t + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + m.decay);
+
+            // Soft filter for warmth
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = themeId === 'deep' ? 900 : (themeId === 'zen' ? 2000 : 1400);
+            filter.Q.value = themeId === 'zen' ? 4 : 1;
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ambientGain);
+            osc.start(t);
+            osc.stop(t + m.decay);
+        }
+    }
+
+    // Theme-specific ambient texture sounds
+    function playThemeTexture(themeId) {
+        if (!ctx || !isPlaying) return;
+
+        if (themeId === 'koi') {
+            // Wind chime / bamboo clack
+            const notes = [1318, 1568, 2093, 2637];
+            const note = Utils.pick(notes);
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.value = note;
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2);
+            osc.connect(gain);
+            gain.connect(ambientGain);
+            osc.start();
+            osc.stop(ctx.currentTime + 2);
+        } else if (themeId === 'tropical') {
+            // Distant bird-like chirp
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            const f0 = Utils.rand(1800, 3000);
+            osc.frequency.setValueAtTime(f0, ctx.currentTime);
+            osc.frequency.linearRampToValueAtTime(f0 * 1.3, ctx.currentTime + 0.06);
+            osc.frequency.linearRampToValueAtTime(f0 * 0.9, ctx.currentTime + 0.12);
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+            osc.connect(gain);
+            gain.connect(ambientGain);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.2);
+        } else if (themeId === 'deep') {
+            // Deep ocean: layered sub-bass drone + whale sweep + metallic resonance
+            const t = ctx.currentTime;
+
+            // Sub-bass drone — very deep, long sustain
+            const subOsc = ctx.createOscillator();
+            subOsc.type = 'sine';
+            const subFreq = Utils.pick([33, 41, 49, 55]);
+            subOsc.frequency.setValueAtTime(subFreq, t);
+            subOsc.frequency.linearRampToValueAtTime(subFreq * Utils.rand(0.95, 1.05), t + 4);
+            const subGain = ctx.createGain();
+            subGain.gain.setValueAtTime(0, t);
+            subGain.gain.linearRampToValueAtTime(0.18, t + 0.8);
+            subGain.gain.linearRampToValueAtTime(0.12, t + 3);
+            subGain.gain.exponentialRampToValueAtTime(0.001, t + 5);
+            subOsc.connect(subGain);
+            subGain.connect(ambientGain);
+            subOsc.start(t);
+            subOsc.stop(t + 5);
+
+            // Whale-like sweep with harmonic overtone
+            const whaleF = Utils.rand(70, 140);
+            [1, 2.02].forEach((partial, pi) => {
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(whaleF * partial, t + 0.2);
+                osc.frequency.exponentialRampToValueAtTime(whaleF * partial * Utils.rand(2, 3.5), t + 1.8);
+                osc.frequency.exponentialRampToValueAtTime(whaleF * partial * 0.6, t + 4);
+                const gain = ctx.createGain();
+                const vol = pi === 0 ? 0.14 : 0.07;
+                gain.gain.setValueAtTime(0, t + 0.2);
+                gain.gain.linearRampToValueAtTime(vol, t + 0.6);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 4);
+                const lpf = ctx.createBiquadFilter();
+                lpf.type = 'lowpass';
+                lpf.frequency.value = pi === 0 ? 400 : 800;
+                lpf.Q.value = 1.5;
+                osc.connect(lpf);
+                lpf.connect(gain);
+                gain.connect(ambientGain);
+                osc.start(t + 0.2);
+                osc.stop(t + 4);
+            });
+
+            // Metallic deep resonance ping
+            const pingF = Utils.pick([65, 82, 98]);
+            const pingOsc = ctx.createOscillator();
+            pingOsc.type = 'triangle';
+            pingOsc.frequency.value = pingF;
+            const pingGain = ctx.createGain();
+            pingGain.gain.setValueAtTime(0, t + 0.8);
+            pingGain.gain.linearRampToValueAtTime(0.08, t + 0.85);
+            pingGain.gain.exponentialRampToValueAtTime(0.001, t + 4.5);
+            const pingFilter = ctx.createBiquadFilter();
+            pingFilter.type = 'bandpass';
+            pingFilter.frequency.value = pingF * 3;
+            pingFilter.Q.value = 6;
+            pingOsc.connect(pingFilter);
+            pingFilter.connect(pingGain);
+            pingGain.connect(ambientGain);
+            pingOsc.start(t + 0.8);
+            pingOsc.stop(t + 4.5);
+        } else if (themeId === 'zen') {
+            // Singing bowl resonance
+            const fundamentals = [262, 330, 392, 523];
+            const f0 = Utils.pick(fundamentals);
+            const partials = [1, 2.71, 5.4];
+            partials.forEach((p, idx) => {
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = f0 * p;
+                const gain = ctx.createGain();
+                const vol = 0.06 / (idx + 1);
+                gain.gain.setValueAtTime(0, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 4);
+                osc.connect(gain);
+                gain.connect(ambientGain);
+                osc.start();
+                osc.stop(ctx.currentTime + 4);
+            });
+        } else if (themeId === 'ink') {
+            // Soft piano-like tone with gentle hammer feel
+            const notes = [262, 294, 330, 370, 415, 466, 523];
+            const f0 = Utils.pick(notes);
+            const osc = ctx.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.value = f0;
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.07, ctx.currentTime + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.035, ctx.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 1800;
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ambientGain);
+            osc.start();
+            osc.stop(ctx.currentTime + 2.5);
+        }
+    }
+
+    // Occasional water drip
+    function playDrip() {
+        ensureCtx();
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1200, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.15);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 600;
+        filter.Q.value = 2;
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(sfxGain);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+    }
+
+    // Feeding plop sound
+    function playPlop() {
+        ensureCtx();
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.1);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+
+        osc.connect(gain);
+        gain.connect(sfxGain);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.2);
+    }
+
+    // Baby fish born - gentle chime
+    function playBirth() {
+        ensureCtx();
+        const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+        notes.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            const gain = ctx.createGain();
+            const t = ctx.currentTime + i * 0.12;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.1, t + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+            osc.frequency.value = freq;
+            osc.connect(gain);
+            gain.connect(sfxGain);
+            osc.start(t);
+            osc.stop(t + 0.6);
+        });
+    }
+
+    // Fish eaten - low thud
+    function playEaten() {
+        ensureCtx();
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.15);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+
+        osc.connect(gain);
+        gain.connect(sfxGain);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.25);
+    }
+
+    // Cleaning sparkle sound
+    function playCleaning() {
+        ensureCtx();
+        for (let i = 0; i < 5; i++) {
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            const t = ctx.currentTime + i * 0.08;
+            osc.frequency.value = Utils.rand(2000, 5000);
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.05, t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+            osc.connect(gain);
+            gain.connect(sfxGain);
+            osc.start(t);
+            osc.stop(t + 0.15);
+        }
+    }
+
+    // Fish bubble sound - soft ascending pop
+    function playBubble() {
+        ensureCtx();
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600 + Math.random() * 400, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200 + Math.random() * 600, ctx.currentTime + 0.08);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.04, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 800;
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(sfxGain);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.12);
+    }
+
+    // Glass tap sound — resonant thud with glass ring
+    function playTapGlass(intensity = 1) {
+        ensureCtx();
+        const t = ctx.currentTime;
+
+        // Low thud (knuckle on glass)
+        const thud = ctx.createOscillator();
+        thud.type = 'sine';
+        thud.frequency.setValueAtTime(180, t);
+        thud.frequency.exponentialRampToValueAtTime(60, t + 0.15);
+        const thudGain = ctx.createGain();
+        thudGain.gain.setValueAtTime(0.15 * intensity, t);
+        thudGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+        thud.connect(thudGain);
+        thudGain.connect(sfxGain);
+        thud.start(t);
+        thud.stop(t + 0.2);
+
+        // Glass ring (high resonant harmonics)
+        const ringFreqs = [2200, 3400, 4800];
+        ringFreqs.forEach((f, i) => {
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.value = f + Utils.rand(-50, 50);
+            const gain = ctx.createGain();
+            const vol = (0.04 - i * 0.01) * intensity;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(vol, t + 0.005);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6 + i * 0.2);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = f;
+            filter.Q.value = 15;
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(sfxGain);
+            osc.start(t);
+            osc.stop(t + 0.8 + i * 0.2);
+        });
+
+        // Noise burst (impact texture)
+        const noiseLen = 0.05;
+        const buf = ctx.createBuffer(1, ctx.sampleRate * noiseLen, ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.5;
+        const noiseSrc = ctx.createBufferSource();
+        noiseSrc.buffer = buf;
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.08 * intensity, t);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+        const hpf = ctx.createBiquadFilter();
+        hpf.type = 'highpass';
+        hpf.frequency.value = 1000;
+        noiseSrc.connect(hpf);
+        hpf.connect(noiseGain);
+        noiseGain.connect(sfxGain);
+        noiseSrc.start(t);
+        noiseSrc.stop(t + noiseLen);
+    }
+
+    // Wind chime (occasional, barely perceptible)
+    function playWindChime() {
+        ensureCtx();
+        const chimeNotes = [1318, 1568, 2093, 2637]; // E6, G6, C7, E7
+        const note = Utils.pick(chimeNotes);
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = note;
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2);
+
+        osc.connect(gain);
+        gain.connect(ambientGain);
+        osc.start();
+        osc.stop(ctx.currentTime + 2);
+    }
+
+    function startAmbient(themeId) {
+        ensureCtx();
+        stopAmbient();
+
+        const baseFreqs = {
+            koi: 65,       // C2 - warm
+            tropical: 82,  // E2 - bright
+            deep: 55,      // A1 - mysterious
+            zen: 73,       // D2 - calm
+            ink: 78        // D#2 - impressionistic
+        };
+
+        startWaterAmbient();
+        startTonalPad(baseFreqs[themeId] || 65, themeId);
+        isPlaying = true;
+        currentThemeId = themeId;
+
+        // Schedule periodic ambient sounds
+        scheduleAmbientSounds(themeId);
+    }
+
+    let ambientInterval = null;
+    let melodyInterval = null;
+    let currentThemeId = 'koi';
+
+    function scheduleAmbientSounds(themeId) {
+        if (ambientInterval) clearInterval(ambientInterval);
+        if (melodyInterval) clearInterval(melodyInterval);
+
+        // Theme-specific texture sounds (drips, chimes, chirps, etc.)
+        ambientInterval = setInterval(() => {
+            if (!isPlaying) return;
+            if (Math.random() < 0.35) playDrip();
+            if (Math.random() < 0.4) playThemeTexture(themeId);
+        }, 3000);
+
+        // Musical melody phrases at shorter intervals for more prominence
+        const melodyRate = themeId === 'zen' ? 8000 : (themeId === 'deep' ? 7000 : 5000);
+        melodyInterval = setInterval(() => {
+            if (!isPlaying) return;
+            if (Math.random() < 0.7) playThemeMelody(themeId);
+        }, melodyRate);
+    }
+
+    function stopAmbient() {
+        ambientNodes.forEach(n => { try { n.stop(); } catch(e) {} });
+        ambientNodes = [];
+        isPlaying = false;
+        if (ambientInterval) {
+            clearInterval(ambientInterval);
+            ambientInterval = null;
+        }
+        if (melodyInterval) {
+            clearInterval(melodyInterval);
+            melodyInterval = null;
+        }
+    }
+
+    function setVolume(v) {
+        volume = Utils.clamp(v, 0, 1);
+        if (masterGain) {
+            masterGain.gain.setTargetAtTime(volume, ctx.currentTime, 0.1);
+        }
+    }
+
+    function getVolume() { return volume; }
+
+    function pause() {
+        if (ctx && ctx.state === 'running') ctx.suspend();
+    }
+
+    function resume() {
+        if (ctx && ctx.state === 'suspended') ctx.resume();
+    }
+
+    // Splash screen gentle ambient sound
+    let splashNodes = [];
+    let splashInterval = null;
+    let splashPlaying = false;
+
+    function startSplashAmbient() {
+        ensureCtx();
+        stopSplashAmbient();
+        splashPlaying = true;
+
+        // Soft filtered noise — gentle water presence
+        const noise = ctx.createBufferSource();
+        noise.buffer = createNoise(4);
+        noise.loop = true;
+        const lpf = ctx.createBiquadFilter();
+        lpf.type = 'lowpass';
+        lpf.frequency.value = 150;
+        const hpf = ctx.createBiquadFilter();
+        hpf.type = 'highpass';
+        hpf.frequency.value = 30;
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.value = 0.15;
+        noise.connect(hpf);
+        hpf.connect(lpf);
+        lpf.connect(noiseGain);
+        noiseGain.connect(masterGain);
+        noise.start();
+        splashNodes.push(noise);
+
+        // Soft tonal drone — zen-like pad
+        const droneFreqs = [65, 97.5]; // C2 and G2 — open fifth
+        droneFreqs.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            const vibrato = ctx.createOscillator();
+            vibrato.type = 'sine';
+            vibrato.frequency.value = 0.04;
+            const vibGain = ctx.createGain();
+            vibGain.gain.value = 1;
+            vibrato.connect(vibGain);
+            vibGain.connect(osc.frequency);
+            const gain = ctx.createGain();
+            gain.gain.value = i === 0 ? 0.08 : 0.04;
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start();
+            vibrato.start();
+            splashNodes.push(osc, vibrato);
+        });
+
+        // Occasional gentle chime/bell tones
+        splashInterval = setInterval(() => {
+            if (!splashPlaying || !ctx) return;
+            if (Math.random() < 0.4) {
+                const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+                const f = Utils.pick(notes);
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = f;
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.025, ctx.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3);
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc.start();
+                osc.stop(ctx.currentTime + 3);
+            }
+        }, 4000);
+    }
+
+    function stopSplashAmbient() {
+        splashNodes.forEach(n => { try { n.stop(); } catch(e) {} });
+        splashNodes = [];
+        splashPlaying = false;
+        if (splashInterval) {
+            clearInterval(splashInterval);
+            splashInterval = null;
+        }
+    }
+
+    return {
+        init, startAmbient, stopAmbient, setVolume, getVolume,
+        startSplashAmbient, stopSplashAmbient,
+        playPlop, playBirth, playEaten, playCleaning, playDrip, playBubble, playTapGlass,
+        pause, resume, ensureCtx
+    };
+})();
+
+
+/* ============================================
+   ZENQUARIUM - Theme Definitions
+   ============================================ */
+
+const Themes = (() => {
+
+    const themes = {
+        koi: {
+            id: 'koi',
+            name: 'Koi Garden',
+            description: 'Cherry blossoms & warm sunset',
+            cssClass: 'theme-koi',
+            cardBg: 'linear-gradient(135deg, #1a3a5c, #2a1f14)',
+            fishTypes: [
+                { id: 'koi-orange', name: 'Orange Koi', bodyColor: '#e8845c', finColor: '#d4742c', accentColor: '#fff5e6', cost: 20, size: 1.2, speed: 0.7, shape: 'standard', aggression: 0.3 },
+                { id: 'koi-white', name: 'White Koi', bodyColor: '#f0e6d4', finColor: '#d4c8b0', accentColor: '#ffffff', cost: 25, size: 1.3, speed: 0.6, shape: 'standard', aggression: 0.2 },
+                { id: 'koi-red', name: 'Red Koi', bodyColor: '#c94040', finColor: '#a03030', accentColor: '#f0d0d0', cost: 30, size: 1.1, speed: 0.8, shape: 'round', aggression: 0.5 },
+                { id: 'goldfish', name: 'Goldfish', bodyColor: '#f0a830', finColor: '#d4901c', accentColor: '#fff0c0', cost: 15, size: 0.8, speed: 1.0, shape: 'round', aggression: 0.2 },
+            ],
+            plantColors: ['#2d5a3a', '#3a7048', '#1a3d28', '#4a8858', '#5c9a6a', '#3d8050', '#1e4830', '#6aad78'],
+            bubbleColor: 'rgba(255,255,255,0.15)',
+            particleColor: 'rgba(255, 220, 180, 0.06)',
+            // Cherry blossom petals
+            hasSpecialParticles: true,
+            specialParticle: { color: '#f0c0c0', shape: 'petal' }
+        },
+
+        tropical: {
+            id: 'tropical',
+            name: 'Tropical Reef',
+            description: 'Vibrant coral & tropical fish',
+            cssClass: 'theme-tropical',
+            cardBg: 'linear-gradient(135deg, #0a4a6e, #3a2a18)',
+            fishTypes: [
+                { id: 'clown', name: 'Clownfish', bodyColor: '#f08030', finColor: '#e06820', accentColor: '#ffffff', cost: 20, size: 0.7, speed: 1.2, shape: 'round', aggression: 0.4 },
+                { id: 'tang', name: 'Blue Tang', bodyColor: '#2080d0', finColor: '#1060a0', accentColor: '#f0e040', cost: 25, size: 0.9, speed: 1.0, shape: 'slim', aggression: 0.6 },
+                { id: 'angel', name: 'Angelfish', bodyColor: '#f0d040', finColor: '#d0b030', accentColor: '#303030', cost: 30, size: 1.1, speed: 0.8, shape: 'tall', aggression: 0.7 },
+                { id: 'neon', name: 'Neon Tetra', bodyColor: '#30c0f0', finColor: '#2090c0', accentColor: '#e04040', cost: 10, size: 0.5, speed: 1.5, shape: 'slim', aggression: 0.1 },
+            ],
+            plantColors: ['#e04060', '#f06080', '#d03050', '#c02040', '#ff8040', '#e8a020', '#d050d0', '#50d0a0'],
+            bubbleColor: 'rgba(100,220,255,0.15)',
+            particleColor: 'rgba(100, 220, 255, 0.04)',
+            hasSpecialParticles: false
+        },
+
+        deep: {
+            id: 'deep',
+            name: 'Deep Ocean',
+            description: 'Bioluminescent mysteries',
+            cssClass: 'theme-deep',
+            cardBg: 'linear-gradient(135deg, #060d18, #0a0f18)',
+            fishTypes: [
+                { id: 'angler', name: 'Anglerfish', bodyColor: '#3a5070', finColor: '#2a3858', accentColor: '#00ffcc', cost: 30, size: 1.4, speed: 0.5, shape: 'round', aggression: 0.9, glowColor: 'rgba(0,255,204,0.2)' },
+                { id: 'jelly', name: 'Jellyfish', bodyColor: '#9050e8', finColor: '#7040c0', accentColor: '#e0a0ff', cost: 20, size: 0.9, speed: 0.4, shape: 'tall', aggression: 0.1, glowColor: 'rgba(224,160,255,0.2)' },
+                { id: 'lantern', name: 'Lanternfish', bodyColor: '#2878a8', finColor: '#1a5880', accentColor: '#80ff80', cost: 15, size: 0.6, speed: 1.1, shape: 'slim', aggression: 0.3, glowColor: 'rgba(128,255,128,0.2)' },
+                { id: 'biolum', name: 'Glowfin', bodyColor: '#305878', finColor: '#204060', accentColor: '#60d4ff', cost: 25, size: 0.8, speed: 0.9, shape: 'standard', aggression: 0.4, glowColor: 'rgba(96,212,255,0.2)' },
+            ],
+            plantColors: ['#1a3040', '#203848', '#0d1a28', '#284050', '#1a4858', '#0a2838', '#305868', '#183848'],
+            bubbleColor: 'rgba(77,201,246,0.1)',
+            particleColor: 'rgba(77, 201, 246, 0.03)',
+            hasSpecialParticles: true,
+            specialParticle: { color: '#4dc9f6', shape: 'glow' },
+            fishGlow: true
+        },
+
+        zen: {
+            id: 'zen',
+            name: 'Zen Garden',
+            description: 'Minimalist tranquility',
+            cssClass: 'theme-zen',
+            cardBg: 'linear-gradient(135deg, #1a1a1a, #1a1810)',
+            fishTypes: [
+                { id: 'zen-gold', name: 'Golden Carp', bodyColor: '#d4742c', finColor: '#b05820', accentColor: '#f0d8a0', cost: 25, size: 1.0, speed: 0.6, shape: 'standard', aggression: 0.3, glowColor: 'rgba(240,216,160,0.12)' },
+                { id: 'zen-silver', name: 'Silver Minnow', bodyColor: '#909898', finColor: '#707878', accentColor: '#c0c8c8', cost: 15, size: 0.6, speed: 1.2, shape: 'slim', aggression: 0.2, glowColor: 'rgba(192,200,200,0.1)' },
+                { id: 'zen-black', name: 'Ink Koi', bodyColor: '#282828', finColor: '#1a1a1a', accentColor: '#505050', cost: 30, size: 1.2, speed: 0.5, shape: 'round', aggression: 0.6, glowColor: 'rgba(120,120,120,0.18)' },
+                { id: 'zen-white', name: 'Pearl Koi', bodyColor: '#e8e0d0', finColor: '#d0c8b8', accentColor: '#ffffff', cost: 20, size: 1.1, speed: 0.7, shape: 'standard', aggression: 0.2, glowColor: 'rgba(255,255,255,0.1)' },
+            ],
+            plantColors: ['#2a2a20', '#343428', '#1a1a14', '#3a3a30', '#3d3a28', '#282818', '#4a4838', '#2e3020'],
+            bubbleColor: 'rgba(255,255,255,0.08)',
+            particleColor: 'rgba(255, 255, 255, 0.03)',
+            hasSpecialParticles: false,
+            fishGlow: true
+        },
+
+        ink: {
+            id: 'ink',
+            name: 'Pen & Ink',
+            description: 'Elegant line drawings',
+            cssClass: 'theme-ink',
+            cardBg: 'linear-gradient(135deg, #2a2520, #1a1815)',
+            fishTypes: [
+                { id: 'ink-koi', name: 'Ink Koi', bodyColor: 'none', finColor: 'none', accentColor: '#5c3a1a', cost: 20, size: 1.1, speed: 0.7, shape: 'standard', aggression: 0.3, inkStyle: true, inkWash: 'rgba(92,58,26,0.06)' },
+                { id: 'ink-angel', name: 'Sketch Angel', bodyColor: 'none', finColor: 'none', accentColor: '#2a3a6a', cost: 25, size: 1.0, speed: 0.8, shape: 'tall', aggression: 0.5, inkStyle: true, inkWash: 'rgba(42,58,106,0.06)' },
+                { id: 'ink-tetra', name: 'Line Tetra', bodyColor: 'none', finColor: 'none', accentColor: '#2a5a3a', cost: 15, size: 0.6, speed: 1.3, shape: 'slim', aggression: 0.1, inkStyle: true, inkWash: 'rgba(42,90,58,0.06)' },
+                { id: 'ink-puffer', name: 'Doodle Puffer', bodyColor: 'none', finColor: 'none', accentColor: '#8a3a2a', cost: 30, size: 0.9, speed: 0.5, shape: 'round', aggression: 0.4, inkStyle: true, inkWash: 'rgba(138,58,42,0.06)' },
+            ],
+            plantColors: ['#3a3a3a', '#4a4a4a', '#2a2a2a', '#5a5a5a', '#6a6a6a', '#1a1a1a'],
+            bubbleColor: 'rgba(42,42,42,0.12)',
+            particleColor: 'rgba(42, 42, 42, 0.04)',
+            hasSpecialParticles: false,
+            inkTheme: true
+        }
+    };
+
+    function getTheme(id) {
+        return themes[id] || themes.koi;
+    }
+
+    function getAllThemes() {
+        return Object.values(themes);
+    }
+
+    function applyTheme(id) {
+        const theme = getTheme(id);
+        document.body.className = theme.cssClass;
+        return theme;
+    }
+
+    return { getTheme, getAllThemes, applyTheme };
+})();
+
+
+/* ============================================
+   ZENQUARIUM - Fish System
+   ============================================ */
+
+class Fish {
+    constructor(typeInfo, tankW, tankH, isBaby = false) {
+        this.id = Utils.uid();
+        this.type = typeInfo.id;
+        this.typeName = typeInfo.name;
+        this.bodyColor = typeInfo.bodyColor;
+        this.finColor = typeInfo.finColor;
+        this.accentColor = typeInfo.accentColor;
+        this.shape = typeInfo.shape || 'standard';
+        this.aggression = typeInfo.aggression || 0.3;
+        this.inkStyle = typeInfo.inkStyle || false;
+        this.inkWash = typeInfo.inkWash || null;
+        this.glowColor = typeInfo.glowColor || null;
+
+        // Size with personality variation
+        this.baseSize = typeInfo.size * (isBaby ? 0.3 : Utils.rand(0.85, 1.15));
+        this.size = this.baseSize;
+        this.isBaby = isBaby;
+        this.growthProgress = isBaby ? 0 : 1;
+
+        // Position
+        this.x = Utils.rand(100, tankW - 100);
+        this.y = Utils.rand(80, tankH - 120);
+        this.tankW = tankW;
+        this.tankH = tankH;
+
+        // Movement
+        this.baseSpeed = typeInfo.speed * Utils.rand(0.8, 1.2);
+        this.speed = this.baseSpeed;
+        this.vx = Utils.rand(-1, 1) * this.speed;
+        this.vy = Utils.rand(-0.5, 0.5) * this.speed;
+        this.facingRight = this.vx >= 0;
+        this.targetX = this.x;
+        this.targetY = this.y;
+        this.nextTargetTime = 0;
+        this.dartCooldown = 0;
+
+        // State
+        this.hunger = 50; // 0 = starving, 100 = full
+        this.health = 100;
+        this.happiness = 80;
+        this.age = isBaby ? 0 : Utils.rand(50, 100);
+        this.alive = true;
+
+        // Pursuit
+        this.pursuingFood = null;
+        this.pursuingPrey = null;
+
+        // Animation
+        this.tailPhase = Math.random() * Math.PI * 2;
+        this.bodyWave = 0;
+        this.finPhase = Math.random() * Math.PI * 2;
+
+        // Bubble emission
+        this.bubbleTimer = Utils.rand(5, 15);
+        this.isBubbling = false;
+        this.bubbleDuration = 0;
+        this.bubbleCount = 0;
+
+        // SVG element
+        this.el = null;
+        this.createSVG();
+    }
+
+    createSVG() {
+        const g = Utils.svgEl('g', { class: 'fish-group', id: this.id });
+
+        const scale = this.size * 40;
+        const w = scale * 2;
+        const h = scale;
+
+        // Shadow
+        const shadow = Utils.svgEl('ellipse', {
+            cx: 0, cy: h * 0.6,
+            rx: w * 0.35, ry: h * 0.08,
+            fill: 'rgba(0,0,0,0.15)',
+            class: 'fish-shadow'
+        });
+        g.appendChild(shadow);
+
+        // Glow outline for dark-on-dark themes
+        if (this.glowColor) {
+            const glow = Utils.svgEl('ellipse', {
+                cx: 0, cy: 0,
+                rx: w * 0.48, ry: h * 0.48,
+                fill: this.glowColor,
+                class: 'fish-glow'
+            });
+            g.appendChild(glow);
+        }
+
+        // Tail fin
+        this.tailEl = Utils.svgEl('path', {
+            d: `M ${-w*0.35} 0 Q ${-w*0.55} ${-h*0.35}, ${-w*0.65} ${-h*0.3} Q ${-w*0.45} 0, ${-w*0.65} ${h*0.3} Q ${-w*0.55} ${h*0.35}, ${-w*0.35} 0 Z`,
+            fill: this.finColor,
+            opacity: '0.8',
+            class: 'fish-tail'
+        });
+        this.tailBaseX = -w * 0.35;
+        g.appendChild(this.tailEl);
+
+        // Body
+        let bodyRx = w * 0.38;
+        let bodyRy = h * 0.38;
+        if (this.shape === 'round') { bodyRx = w * 0.32; bodyRy = h * 0.42; }
+        else if (this.shape === 'slim') { bodyRx = w * 0.42; bodyRy = h * 0.25; }
+        else if (this.shape === 'tall') { bodyRx = w * 0.25; bodyRy = h * 0.48; }
+        const body = Utils.svgEl('ellipse', {
+            cx: 0, cy: 0,
+            rx: bodyRx, ry: bodyRy,
+            fill: this.bodyColor,
+            class: 'fish-body-path'
+        });
+        g.appendChild(body);
+
+        // Body sheen
+        const sheen = Utils.svgEl('ellipse', {
+            cx: w * 0.05, cy: -h * 0.08,
+            rx: w * 0.25, ry: h * 0.18,
+            fill: this.accentColor,
+            opacity: '0.15'
+        });
+        g.appendChild(sheen);
+
+        // Ink style: convert to elegant brush-stroke line drawing
+        if (this.inkStyle) {
+            // Body: delicate wash with refined brush stroke outline
+            body.setAttribute('fill', this.inkWash || 'none');
+            body.setAttribute('stroke', this.accentColor);
+            body.setAttribute('stroke-width', '1.5');
+            body.setAttribute('stroke-linecap', 'round');
+            body.setAttribute('stroke-linejoin', 'round');
+
+            // Shadow becomes a light ink suggestion line
+            shadow.setAttribute('fill', 'none');
+            shadow.setAttribute('stroke', this.accentColor);
+            shadow.setAttribute('stroke-width', '0.3');
+            shadow.setAttribute('opacity', '0.15');
+            shadow.setAttribute('stroke-dasharray', '6,8');
+
+            // Tail: flowing brush-like stroke
+            this.tailEl.setAttribute('fill', this.inkWash || 'none');
+            this.tailEl.setAttribute('stroke', this.accentColor);
+            this.tailEl.setAttribute('stroke-width', '1.2');
+            this.tailEl.setAttribute('stroke-linecap', 'round');
+
+            // Sheen as calligraphic accent
+            sheen.setAttribute('fill', 'none');
+            sheen.setAttribute('stroke', this.accentColor);
+            sheen.setAttribute('stroke-width', '0.3');
+            sheen.setAttribute('opacity', '0.12');
+            sheen.setAttribute('stroke-dasharray', '1,6');
+
+            // Elegant flowing contour line — slightly offset for hand-drawn feel
+            const contourOffset = Utils.rand(0.3, 0.8);
+            const contour = Utils.svgEl('ellipse', {
+                cx: contourOffset, cy: contourOffset * 0.5,
+                rx: bodyRx + Utils.rand(1, 2.5), ry: bodyRy + Utils.rand(0.5, 1.5),
+                fill: 'none',
+                stroke: this.accentColor,
+                'stroke-width': Utils.rand(0.2, 0.5).toFixed(1),
+                opacity: '0.18'
+            });
+            g.appendChild(contour);
+
+            // Inner body curve — like a brush sweep showing volume
+            const innerCurve = Utils.svgEl('path', {
+                d: `M ${-bodyRx * 0.6} ${-bodyRy * 0.1} Q ${-bodyRx * 0.1} ${-bodyRy * 0.5}, ${bodyRx * 0.4} ${-bodyRy * 0.15}`,
+                stroke: this.accentColor,
+                'stroke-width': '0.6',
+                'stroke-linecap': 'round',
+                fill: 'none',
+                opacity: '0.2'
+            });
+            g.appendChild(innerCurve);
+
+            // Flowing belly line
+            const bellyLine = Utils.svgEl('path', {
+                d: `M ${-bodyRx * 0.5} ${bodyRy * 0.3} Q ${0} ${bodyRy * 0.6}, ${bodyRx * 0.5} ${bodyRy * 0.2}`,
+                stroke: this.accentColor,
+                'stroke-width': '0.4',
+                'stroke-linecap': 'round',
+                fill: 'none',
+                opacity: '0.15'
+            });
+            g.appendChild(bellyLine);
+        }
+
+        // Dorsal fin
+        this.dorsalEl = Utils.svgEl('path', {
+            d: `M ${-w*0.1} ${-h*0.35} Q 0 ${-h*0.6}, ${w*0.15} ${-h*0.35}`,
+            fill: this.finColor,
+            opacity: '0.7',
+            class: 'fish-dorsal-fin'
+        });
+        g.appendChild(this.dorsalEl);
+
+        // Pectoral fin
+        this.pectoralEl = Utils.svgEl('path', {
+            d: `M ${w*0.05} ${h*0.1} Q ${w*0.15} ${h*0.35}, ${-w*0.05} ${h*0.3}`,
+            fill: this.finColor,
+            opacity: '0.6',
+            class: 'fish-pectoral-fin'
+        });
+        g.appendChild(this.pectoralEl);
+        this.fishW = w;
+        this.fishH = h;
+
+        // Eye
+        const eyeX = w * 0.2;
+        const eyeY = -h * 0.05;
+        const eyeOuter = Utils.svgEl('circle', {
+            cx: eyeX, cy: eyeY, r: h * 0.08,
+            fill: '#ffffff'
+        });
+        g.appendChild(eyeOuter);
+        const eyeInner = Utils.svgEl('circle', {
+            cx: eyeX + h * 0.02, cy: eyeY, r: h * 0.04,
+            fill: '#1a1a2e'
+        });
+        g.appendChild(eyeInner);
+
+        // Mouth (subtle)
+        const mouth = Utils.svgEl('path', {
+            d: `M ${w*0.35} ${h*0.02} Q ${w*0.37} ${h*0.06}, ${w*0.34} ${h*0.08}`,
+            stroke: 'rgba(0,0,0,0.3)',
+            'stroke-width': '1',
+            fill: 'none'
+        });
+        g.appendChild(mouth);
+
+        if (this.inkStyle) {
+            // Fins: refined calligraphic strokes
+            this.dorsalEl.setAttribute('fill', this.inkWash || 'none');
+            this.dorsalEl.setAttribute('stroke', this.accentColor);
+            this.dorsalEl.setAttribute('stroke-width', '1.1');
+            this.dorsalEl.setAttribute('stroke-linecap', 'round');
+            this.pectoralEl.setAttribute('fill', 'none');
+            this.pectoralEl.setAttribute('stroke', this.accentColor);
+            this.pectoralEl.setAttribute('stroke-width', '0.8');
+            this.pectoralEl.setAttribute('stroke-linecap', 'round');
+
+            // Eye: refined ink circle with pupil dot
+            eyeOuter.setAttribute('fill', 'none');
+            eyeOuter.setAttribute('stroke', this.accentColor);
+            eyeOuter.setAttribute('stroke-width', '1');
+            eyeInner.setAttribute('fill', this.accentColor);
+
+            // Mouth: delicate ink line
+            mouth.setAttribute('stroke', this.accentColor);
+            mouth.setAttribute('stroke-width', '0.8');
+            mouth.setAttribute('opacity', '0.6');
+
+            // Sparse, elegant cross-hatching — like pen strokes for shading
+            const hatchCount = Utils.randInt(3, 5);
+            for (let hi = 0; hi < hatchCount; hi++) {
+                const hx = Utils.rand(-bodyRx * 0.5, bodyRx * 0.3);
+                const hy = Utils.rand(-bodyRy * 0.2, bodyRy * 0.3);
+                const len = Utils.rand(4, 8);
+                const angle = Utils.rand(0.3, 0.8); // consistent diagonal direction
+                const hline = Utils.svgEl('line', {
+                    x1: hx - len * Math.cos(angle), y1: hy - len * Math.sin(angle),
+                    x2: hx + len * Math.cos(angle), y2: hy + len * Math.sin(angle),
+                    stroke: this.accentColor,
+                    'stroke-width': Utils.rand(0.2, 0.5).toFixed(1),
+                    'stroke-linecap': 'round',
+                    opacity: Utils.rand(0.1, 0.25).toFixed(2)
+                });
+                g.appendChild(hline);
+            }
+
+            // Fine stippling — concentrated along belly for volume
+            const stippleCount = Utils.randInt(4, 8);
+            for (let si = 0; si < stippleCount; si++) {
+                const sx = Utils.rand(-bodyRx * 0.4, bodyRx * 0.2);
+                const sy = Utils.rand(0, bodyRy * 0.5); // mostly below center
+                const dot = Utils.svgEl('circle', {
+                    cx: sx, cy: sy,
+                    r: Utils.rand(0.2, 0.5),
+                    fill: this.accentColor,
+                    opacity: Utils.rand(0.08, 0.22).toFixed(2)
+                });
+                g.appendChild(dot);
+            }
+
+            // Elegant dorsal fin spine lines
+            for (let fi = 0; fi < 3; fi++) {
+                const fx = Utils.rand(-w * 0.08, w * 0.12);
+                const spine = Utils.svgEl('path', {
+                    d: `M ${fx} ${-h*0.35} Q ${fx + Utils.rand(-2,2)} ${-h*(0.42 + fi*0.04)}, ${fx + Utils.rand(1,4)} ${-h*0.35}`,
+                    stroke: this.accentColor,
+                    'stroke-width': '0.3',
+                    'stroke-linecap': 'round',
+                    fill: 'none',
+                    opacity: Utils.rand(0.12, 0.2).toFixed(2)
+                });
+                g.appendChild(spine);
+            }
+
+            // Tail fin detail lines — flowing strokes
+            const tailX = this.tailBaseX || -w * 0.3;
+            for (let ti = 0; ti < 2; ti++) {
+                const ty = Utils.rand(-h * 0.15, h * 0.15);
+                const tailStroke = Utils.svgEl('path', {
+                    d: `M ${tailX} ${ty} Q ${tailX - w*0.08} ${ty + Utils.rand(-3,3)}, ${tailX - w*0.12} ${ty + Utils.rand(-5,5)}`,
+                    stroke: this.accentColor,
+                    'stroke-width': '0.3',
+                    'stroke-linecap': 'round',
+                    fill: 'none',
+                    opacity: '0.18'
+                });
+                g.appendChild(tailStroke);
+            }
+        }
+
+        this.el = g;
+        this.updateTransform();
+    }
+
+    updateTransform() {
+        const scaleX = this.facingRight ? 1 : -1;
+        const sizeRatio = this.isBaby ? 0.3 + this.growthProgress * 0.7 : 1;
+        this.el.setAttribute('transform',
+            `translate(${this.x}, ${this.y}) scale(${scaleX * sizeRatio}, ${sizeRatio})`
+        );
+        // Animate tail by rotating around where it connects to the body
+        if (this.tailEl) {
+            const angle = Math.sin(this.tailPhase) * 10;
+            this.tailEl.setAttribute('transform',
+                `rotate(${angle}, ${this.tailBaseX}, 0)`
+            );
+        }
+        // Subtle dorsal sway
+        if (this.dorsalEl) {
+            const skew = Math.sin(this.finPhase) * 3;
+            this.dorsalEl.setAttribute('transform', `skewX(${skew})`);
+        }
+        // Pectoral flap
+        if (this.pectoralEl) {
+            const angle = Math.sin(this.finPhase * 1.3) * 10;
+            this.pectoralEl.setAttribute('transform',
+                `rotate(${angle}, ${this.fishW * 0.05}, ${this.fishH * 0.1})`
+            );
+        }
+    }
+
+    emitMouthBubble() {
+        // Calculate mouth position in world coordinates
+        const scaleX = this.facingRight ? 1 : -1;
+        const mouthLocalX = this.fishW * 0.35 * scaleX;
+        const mouthLocalY = this.fishH * 0.05;
+        const worldX = this.x + mouthLocalX;
+        const worldY = this.y + mouthLocalY;
+
+        const bubblesLayer = document.getElementById('bubbles-layer');
+        if (!bubblesLayer) return;
+
+        const size = Utils.rand(2, 5);
+        const bubble = Utils.svgEl('circle', {
+            cx: worldX,
+            cy: worldY,
+            r: size,
+            fill: 'url(#bubble-gradient)',
+            opacity: '0.5'
+        });
+        bubblesLayer.appendChild(bubble);
+
+        // Animate the bubble rising
+        const startY = worldY;
+        const driftX = Utils.rand(-15, 15);
+        const duration = Utils.rand(1.5, 3);
+        const startTime = performance.now();
+
+        function animateBubble() {
+            const elapsed = (performance.now() - startTime) / 1000;
+            const progress = elapsed / duration;
+            if (progress >= 1) {
+                if (bubble.parentNode) bubble.remove();
+                return;
+            }
+            const newY = startY - progress * 120;
+            const newX = worldX + Math.sin(progress * Math.PI * 3) * driftX;
+            const newOpacity = 0.5 * (1 - progress);
+            const newSize = size * (1 + progress * 0.5);
+            bubble.setAttribute('cx', newX);
+            bubble.setAttribute('cy', newY);
+            bubble.setAttribute('opacity', newOpacity);
+            bubble.setAttribute('r', newSize);
+            requestAnimationFrame(animateBubble);
+        }
+        requestAnimationFrame(animateBubble);
+    }
+
+    pickNewTarget() {
+        // Fish occasionally dart quickly
+        const isDart = Math.random() < 0.15;
+        const range = isDart ? 300 : 150;
+
+        this.targetX = Utils.clamp(
+            this.x + Utils.rand(-range, range),
+            60, this.tankW - 60
+        );
+        this.targetY = Utils.clamp(
+            this.y + Utils.rand(-range * 0.5, range * 0.5),
+            60, this.tankH - 100
+        );
+
+        if (isDart) {
+            this.speed = this.baseSpeed * Utils.rand(2.5, 4);
+            this.dartCooldown = Utils.rand(0.2, 0.5);
+        } else {
+            this.speed = this.baseSpeed * Utils.rand(0.5, 1.2);
+        }
+
+        this.nextTargetTime = performance.now() + Utils.rand(1500, 4000);
+    }
+
+    update(dt, foods, allFish) {
+        if (!this.alive) return;
+
+        const now = performance.now();
+
+        // Growth for babies
+        if (this.isBaby) {
+            this.growthProgress = Math.min(1, this.growthProgress + dt * 0.02);
+            if (this.growthProgress >= 1) {
+                this.isBaby = false;
+                this.size = this.baseSize * Utils.rand(0.85, 1.15);
+            }
+        }
+
+        // Hunger increases over time
+        this.hunger = Math.max(0, this.hunger - dt * 1.5);
+
+        // Health based on hunger
+        if (this.hunger < 15) {
+            this.health = Math.max(0, this.health - dt * 3);
+        } else if (this.hunger > 60) {
+            this.health = Math.min(100, this.health + dt * 2);
+        }
+
+        // Die if health reaches 0
+        if (this.health <= 0) {
+            this.alive = false;
+            return;
+        }
+
+        // Dart cooldown
+        if (this.dartCooldown > 0) {
+            this.dartCooldown -= dt;
+            if (this.dartCooldown <= 0) {
+                this.speed = this.baseSpeed;
+            }
+        }
+
+        // Aggression interactions with nearby fish
+        if (!this.pursuingFood && !this.pursuingPrey) {
+            for (const other of allFish) {
+                if (other === this || !other.alive) continue;
+                const d = Utils.dist(this.x, this.y, other.x, other.y);
+                if (d > 150) continue; // Only interact when nearby
+
+                const aggrDiff = this.aggression - other.aggression;
+                if (aggrDiff > 0.15) {
+                    // We are more aggressive — chase them away
+                    if (d < 100) {
+                        // Move toward the less aggressive fish (territorial)
+                        const chaseX = other.x;
+                        const chaseY = other.y;
+                        this.targetX = chaseX;
+                        this.targetY = chaseY;
+                        this.speed = this.baseSpeed * 1.5;
+                        this.nextTargetTime = performance.now() + 500;
+                        break;
+                    }
+                } else if (aggrDiff < -0.15) {
+                    // We are less aggressive — flee from the aggressor
+                    if (d < 120) {
+                        const fleeAngle = Math.atan2(this.y - other.y, this.x - other.x);
+                        this.targetX = Utils.clamp(this.x + Math.cos(fleeAngle) * 200, 60, this.tankW - 60);
+                        this.targetY = Utils.clamp(this.y + Math.sin(fleeAngle) * 200, 60, this.tankH - 100);
+                        this.speed = this.baseSpeed * 1.8;
+                        this.nextTargetTime = performance.now() + 800;
+                        break;
+                    }
+                }
+                // Same aggression level (within 0.15) = passive, no interaction
+            }
+        }
+
+        // Separation force — prevent fish from overlapping
+        let sepX = 0, sepY = 0;
+        for (const other of allFish) {
+            if (other === this || !other.alive) continue;
+            const d = Utils.dist(this.x, this.y, other.x, other.y);
+            const minDist = (this.size + other.size) * 25 + 15;
+            if (d < minDist && d > 0.1) {
+                const force = (minDist - d) / minDist;
+                sepX += (this.x - other.x) / d * force;
+                sepY += (this.y - other.y) / d * force;
+            }
+        }
+        if (sepX !== 0 || sepY !== 0) {
+            const sepStr = 2.5;
+            this.vx += sepX * sepStr * dt * 60;
+            this.vy += sepY * sepStr * dt * 60;
+        }
+
+        // Pursue food if hungry
+        if (this.hunger < 70 && foods.length > 0) {
+            let closest = null;
+            let closestDist = Infinity;
+            for (const food of foods) {
+                if (food.eaten) continue;
+                const d = Utils.dist(this.x, this.y, food.x, food.y);
+                if (d < closestDist && d < 400) {
+                    closestDist = d;
+                    closest = food;
+                }
+            }
+            if (closest) {
+                this.pursuingFood = closest;
+                this.targetX = closest.x;
+                this.targetY = closest.y;
+                this.speed = this.baseSpeed * 2;
+
+                // Eat if close enough
+                if (closestDist < 20) {
+                    closest.eaten = true;
+                    this.hunger = Math.min(100, this.hunger + 30);
+                    this.pursuingFood = null;
+                }
+            }
+        }
+
+        // Big fish chase small fish when very hungry
+        if (this.hunger < 20 && this.size > 0.9 && !this.isBaby) {
+            let prey = null;
+            let preyDist = Infinity;
+            for (const other of allFish) {
+                if (other === this || !other.alive || other.isBaby) continue;
+                if (other.size < this.size * 0.7) {
+                    const d = Utils.dist(this.x, this.y, other.x, other.y);
+                    if (d < preyDist && d < 300) {
+                        preyDist = d;
+                        prey = other;
+                    }
+                }
+            }
+            if (prey) {
+                this.pursuingPrey = prey;
+                this.targetX = prey.x;
+                this.targetY = prey.y;
+                this.speed = this.baseSpeed * 2.5;
+
+                if (preyDist < 15) {
+                    prey.alive = false;
+                    this.hunger = Math.min(100, this.hunger + 50);
+                    this.pursuingPrey = null;
+                    return prey; // Signal that prey was eaten
+                }
+            }
+        }
+
+        // Pick new target if needed
+        if (now > this.nextTargetTime && !this.pursuingFood && !this.pursuingPrey) {
+            this.pickNewTarget();
+        }
+
+        // Move toward target
+        const dx = this.targetX - this.x;
+        const dy = this.targetY - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 2) {
+            const moveSpeed = this.speed * 60 * dt;
+            const ratio = Math.min(1, moveSpeed / dist);
+            this.vx = Utils.lerp(this.vx, dx * ratio, 0.1);
+            this.vy = Utils.lerp(this.vy, dy * ratio, 0.1);
+        } else {
+            this.vx *= 0.95;
+            this.vy *= 0.95;
+        }
+
+        // Apply velocity
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Boundaries
+        this.x = Utils.clamp(this.x, 40, this.tankW - 40);
+        this.y = Utils.clamp(this.y, 50, this.tankH - 80);
+
+        // Face direction of movement (never swim backwards)
+        if (Math.abs(this.vx) > 0.1) {
+            this.facingRight = this.vx > 0;
+        }
+
+        // Animation phases
+        this.tailPhase += dt * 8 * (0.5 + Math.abs(this.vx) * 0.5);
+        this.bodyWave = Math.sin(this.tailPhase) * 0.03;
+        this.finPhase += dt * 3;
+
+        // Age
+        this.age += dt * 0.5;
+
+        // Bubble emission from mouth
+        this.bubbleTimer -= dt;
+        if (this.bubbleTimer <= 0 && !this.isBubbling) {
+            this.isBubbling = true;
+            this.bubbleDuration = Utils.rand(0.8, 1.5);
+            this.bubbleCount = 0;
+            // Slow down while bubbling
+            this.speed = this.baseSpeed * 0.3;
+        }
+
+        if (this.isBubbling) {
+            this.bubbleDuration -= dt;
+            this.bubbleCount += dt;
+
+            // Emit a small bubble every ~0.25 seconds
+            if (this.bubbleCount >= 0.25) {
+                this.bubbleCount -= 0.25;
+                this.emitMouthBubble();
+                ZenAudio.playBubble();
+            }
+
+            if (this.bubbleDuration <= 0) {
+                this.isBubbling = false;
+                this.bubbleTimer = Utils.rand(8, 25);
+                this.speed = this.baseSpeed;
+            }
+        }
+
+        this.updateTransform();
+        return null;
+    }
+
+    resize(tankW, tankH) {
+        this.tankW = tankW;
+        this.tankH = tankH;
+        this.x = Utils.clamp(this.x, 40, tankW - 40);
+        this.y = Utils.clamp(this.y, 50, tankH - 80);
+    }
+
+    getInfo() {
+        return {
+            id: this.id,
+            type: this.type,
+            typeName: this.typeName,
+            hunger: this.hunger,
+            health: this.health,
+            alive: this.alive,
+            isBaby: this.isBaby,
+            size: this.size,
+            bodyColor: this.bodyColor
+        };
+    }
+}
+
+// Fish factory
+const FishFactory = {
+    create(typeInfo, tankW, tankH, isBaby = false) {
+        return new Fish(typeInfo, tankW, tankH, isBaby);
+    }
+};
+
+
+/* ============================================
+   ZENQUARIUM - Tank Environment
+   ============================================ */
+
+const Tank = (() => {
+    let tankEl, plantsLayer, bubblesLayer, particlesLayer, causticsLayer, lightRaysEl;
+    let theme = null;
+    let bubbles = [];
+    let particles = [];
+    let plants = [];
+    let tankW = 0, tankH = 0;
+
+    function init(themeData) {
+        theme = themeData;
+        tankEl = document.getElementById('tank');
+        plantsLayer = document.getElementById('plants-layer');
+        bubblesLayer = document.getElementById('bubbles-layer');
+        particlesLayer = document.getElementById('particles-layer');
+        causticsLayer = document.getElementById('caustics-layer');
+        lightRaysEl = document.getElementById('light-rays');
+
+        updateSize();
+        syncSvgSizes();
+        createCaustics();
+        createLightRays();
+        createPlants();
+        createParticles();
+
+        window.addEventListener('resize', Utils.debounce(onResize, 200));
+    }
+
+    function updateSize() {
+        const rect = tankEl.getBoundingClientRect();
+        tankW = rect.width;
+        tankH = rect.height;
+    }
+
+    function syncSvgSizes() {
+        const svgLayers = [
+            document.getElementById('water-effects'),
+            plantsLayer, 
+            document.getElementById('fish-layer'),
+            document.getElementById('food-layer'),
+            bubblesLayer
+        ];
+        svgLayers.forEach(svg => {
+            if (!svg) return;
+            svg.setAttribute('width', tankW);
+            svg.setAttribute('height', tankH);
+            svg.setAttribute('viewBox', `0 0 ${tankW} ${tankH}`);
+        });
+    }
+
+    function getSize() { return { w: tankW, h: tankH }; }
+
+    function onResize() {
+        updateSize();
+        syncSvgSizes();
+        clearAll();
+        createCaustics();
+        createLightRays();
+        createPlants();
+        createParticles();
+    }
+
+    function clearAll() {
+        plantsLayer.innerHTML = '';
+        particlesLayer.innerHTML = '';
+        causticsLayer.innerHTML = '';
+        lightRaysEl.innerHTML = '';
+        plants = [];
+        particles = [];
+    }
+
+    // Caustic light patterns
+    function createCaustics() {
+        const count = 12;
+        for (let i = 0; i < count; i++) {
+            const x = Utils.rand(0, tankW);
+            const y = Utils.rand(0, tankH * 0.6);
+            const size = Utils.rand(80, 200);
+            const el = Utils.svgEl('ellipse', {
+                cx: x, cy: y,
+                rx: size, ry: size * 0.6,
+                fill: 'var(--caustic-color)',
+                class: 'caustic-cell',
+                style: `animation-delay: ${Utils.rand(0, 5)}s; animation-duration: ${Utils.rand(4, 8)}s;`
+            });
+            causticsLayer.appendChild(el);
+        }
+    }
+
+    // Light rays from surface
+    function createLightRays() {
+        const count = 5;
+        for (let i = 0; i < count; i++) {
+            const x = Utils.rand(tankW * 0.1, tankW * 0.9);
+            const width = Utils.rand(30, 80);
+            const ray = Utils.svgEl('polygon', {
+                points: `${x - width/2},0 ${x + width/2},0 ${x + width * 2},${tankH * 0.7} ${x - width},${tankH * 0.7}`,
+                fill: 'url(#light-ray)',
+                opacity: Utils.rand(0.05, 0.12).toString(),
+                style: `animation: causticShimmer ${Utils.rand(6, 12)}s ease-in-out infinite alternate; animation-delay: ${Utils.rand(0, 5)}s;`
+            });
+            lightRaysEl.appendChild(ray);
+        }
+    }
+
+    // Aquatic plants
+    function createPlants() {
+        const plantCount = Utils.randInt(8, 14);
+        const colors = theme.plantColors;
+
+        for (let i = 0; i < plantCount; i++) {
+            const x = Utils.rand(30, tankW - 30);
+            const plantH = Utils.rand(100, 320);
+            const color1 = Utils.pick(colors);
+            const color2 = Utils.pick(colors);
+            const swayDuration = Utils.rand(3, 7);
+            const swayDelay = Utils.rand(0, 3);
+            const swayAmount = Utils.rand(2, 6);
+
+            const gOuter = Utils.svgEl('g', {
+                transform: `translate(${x}, ${tankH})`
+            });
+            const g = Utils.svgEl('g', {
+                class: 'plant-group',
+                style: `animation: plantSway ${swayDuration}s ease-in-out infinite alternate; animation-delay: ${swayDelay}s;`
+            });
+
+            // Main stem with leaves
+            const stemCount = Utils.randInt(2, 4);
+            for (let s = 0; s < stemCount; s++) {
+                const offsetX = Utils.rand(-15, 15);
+                const leafH = plantH * Utils.rand(0.6, 1);
+                const leafW = Utils.rand(12, 28);
+                const color = s % 2 === 0 ? color1 : color2;
+
+                // Stem
+                const stem = Utils.svgEl('path', {
+                    d: `M ${offsetX} 0 Q ${offsetX + Utils.rand(-10, 10)} ${-leafH * 0.5}, ${offsetX + Utils.rand(-8, 8)} ${-leafH}`,
+                    stroke: color,
+                    'stroke-width': Utils.rand(3, 6).toString(),
+                    fill: 'none',
+                    opacity: '0.8'
+                });
+                g.appendChild(stem);
+
+                // Ink theme: ensure stroke styling
+                if (theme.inkTheme) {
+                    stem.setAttribute('stroke-dasharray', '');
+                    stem.setAttribute('stroke-width', Utils.rand(1, 2.5).toString());
+                }
+
+                // Leaves along stem
+                const leafCount = Utils.randInt(2, 5);
+                for (let l = 0; l < leafCount; l++) {
+                    const ly = -(leafH * (l + 1) / (leafCount + 1));
+                    const lx = offsetX + Utils.rand(-5, 5);
+                    const side = Math.random() > 0.5 ? 1 : -1;
+                    const lw = leafW * Utils.rand(0.7, 1.3);
+                    const lh = Utils.rand(6, 16);
+
+                    const leaf = Utils.svgEl('path', {
+                        d: `M ${lx} ${ly} Q ${lx + side * lw} ${ly - lh}, ${lx + side * lw * 0.6} ${ly - lh * 2}`,
+                        stroke: color,
+                        'stroke-width': Utils.rand(4, 8).toString(),
+                        'stroke-linecap': 'round',
+                        fill: 'none',
+                        opacity: Utils.rand(0.5, 0.9).toString()
+                    });
+                    g.appendChild(leaf);
+
+                    // Ink theme: thinner more delicate strokes
+                    if (theme.inkTheme) {
+                        leaf.setAttribute('stroke-width', Utils.rand(1, 2).toString());
+                    }
+                }
+            }
+
+            gOuter.appendChild(g);
+            plantsLayer.appendChild(gOuter);
+            plants.push({ el: gOuter, x });
+        }
+
+        // Add CSS for plant sway
+        if (!document.getElementById('plant-sway-style')) {
+            const style = document.createElement('style');
+            style.id = 'plant-sway-style';
+            style.textContent = `
+                @keyframes plantSway {
+                    0% { transform: rotate(-2deg); }
+                    100% { transform: rotate(2deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    // Background particles (dust, plankton)
+    function createParticles() {
+        const count = 15;
+        for (let i = 0; i < count; i++) {
+            const el = document.createElement('div');
+            el.className = 'particle';
+            const size = Utils.rand(1, 3);
+            const x = Utils.rand(0, tankW);
+            const y = Utils.rand(0, tankH);
+            const dx = Utils.rand(-50, 50);
+            const dy = Utils.rand(-80, -20);
+            const dur = Utils.rand(8, 20);
+
+            el.style.cssText = `
+                left: ${x}px; top: ${y}px;
+                width: ${size}px; height: ${size}px;
+                background: ${theme.particleColor};
+                --dx: ${dx}px; --dy: ${dy}px;
+                animation-duration: ${dur}s;
+                animation-delay: ${Utils.rand(0, dur)}s;
+            `;
+            particlesLayer.appendChild(el);
+            particles.push(el);
+        }
+    }
+
+    // Spawn a bubble
+    function spawnBubble() {
+        const x = Utils.rand(40, tankW - 40);
+        const size = Utils.rand(3, 10);
+        const dur = Utils.rand(4, 8);
+        const wobble = Utils.rand(-20, 20);
+
+        const bubble = Utils.svgEl('circle', {
+            cx: x, cy: tankH - 60,
+            r: size,
+            fill: 'url(#bubble-gradient)',
+            opacity: Utils.rand(0.2, 0.5).toString(),
+            class: 'bubble',
+            style: `animation-duration: ${dur}s;`
+        });
+
+        bubblesLayer.appendChild(bubble);
+        setTimeout(() => {
+            if (bubble.parentNode) bubble.remove();
+        }, dur * 1000);
+    }
+
+    // Update loop
+    let bubbleTimer = 0;
+    function update(dt) {
+        bubbleTimer += dt;
+        if (bubbleTimer > Utils.rand(0.5, 2)) {
+            spawnBubble();
+            bubbleTimer = 0;
+            // Occasional bubble cluster
+            if (Math.random() < 0.2) {
+                for (let i = 0; i < Utils.randInt(2, 4); i++) {
+                    setTimeout(() => spawnBubble(), i * 200);
+                }
+            }
+        }
+    }
+
+    function setTheme(themeData) {
+        theme = themeData;
+        clearAll();
+        createCaustics();
+        createLightRays();
+        createPlants();
+        createParticles();
+    }
+
+    return { init, update, getSize, setTheme, spawnBubble, updateSize, syncSvgSizes };
+})();
+
+
+/* ============================================
+   ZENQUARIUM - Food System
+   ============================================ */
+
+const Food = (() => {
+    let foods = [];
+    let foodLayer = null;
+    let tankW = 0, tankH = 0;
+
+    function init(w, h) {
+        foodLayer = document.getElementById('food-layer');
+        tankW = w;
+        tankH = h;
+    }
+
+    function resize(w, h) {
+        tankW = w;
+        tankH = h;
+    }
+
+    // Drop food flakes into the tank
+    function dropFood(count = 5) {
+        const centerX = Utils.rand(tankW * 0.2, tankW * 0.8);
+
+        for (let i = 0; i < count; i++) {
+            const x = centerX + Utils.rand(-60, 60);
+            const y = 10 + Utils.rand(0, 15);
+            const size = Utils.rand(3, 7);
+            const rotation = Utils.rand(0, 360);
+            const fallSpeed = Utils.rand(15, 30);
+            const wobbleAmp = Utils.rand(10, 30);
+            const wobbleFreq = Utils.rand(1, 3);
+
+            const food = {
+                id: Utils.uid(),
+                x: x,
+                y: y,
+                startX: x,
+                size: size,
+                rotation: rotation,
+                fallSpeed: fallSpeed,
+                wobbleAmp: wobbleAmp,
+                wobbleFreq: wobbleFreq,
+                time: 0,
+                eaten: false,
+                settled: false,
+                el: null
+            };
+
+            // Create SVG flake
+            const g = Utils.svgEl('g', { class: 'food-flake', id: food.id });
+
+            // Irregular flake shape
+            const points = [];
+            const segments = Utils.randInt(5, 8);
+            for (let s = 0; s < segments; s++) {
+                const angle = (s / segments) * Math.PI * 2;
+                const r = size * Utils.rand(0.5, 1);
+                points.push(`${Math.cos(angle) * r},${Math.sin(angle) * r}`);
+            }
+
+            const flake = Utils.svgEl('polygon', {
+                points: points.join(' '),
+                fill: document.body.classList.contains('theme-ink') ? 'none' : Utils.pick(['#c4903a', '#d4a04a', '#b48030', '#dab060']),
+                stroke: document.body.classList.contains('theme-ink') ? '#5c3a1a' : 'none',
+                'stroke-width': document.body.classList.contains('theme-ink') ? '1' : '0',
+                opacity: '0.85'
+            });
+            g.appendChild(flake);
+
+            g.setAttribute('transform', `translate(${x}, ${y}) rotate(${rotation})`);
+            foodLayer.appendChild(g);
+            food.el = g;
+            foods.push(food);
+        }
+    }
+
+    function update(dt) {
+        for (let i = foods.length - 1; i >= 0; i--) {
+            const f = foods[i];
+
+            if (f.eaten) {
+                if (f.el && f.el.parentNode) f.el.remove();
+                foods.splice(i, 1);
+                continue;
+            }
+
+            if (f.settled) continue;
+
+            f.time += dt;
+
+            // Fall with wobble
+            f.y += f.fallSpeed * dt;
+            f.x = f.startX + Math.sin(f.time * f.wobbleFreq) * f.wobbleAmp;
+            f.rotation += dt * 60;
+
+            // Settle on bottom
+            const bottom = tankH - 70;
+            if (f.y >= bottom) {
+                f.y = bottom;
+                f.settled = true;
+                // Food decays after sitting too long
+                setTimeout(() => { f.eaten = true; }, 15000);
+            }
+
+            if (f.el) {
+                f.el.setAttribute('transform', `translate(${f.x}, ${f.y}) rotate(${f.rotation})`);
+            }
+        }
+    }
+
+    function getAll() { return foods; }
+
+    function clear() {
+        foods.forEach(f => { if (f.el && f.el.parentNode) f.el.remove(); });
+        foods = [];
+    }
+
+    return { init, update, dropFood, getAll, clear, resize };
+})();
+
+
+/* ============================================
+   ZENQUARIUM - Easter Egg Creatures
+   ============================================ */
+
+const Creatures = (() => {
+    let creatures = [];
+    let tankW = 0, tankH = 0;
+    let layer = null;
+    let spawnTimer = 0;
+    let themeId = 'koi';
+
+    // Theme-appropriate creature definitions — large, impressive visitors
+    const creatureDefs = {
+        koi: [
+            { type: 'jellyfish', name: 'Moon Jelly', color: '#f0c8c8', color2: '#e8b0b0', accent: '#d08080', glow: 'rgba(240,200,200,0.18)', size: 2.2 },
+            { type: 'squid', name: 'Firefly Squid', color: '#e8c060', color2: '#d0a840', accent: '#c08020', glow: 'rgba(232,192,96,0.15)', size: 1.8 },
+        ],
+        tropical: [
+            { type: 'jellyfish', name: 'Blue Blubber', color: '#4090e0', color2: '#3070c0', accent: '#80c8ff', glow: 'rgba(64,144,224,0.22)', size: 2.4 },
+            { type: 'octopus', name: 'Blue-Ring Octopus', color: '#d09040', color2: '#b07830', accent: '#4090ff', glow: 'rgba(64,144,255,0.18)', size: 2.0 },
+        ],
+        deep: [
+            { type: 'jellyfish', name: 'Crystal Jelly', color: '#a060e0', color2: '#8040c0', accent: '#d0a0ff', glow: 'rgba(160,96,224,0.3)', size: 2.6 },
+            { type: 'squid', name: 'Giant Squid', color: '#804020', color2: '#603018', accent: '#ff5050', glow: 'rgba(255,64,64,0.22)', size: 2.8 },
+            { type: 'octopus', name: 'Dumbo Octopus', color: '#e08080', color2: '#c06060', accent: '#ff80b0', glow: 'rgba(255,96,160,0.22)', size: 2.2 },
+        ],
+        zen: [
+            { type: 'jellyfish', name: 'Ghost Jelly', color: '#c0c0b8', color2: '#a8a8a0', accent: '#e0e0d8', glow: 'rgba(200,200,184,0.12)', size: 2.0 },
+            { type: 'squid', name: 'Glass Squid', color: '#a0a090', color2: '#888878', accent: '#d0d0c0', glow: 'rgba(160,160,144,0.12)', size: 1.8 },
+        ],
+        ink: [
+            { type: 'jellyfish', name: 'Ink Jelly', color: 'none', color2: 'none', accent: '#4a3a2a', glow: 'none', size: 2.2, ink: true },
+            { type: 'octopus', name: 'Sketch Octopus', color: 'none', color2: 'none', accent: '#2a3a5a', glow: 'none', size: 2.0, ink: true },
+        ]
+    };
+
+    function init(w, h, tid) {
+        tankW = w; tankH = h;
+        themeId = tid;
+        layer = document.getElementById('fish-layer');
+        creatures = [];
+        spawnTimer = Utils.rand(30, 60); // first spawn after 30-60s
+    }
+
+    function createCreatureSVG(def) {
+        const g = Utils.svgEl('g', { class: 'creature-group' });
+        const s = def.size * 40;
+
+        if (def.type === 'jellyfish') {
+            // Soft outer glow
+            if (def.glow !== 'none') {
+                const glow = Utils.svgEl('ellipse', { cx: 0, cy: -s*0.05, rx: s*0.6, ry: s*0.55, fill: def.glow });
+                g.appendChild(glow);
+            }
+
+            // Bell dome — rounded mushroom shape
+            const bell = Utils.svgEl('path', {
+                d: `M ${-s*0.42} ${s*0.08} C ${-s*0.48} ${-s*0.3}, ${-s*0.35} ${-s*0.6}, 0 ${-s*0.62} C ${s*0.35} ${-s*0.6}, ${s*0.48} ${-s*0.3}, ${s*0.42} ${s*0.08} Q ${s*0.2} ${s*0.18}, 0 ${s*0.14} Q ${-s*0.2} ${s*0.18}, ${-s*0.42} ${s*0.08}Z`,
+                fill: def.ink ? 'none' : def.color,
+                stroke: def.ink ? def.accent : def.color2,
+                'stroke-width': def.ink ? '1.5' : '0.8',
+                opacity: def.ink ? '1' : '0.75'
+            });
+            g.appendChild(bell);
+
+            // Interior radial pattern lines
+            for (let r = 0; r < 4; r++) {
+                const angle = (r / 4) * Math.PI * 0.6 - Math.PI * 0.3;
+                const ix1 = Math.cos(angle) * s * 0.05;
+                const iy1 = -s * 0.1;
+                const ix2 = Math.cos(angle) * s * 0.3;
+                const iy2 = -s * 0.4;
+                const iline = Utils.svgEl('line', {
+                    x1: ix1, y1: iy1, x2: ix2, y2: iy2,
+                    stroke: def.ink ? def.accent : def.accent,
+                    'stroke-width': '0.6',
+                    opacity: '0.25',
+                    'stroke-linecap': 'round'
+                });
+                g.appendChild(iline);
+            }
+
+            // Scalloped bell rim
+            const rimCount = 8;
+            for (let ri = 0; ri < rimCount; ri++) {
+                const rx = (ri / (rimCount - 1) - 0.5) * s * 0.8;
+                const scallop = Utils.svgEl('path', {
+                    d: `M ${rx - s*0.05} ${s*0.1} Q ${rx} ${s*0.18}, ${rx + s*0.05} ${s*0.1}`,
+                    fill: 'none',
+                    stroke: def.ink ? def.accent : def.accent,
+                    'stroke-width': def.ink ? '0.8' : '1',
+                    opacity: '0.35',
+                    'stroke-linecap': 'round'
+                });
+                g.appendChild(scallop);
+            }
+
+            // Oral arms (4 thick, ruffled)
+            for (let oa = 0; oa < 4; oa++) {
+                const ox = (oa - 1.5) * s * 0.12;
+                const armLen = s * Utils.rand(0.55, 0.7);
+                const ruffle = Utils.rand(6, 12);
+                const arm = Utils.svgEl('path', {
+                    d: `M ${ox} ${s*0.14} Q ${ox + ruffle} ${s*0.14 + armLen*0.3}, ${ox - ruffle*0.5} ${s*0.14 + armLen*0.6} Q ${ox + ruffle*0.7} ${s*0.14 + armLen*0.8}, ${ox + Utils.rand(-4,4)} ${s*0.14 + armLen}`,
+                    fill: 'none',
+                    stroke: def.ink ? def.accent : def.accent,
+                    'stroke-width': def.ink ? '0.8' : Utils.rand(1.5, 2.5).toFixed(1),
+                    'stroke-linecap': 'round',
+                    opacity: Utils.rand(0.3, 0.5).toFixed(2),
+                    class: 'tentacle'
+                });
+                g.appendChild(arm);
+            }
+
+            // Trailing tentacles (8 fine, long)
+            for (let i = 0; i < 8; i++) {
+                const tx = (i / 7 - 0.5) * s * 0.7;
+                const tLen = s * Utils.rand(0.6, 1.0);
+                const wave1 = Utils.rand(-10, 10);
+                const wave2 = Utils.rand(-14, 14);
+                const tentacle = Utils.svgEl('path', {
+                    d: `M ${tx} ${s*0.15} Q ${tx + wave1} ${s*0.15 + tLen*0.35}, ${tx + wave2} ${s*0.15 + tLen*0.65} Q ${tx + wave1*0.5} ${s*0.15 + tLen*0.85}, ${tx + Utils.rand(-8,8)} ${s*0.15 + tLen}`,
+                    fill: 'none',
+                    stroke: def.ink ? def.accent : def.accent,
+                    'stroke-width': def.ink ? '0.4' : Utils.rand(0.4, 0.9).toFixed(1),
+                    'stroke-linecap': 'round',
+                    opacity: Utils.rand(0.2, 0.4).toFixed(2),
+                    class: 'tentacle'
+                });
+                g.appendChild(tentacle);
+            }
+
+        } else if (def.type === 'octopus') {
+            // Soft glow
+            if (def.glow !== 'none') {
+                const glow = Utils.svgEl('ellipse', { cx: 0, cy: -s*0.1, rx: s*0.55, ry: s*0.55, fill: def.glow });
+                g.appendChild(glow);
+            }
+
+            // Rounded mantle/head
+            const head = Utils.svgEl('path', {
+                d: `M ${-s*0.32} ${s*0.05} C ${-s*0.38} ${-s*0.15}, ${-s*0.35} ${-s*0.55}, 0 ${-s*0.58} C ${s*0.35} ${-s*0.55}, ${s*0.38} ${-s*0.15}, ${s*0.32} ${s*0.05} Q 0 ${s*0.12}, ${-s*0.32} ${s*0.05}Z`,
+                fill: def.ink ? 'none' : def.color,
+                stroke: def.ink ? def.accent : def.color2,
+                'stroke-width': def.ink ? '1.5' : '0.8',
+                opacity: def.ink ? '1' : '0.85'
+            });
+            g.appendChild(head);
+
+            // Forehead texture spots
+            for (let sp = 0; sp < 5; sp++) {
+                const spx = Utils.rand(-s*0.2, s*0.2);
+                const spy = Utils.rand(-s*0.5, -s*0.2);
+                const spot = Utils.svgEl('circle', {
+                    cx: spx, cy: spy, r: Utils.rand(1.5, 3.5),
+                    fill: def.ink ? 'none' : def.color2,
+                    stroke: def.ink ? def.accent : 'none',
+                    'stroke-width': def.ink ? '0.4' : '0',
+                    opacity: Utils.rand(0.15, 0.3).toFixed(2)
+                });
+                g.appendChild(spot);
+            }
+
+            // Eyes — large, expressive
+            [[-s*0.14, -s*0.15], [s*0.14, -s*0.15]].forEach(([ex, ey]) => {
+                const eyeWhite = Utils.svgEl('ellipse', {
+                    cx: ex, cy: ey, rx: s*0.08, ry: s*0.09,
+                    fill: def.ink ? 'none' : '#f0f0e8',
+                    stroke: def.ink ? def.accent : def.color2,
+                    'stroke-width': def.ink ? '0.8' : '0.5'
+                });
+                g.appendChild(eyeWhite);
+                const pupil = Utils.svgEl('ellipse', {
+                    cx: ex + s*0.015, cy: ey + s*0.01, rx: s*0.035, ry: s*0.05,
+                    fill: def.ink ? def.accent : '#1a1a1a'
+                });
+                g.appendChild(pupil);
+                // Eye highlight
+                if (!def.ink) {
+                    const highlight = Utils.svgEl('circle', {
+                        cx: ex - s*0.02, cy: ey - s*0.025, r: s*0.015,
+                        fill: '#ffffff', opacity: '0.7'
+                    });
+                    g.appendChild(highlight);
+                }
+            });
+
+            // 8 curling arms — thick at base, tapering
+            for (let i = 0; i < 8; i++) {
+                const spread = (i / 7 - 0.5) * Math.PI * 0.85;
+                const bx = Math.cos(spread) * s * 0.28;
+                const by = s * 0.08;
+                const curl = Utils.rand(0.6, 1.2) * (i % 2 === 0 ? 1 : -1);
+                const armLen = s * Utils.rand(0.55, 0.75);
+                const mx = bx + Math.cos(spread) * armLen * 0.5 + curl * 12;
+                const my = by + armLen * 0.5;
+                const ex = bx + Math.cos(spread) * armLen * 0.3 + curl * 18;
+                const ey = by + armLen * 0.9 + Utils.rand(-5, 5);
+                // Curl tip
+                const tipX = ex + curl * 8;
+                const tipY = ey + armLen * 0.15;
+                const arm = Utils.svgEl('path', {
+                    d: `M ${bx} ${by} Q ${mx} ${my}, ${ex} ${ey} Q ${(ex+tipX)/2} ${(ey+tipY)/2 + 3}, ${tipX} ${tipY}`,
+                    fill: 'none',
+                    stroke: def.ink ? def.accent : def.color,
+                    'stroke-width': def.ink ? '0.8' : Utils.rand(2, 3.5).toFixed(1),
+                    'stroke-linecap': 'round',
+                    opacity: Utils.rand(0.55, 0.8).toFixed(2),
+                    class: 'tentacle'
+                });
+                g.appendChild(arm);
+
+                // Sucker dots along arm
+                if (!def.ink) {
+                    for (let si = 1; si <= 3; si++) {
+                        const t = si / 4;
+                        const sx = bx * (1-t) + ex * t + curl * 4 * t;
+                        const sy = by * (1-t) + ey * t;
+                        const sucker = Utils.svgEl('circle', {
+                            cx: sx, cy: sy, r: Utils.rand(1, 2),
+                            fill: def.color2, opacity: '0.3'
+                        });
+                        g.appendChild(sucker);
+                    }
+                }
+            }
+
+        } else if (def.type === 'squid') {
+            // Soft glow
+            if (def.glow !== 'none') {
+                const glow = Utils.svgEl('ellipse', { cx: 0, cy: -s*0.05, rx: s*0.45, ry: s*0.6, fill: def.glow });
+                g.appendChild(glow);
+            }
+
+            // Torpedo-shaped mantle
+            const mantle = Utils.svgEl('path', {
+                d: `M ${-s*0.22} ${s*0.15} C ${-s*0.26} ${-s*0.1}, ${-s*0.2} ${-s*0.45}, 0 ${-s*0.5} C ${s*0.2} ${-s*0.45}, ${s*0.26} ${-s*0.1}, ${s*0.22} ${s*0.15} Q 0 ${s*0.22}, ${-s*0.22} ${s*0.15}Z`,
+                fill: def.ink ? 'none' : def.color,
+                stroke: def.ink ? def.accent : def.color2,
+                'stroke-width': def.ink ? '1.5' : '0.8',
+                opacity: def.ink ? '1' : '0.85'
+            });
+            g.appendChild(mantle);
+
+            // Side fins — triangular, swept back
+            const finL = Utils.svgEl('path', {
+                d: `M ${-s*0.2} ${-s*0.2} Q ${-s*0.42} ${-s*0.35}, ${-s*0.35} ${-s*0.52} Q ${-s*0.22} ${-s*0.4}, ${-s*0.18} ${-s*0.28}`,
+                fill: def.ink ? 'none' : def.color,
+                stroke: def.ink ? def.accent : def.color2,
+                'stroke-width': def.ink ? '0.8' : '0.5',
+                opacity: '0.7'
+            });
+            g.appendChild(finL);
+            const finR = Utils.svgEl('path', {
+                d: `M ${s*0.2} ${-s*0.2} Q ${s*0.42} ${-s*0.35}, ${s*0.35} ${-s*0.52} Q ${s*0.22} ${-s*0.4}, ${s*0.18} ${-s*0.28}`,
+                fill: def.ink ? 'none' : def.color,
+                stroke: def.ink ? def.accent : def.color2,
+                'stroke-width': def.ink ? '0.8' : '0.5',
+                opacity: '0.7'
+            });
+            g.appendChild(finR);
+
+            // Mantle stripe/pattern
+            const stripe = Utils.svgEl('path', {
+                d: `M 0 ${-s*0.45} L 0 ${s*0.12}`,
+                stroke: def.ink ? def.accent : def.color2,
+                'stroke-width': '0.5',
+                opacity: '0.2'
+            });
+            g.appendChild(stripe);
+
+            // Eyes — large, round
+            [[-s*0.1, -s*0.05], [s*0.1, -s*0.05]].forEach(([ex, ey]) => {
+                const eyeOuter = Utils.svgEl('circle', {
+                    cx: ex, cy: ey, r: s*0.06,
+                    fill: def.ink ? 'none' : '#e8e8e0',
+                    stroke: def.ink ? def.accent : def.color2,
+                    'stroke-width': def.ink ? '0.8' : '0.5'
+                });
+                g.appendChild(eyeOuter);
+                const eyeInner = Utils.svgEl('circle', {
+                    cx: ex + s*0.01, cy: ey, r: s*0.03,
+                    fill: def.ink ? def.accent : '#1a1a1a'
+                });
+                g.appendChild(eyeInner);
+            });
+
+            // 8 short arms
+            for (let i = 0; i < 8; i++) {
+                const spread = (i / 7 - 0.5) * s * 0.38;
+                const armLen = s * Utils.rand(0.3, 0.45);
+                const wave = Utils.rand(-8, 8);
+                const arm = Utils.svgEl('path', {
+                    d: `M ${spread} ${s*0.18} Q ${spread + wave} ${s*0.18 + armLen*0.5}, ${spread + wave*0.5} ${s*0.18 + armLen}`,
+                    fill: 'none',
+                    stroke: def.ink ? def.accent : def.color,
+                    'stroke-width': def.ink ? '0.6' : Utils.rand(1.2, 2).toFixed(1),
+                    'stroke-linecap': 'round',
+                    opacity: Utils.rand(0.4, 0.65).toFixed(2),
+                    class: 'tentacle'
+                });
+                g.appendChild(arm);
+            }
+
+            // 2 long feeding tentacles with club tips
+            for (let lt = 0; lt < 2; lt++) {
+                const lx = (lt - 0.5) * s * 0.15;
+                const longLen = s * Utils.rand(0.8, 1.1);
+                const wave1 = Utils.rand(-12, 12);
+                const wave2 = Utils.rand(-8, 8);
+                const tentacle = Utils.svgEl('path', {
+                    d: `M ${lx} ${s*0.18} Q ${lx + wave1} ${s*0.18 + longLen*0.4}, ${lx + wave2} ${s*0.18 + longLen*0.7} Q ${lx + wave1*0.3} ${s*0.18 + longLen*0.9}, ${lx + Utils.rand(-5,5)} ${s*0.18 + longLen}`,
+                    fill: 'none',
+                    stroke: def.ink ? def.accent : def.color,
+                    'stroke-width': def.ink ? '0.5' : '1',
+                    'stroke-linecap': 'round',
+                    opacity: '0.5',
+                    class: 'tentacle'
+                });
+                g.appendChild(tentacle);
+                // Club tip
+                const tipY = s*0.18 + longLen;
+                const tipX = lx + Utils.rand(-5, 5);
+                const club = Utils.svgEl('ellipse', {
+                    cx: tipX, cy: tipY, rx: s*0.03, ry: s*0.06,
+                    fill: def.ink ? 'none' : def.accent,
+                    stroke: def.ink ? def.accent : 'none',
+                    'stroke-width': def.ink ? '0.5' : '0',
+                    opacity: '0.45'
+                });
+                g.appendChild(club);
+            }
+        }
+
+        return g;
+    }
+
+    function spawn() {
+        const defs = creatureDefs[themeId] || creatureDefs.koi;
+        const def = Utils.pick(defs);
+
+        const creature = {
+            def: def,
+            x: -150,
+            y: Utils.rand(tankH * 0.15, tankH * 0.55),
+            speed: Utils.rand(0.25, 0.5),
+            bobPhase: Math.random() * Math.PI * 2,
+            bobSpeed: Utils.rand(1.2, 2.0),
+            bobAmp: Utils.rand(10, 25),
+            pulsePhase: 0,
+            el: null
+        };
+
+        // Swim direction: left-to-right or right-to-left
+        if (Math.random() < 0.5) {
+            creature.x = tankW + 150;
+            creature.speed = -creature.speed;
+        }
+
+        creature.el = createCreatureSVG(def);
+        layer.appendChild(creature.el);
+        creatures.push(creature);
+    }
+
+    function update(dt, allFish) {
+        // Spawn timer
+        spawnTimer -= dt;
+        if (spawnTimer <= 0) {
+            spawnTimer = Utils.rand(45, 90); // spawn every 45-90 seconds
+            if (creatures.length < 1) spawn();
+        }
+
+        // Update existing creatures
+        for (let i = creatures.length - 1; i >= 0; i--) {
+            const c = creatures[i];
+
+            // Move across tank
+            c.x += c.speed * 60 * dt;
+            c.bobPhase += c.bobSpeed * dt;
+            const bobY = Math.sin(c.bobPhase) * c.bobAmp;
+
+            // Jellyfish pulsing animation
+            c.pulsePhase += dt * 2;
+            const pulse = c.def.type === 'jellyfish' ? 1 + Math.sin(c.pulsePhase) * 0.06 : 1;
+
+            const scaleX = c.speed > 0 ? 1 : -1;
+            c.el.setAttribute('transform',
+                `translate(${c.x}, ${c.y + bobY}) scale(${scaleX * pulse}, ${pulse})`
+            );
+
+            // Scare nearby fish — fish flee from large creatures
+            for (const fish of allFish) {
+                if (!fish.alive) continue;
+                const dist = Utils.dist(fish.x, fish.y, c.x, c.y + bobY);
+                if (dist < 250) {
+                    const fleeAngle = Math.atan2(fish.y - (c.y + bobY), fish.x - c.x);
+                    fish.targetX = Utils.clamp(fish.x + Math.cos(fleeAngle) * 280, 60, fish.tankW - 60);
+                    fish.targetY = Utils.clamp(fish.y + Math.sin(fleeAngle) * 160, 60, fish.tankH - 100);
+                    fish.speed = fish.baseSpeed * 4;
+                    fish.dartCooldown = Math.max(fish.dartCooldown, 0.8);
+                }
+            }
+
+            // Remove when off-screen
+            if ((c.speed > 0 && c.x > tankW + 180) || (c.speed < 0 && c.x < -180)) {
+                if (c.el.parentNode) c.el.remove();
+                creatures.splice(i, 1);
+            }
+        }
+    }
+
+    function clear() {
+        creatures.forEach(c => { if (c.el && c.el.parentNode) c.el.remove(); });
+        creatures = [];
+        spawnTimer = Utils.rand(30, 60);
+    }
+
+    function resize(w, h) {
+        tankW = w; tankH = h;
+    }
+
+    return { init, update, clear, resize };
+})();
+
+
+/* ============================================
+   ZENQUARIUM - UI System
+   ============================================ */
+
+const UI = (() => {
+    let statusQueue = [];
+    let statusTimer = null;
+    let fishDetailVisible = false;
+
+    function init() {
+        // Fish count click to toggle detail
+        const fishCountEl = document.getElementById('fish-count-display');
+        if (fishCountEl) {
+            fishCountEl.style.cursor = 'pointer';
+            fishCountEl.addEventListener('click', toggleFishDetail);
+        }
+    }
+
+    function updateScore(value) {
+        const el = document.getElementById('score-value');
+        if (el) el.textContent = Utils.formatNum(value);
+    }
+
+    function updateHealth(health) {
+        const fill = document.getElementById('health-fill');
+        if (!fill) return;
+        fill.style.width = health + '%';
+        fill.className = 'health-fill';
+        if (health < 30) fill.classList.add('danger');
+        else if (health < 60) fill.classList.add('warning');
+    }
+
+    function updateFishCount(count, max) {
+        const el = document.getElementById('fish-count-value');
+        if (el) el.textContent = `${count}/${max}`;
+    }
+
+    function updateFishDetail(fishByType) {
+        const list = document.getElementById('fish-detail-list');
+        if (!list) return;
+        list.innerHTML = '';
+        for (const [typeName, info] of Object.entries(fishByType)) {
+            const row = Utils.htmlEl('div', 'fish-detail-row');
+            const colorDot = Utils.htmlEl('span', 'fish-type-color');
+            colorDot.style.backgroundColor = info.color;
+            const nameSpan = Utils.htmlEl('span', '', typeName);
+            const countSpan = Utils.htmlEl('span', '', `×${info.count}`);
+            row.appendChild(colorDot);
+            row.appendChild(nameSpan);
+            row.appendChild(countSpan);
+            list.appendChild(row);
+        }
+    }
+
+    function toggleFishDetail() {
+        const panel = document.getElementById('fish-detail-panel');
+        fishDetailVisible = !fishDetailVisible;
+        panel.classList.toggle('hidden', !fishDetailVisible);
+    }
+
+    function showStatus(message) {
+        statusQueue.push(message);
+        if (!statusTimer) processStatusQueue();
+    }
+
+    function processStatusQueue() {
+        if (statusQueue.length === 0) {
+            statusTimer = null;
+            return;
+        }
+        const msg = statusQueue.shift();
+        const el = document.getElementById('status-line');
+        if (el) {
+            el.style.opacity = '0';
+            setTimeout(() => {
+                el.textContent = msg;
+                el.style.opacity = '1';
+            }, 200);
+        }
+        statusTimer = setTimeout(processStatusQueue, 3000);
+    }
+
+    function updateButtonStates(score, feedCost, cleanCost, buyCost, isPaused) {
+        const btnFeed = document.getElementById('btn-feed');
+        const btnClean = document.getElementById('btn-clean');
+        const btnBuy = document.getElementById('btn-buy');
+        const btnPause = document.getElementById('btn-pause');
+
+        if (btnFeed) btnFeed.disabled = score < feedCost || isPaused;
+        if (btnClean) btnClean.disabled = score < cleanCost || isPaused;
+        if (btnBuy) btnBuy.disabled = score < buyCost || isPaused;
+        if (btnPause) {
+            btnPause.querySelector('.ctrl-icon').textContent = isPaused ? '▶' : '⏸';
+            btnPause.querySelector('.ctrl-label').textContent = isPaused ? 'Resume' : 'Pause';
+        }
+    }
+
+    function populateFishShop(fishTypes, score, onBuy) {
+        const shop = document.getElementById('fish-shop');
+        if (!shop) return;
+        shop.innerHTML = '';
+
+        fishTypes.forEach(type => {
+            const item = Utils.htmlEl('div', 'shop-item');
+            if (score < type.cost) item.classList.add('disabled');
+
+            // Fish preview SVG
+            const preview = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            preview.setAttribute('class', 'shop-fish-preview');
+            preview.setAttribute('viewBox', '-30 -20 60 40');
+            const isInk = type.inkStyle || false;
+            const body = Utils.svgEl('ellipse', {
+                cx: 0, cy: 0, rx: 18, ry: 10,
+                fill: isInk ? (type.inkWash || 'none') : type.bodyColor,
+                stroke: isInk ? type.accentColor : 'none',
+                'stroke-width': isInk ? '1.5' : '0',
+                'stroke-linecap': 'round'
+            });
+            const tail = Utils.svgEl('path', {
+                d: `M -15 0 Q -25 -10, -28 -8 Q -20 0, -28 8 Q -25 10, -15 0 Z`,
+                fill: isInk ? (type.inkWash || 'none') : type.finColor,
+                stroke: isInk ? type.accentColor : 'none',
+                'stroke-width': isInk ? '1.2' : '0',
+                opacity: '0.8'
+            });
+            const eye = Utils.svgEl('circle', {
+                cx: 8, cy: -2, r: 2.5,
+                fill: isInk ? 'none' : '#fff',
+                stroke: isInk ? type.accentColor : 'none',
+                'stroke-width': isInk ? '1' : '0'
+            });
+            preview.appendChild(tail);
+            preview.appendChild(body);
+            preview.appendChild(eye);
+            item.appendChild(preview);
+
+            const info = Utils.htmlEl('div', 'shop-fish-info');
+            info.appendChild(Utils.htmlEl('div', 'shop-fish-name', type.name));
+            info.appendChild(Utils.htmlEl('div', 'shop-fish-cost', `Cost: ${type.cost}`));
+            item.appendChild(info);
+
+            if (score >= type.cost) {
+                item.addEventListener('click', () => onBuy(type));
+            }
+
+            shop.appendChild(item);
+        });
+    }
+
+    function showModal(id) {
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function hideModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+
+    // Splash screen
+    function initSplash(themes, onSelect, onStart) {
+        const cards = document.getElementById('theme-cards');
+        const startBtn = document.getElementById('start-btn');
+        let selected = null;
+
+        // Create splash bubbles
+        const bubblesEl = document.getElementById('splash-bubbles');
+        for (let i = 0; i < 15; i++) {
+            const b = Utils.htmlEl('div', 'splash-bubble');
+            const size = Utils.rand(4, 12);
+            b.style.cssText = `
+                left: ${Utils.rand(5, 95)}%;
+                bottom: -20px;
+                width: ${size}px; height: ${size}px;
+                animation-duration: ${Utils.rand(6, 15)}s;
+                animation-delay: ${Utils.rand(0, 8)}s;
+            `;
+            bubblesEl.appendChild(b);
+        }
+
+        // Create splash kelp strands
+        const kelpPalette = [
+            { stipe: '#3d2b1a', blade: '#2d5a2a', bulb: '#4a7a3a' },
+            { stipe: '#4a3520', blade: '#3a6830', bulb: '#5a8840' },
+            { stipe: '#352818', blade: '#2a4e22', bulb: '#3d6830' },
+            { stipe: '#503a25', blade: '#4a7040', bulb: '#6a9050' },
+            { stipe: '#3a2c1a', blade: '#355e2e', bulb: '#4e7a38' }
+        ];
+        ['splash-seaweed-left', 'splash-seaweed-right'].forEach(containerId => {
+            const container = document.getElementById(containerId);
+            const strandCount = Utils.randInt(3, 5);
+            for (let si = 0; si < strandCount; si++) {
+                const colors = Utils.pick(kelpPalette);
+                const stipe = Utils.htmlEl('div', 'kelp-stipe');
+                const h = Utils.rand(150, 320);
+                const x = Utils.rand(5, 70);
+                const swayDur = Utils.rand(5, 10);
+                const swayDelay = Utils.rand(0, 4);
+                stipe.style.cssText = `
+                    left: ${x}px; height: ${h}px;
+                    background: linear-gradient(to top, ${colors.stipe}, ${colors.stipe}cc);
+                    animation-duration: ${swayDur}s;
+                    animation-delay: ${swayDelay}s;
+                    opacity: ${Utils.rand(0.5, 0.8).toFixed(2)};
+                `;
+                // Add kelp blades along the stipe
+                const bladeCount = Utils.randInt(3, 6);
+                for (let bi = 0; bi < bladeCount; bi++) {
+                    const blade = Utils.htmlEl('div', 'kelp-blade');
+                    const isLeft = Math.random() > 0.5;
+                    blade.classList.add(isLeft ? 'left-blade' : 'right-blade');
+                    const bladeY = ((bi + 0.5) / bladeCount) * h;
+                    const bladeW = Utils.rand(20, 40);
+                    const bladeH = Utils.rand(8, 16);
+                    blade.style.cssText = `
+                        bottom: ${bladeY}px;
+                        ${isLeft ? 'right' : 'left'}: 2px;
+                        width: ${bladeW}px; height: ${bladeH}px;
+                        background: linear-gradient(${isLeft ? 'to left' : 'to right'}, ${colors.blade}cc, ${colors.blade}44);
+                        animation-duration: ${Utils.rand(4, 8)}s;
+                        animation-delay: ${Utils.rand(0, 3)}s;
+                        opacity: ${Utils.rand(0.5, 0.8).toFixed(2)};
+                    `;
+                    stipe.appendChild(blade);
+                }
+                // Add gas bladder (bulb) near top
+                const bulb = Utils.htmlEl('div', 'kelp-bulb');
+                bulb.style.cssText = `
+                    top: -4px; left: -1px;
+                    background: radial-gradient(circle at 40% 40%, ${colors.bulb}, ${colors.blade});
+                    opacity: ${Utils.rand(0.5, 0.7).toFixed(2)};
+                `;
+                stipe.appendChild(bulb);
+                container.appendChild(stipe);
+            }
+        });
+
+        themes.forEach(t => {
+            const card = Utils.htmlEl('div', 'theme-card');
+            card.style.background = t.cardBg;
+            card.innerHTML = `
+                <div class="theme-card-name">${t.name}</div>
+                <div class="theme-card-desc">${t.description}</div>
+            `;
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selected = t.id;
+                startBtn.disabled = false;
+                onSelect(t.id);
+            });
+            cards.appendChild(card);
+        });
+
+        startBtn.addEventListener('click', () => {
+            if (selected) onStart(selected);
+        });
+
+        // About overlay
+        document.getElementById('about-btn').addEventListener('click', () => {
+            document.getElementById('about-overlay').classList.add('visible');
+        });
+        document.getElementById('about-close').addEventListener('click', () => {
+            document.getElementById('about-overlay').classList.remove('visible');
+        });
+        document.getElementById('about-overlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                e.currentTarget.classList.remove('visible');
+            }
+        });
+
+        // Splash screen ambient sound + mute button
+        let splashMuted = false;
+        const muteBtn = document.getElementById('splash-mute-btn');
+
+        // Start splash audio on first user interaction (required by browsers)
+        const startSplashOnce = () => {
+            if (!splashMuted) {
+                ZenAudio.startSplashAmbient();
+            }
+            document.removeEventListener('click', startSplashOnce);
+            document.removeEventListener('keydown', startSplashOnce);
+        };
+        document.addEventListener('click', startSplashOnce);
+        document.addEventListener('keydown', startSplashOnce);
+
+        muteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            splashMuted = !splashMuted;
+            muteBtn.textContent = splashMuted ? '🔇' : '🔊';
+            if (splashMuted) {
+                ZenAudio.stopSplashAmbient();
+            } else {
+                ZenAudio.startSplashAmbient();
+            }
+        });
+    }
+
+    function hideSplash(onVisible) {
+        ZenAudio.stopSplashAmbient();
+        const splash = document.getElementById('splash-screen');
+        splash.classList.add('fade-out');
+        setTimeout(() => {
+            splash.classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            if (onVisible) requestAnimationFrame(() => onVisible());
+        }, 1000);
+    }
+
+    function showSplash() {
+        const splash = document.getElementById('splash-screen');
+        splash.classList.remove('hidden', 'fade-out');
+        document.getElementById('game-screen').classList.add('hidden');
+        // Restart splash ambient if not muted
+        const muteBtn = document.getElementById('splash-mute-btn');
+        if (muteBtn && muteBtn.textContent !== '🔇') {
+            ZenAudio.startSplashAmbient();
+        }
+    }
+
+    return {
+        init, updateScore, updateHealth, updateFishCount,
+        updateFishDetail, showStatus, updateButtonStates,
+        populateFishShop, showModal, hideModal,
+        initSplash, hideSplash, showSplash
+    };
+})();
+
+
+/* ============================================
+   ZENQUARIUM - Main Application
+   ============================================ */
+
+const App = (() => {
+    // Game state
+    let state = {
+        score: 100,
+        tankHealth: 100,
+        cleanlinessDecay: 0,
+        fish: [],
+        theme: null,
+        themeId: 'koi',
+        isPaused: false,
+        isRunning: false,
+        maxFish: 20,
+        feedCost: 5,
+        cleanCost: 10,
+        buyCost: 20,
+        scoreRate: 0.5, // per second per healthy fish
+        lastTime: 0,
+        reproductionCooldowns: {},
+        autoMode: false,
+        autoFeedTimer: 0,
+        autoCleanTimer: 0,
+        autoBuyTimer: 0,
+        tapCooldown: 0,
+        tapStressAccum: 0
+    };
+
+    let fishLayer = null;
+    let animFrameId = null;
+
+    function init() {
+
+        // Setup splash screen
+        UI.initSplash(
+            Themes.getAllThemes(),
+            onThemePreview,
+            onGameStart
+        );
+    }
+
+    function onThemePreview(themeId) {
+        state.themeId = themeId;
+    }
+
+    function onGameStart(themeId) {
+        state.themeId = themeId;
+        state.theme = Themes.applyTheme(themeId);
+
+        // Init audio (needs user gesture)
+        ZenAudio.ensureCtx();
+
+        UI.hideSplash(() => {
+            setupGame();
+        });
+    }
+
+    let controlsBound = false;
+
+    function setupGame() {
+        fishLayer = document.getElementById('fish-layer');
+
+        Tank.init(state.theme);
+        const { w, h } = getSize();
+        Food.init(w, h);
+        Creatures.init(w, h, state.themeId);
+        UI.init();
+
+        // Start with 2 fish
+        const startTypes = state.theme.fishTypes.slice(0, 2);
+        startTypes.forEach(type => {
+            addFish(type);
+        });
+
+        // Bind controls only once
+        if (!controlsBound) {
+            bindControls();
+            controlsBound = true;
+        }
+
+        // Start game loop
+        state.isRunning = true;
+        state.lastTime = performance.now();
+        ZenAudio.startAmbient(state.themeId);
+        gameLoop(performance.now());
+
+        UI.showStatus('Your aquarium awaits. Add fish and keep them happy!');
+    }
+
+    function getSize() {
+        Tank.updateSize();
+        return Tank.getSize();
+    }
+
+    function bindControls() {
+        document.getElementById('btn-feed').addEventListener('click', onFeed);
+        document.getElementById('btn-clean').addEventListener('click', onClean);
+        document.getElementById('btn-buy').addEventListener('click', () => {
+            UI.populateFishShop(state.theme.fishTypes, state.score, onBuyFish);
+            UI.showModal('buy-modal');
+        });
+        document.getElementById('btn-pause').addEventListener('click', onPause);
+        document.getElementById('btn-restart').addEventListener('click', onRestart);
+        document.getElementById('modal-close').addEventListener('click', () => UI.hideModal('buy-modal'));
+        document.getElementById('volume-slider').addEventListener('input', (e) => {
+            ZenAudio.setVolume(e.target.value / 100);
+        });
+
+        // Restart confirmation modal buttons
+        document.getElementById('restart-confirm').addEventListener('click', doRestart);
+        document.getElementById('restart-cancel').addEventListener('click', () => {
+            document.getElementById('restart-modal').classList.add('hidden');
+        });
+        document.getElementById('restart-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('restart-modal').classList.add('hidden');
+            }
+        });
+
+        // Controls chevron toggle
+        document.getElementById('controls-chevron').addEventListener('click', () => {
+            const controls = document.getElementById('controls');
+            const chevron = document.getElementById('controls-chevron');
+            const isCollapsed = controls.classList.toggle('collapsed');
+            chevron.classList.toggle('collapsed', isCollapsed);
+            // Move chevron down when expanded, up when collapsed
+            chevron.style.bottom = isCollapsed ? '0' : '';
+        });
+
+        // Auto mode toggle
+        document.getElementById('auto-toggle').addEventListener('change', (e) => {
+            state.autoMode = e.target.checked;
+            UI.showStatus(state.autoMode ? 'Auto mode enabled 🤖' : 'Auto mode disabled');
+        });
+
+        // Click tank — tap the glass or drop food
+        document.getElementById('tank').addEventListener('click', (e) => {
+            if (state.isPaused) return;
+            if (e.target.closest('.controls') || e.target.closest('.controls-chevron') || e.target.closest('.hud') || e.target.closest('.modal')) return;
+
+            const rect = document.getElementById('tank').getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            // Check if any fish are near the click — use fish size for better hit detection
+            const baseScatterRadius = 150;
+            let nearbyFish = state.fish.filter(f => {
+                if (!f.alive) return false;
+                const fishRadius = baseScatterRadius + f.size * 30;
+                return Utils.dist(f.x, f.y, clickX, clickY) < fishRadius;
+            });
+
+            if (nearbyFish.length > 0) {
+                // Tap the glass — scatter nearby fish dramatically
+                const crowdIntensity = Math.min(nearbyFish.length / 3, 2);
+                nearbyFish.forEach(f => {
+                    const fleeAngle = Math.atan2(f.y - clickY, f.x - clickX) + Utils.rand(-0.3, 0.3);
+                    const fleeDist = Utils.rand(250, 500) * (1 + crowdIntensity * 0.4);
+                    f.targetX = Utils.clamp(f.x + Math.cos(fleeAngle) * fleeDist, 60, f.tankW - 60);
+                    f.targetY = Utils.clamp(f.y + Math.sin(fleeAngle) * fleeDist * 0.6, 60, f.tankH - 100);
+                    f.speed = f.baseSpeed * Utils.rand(6, 10) * (1 + crowdIntensity * 0.3);
+                    // Set velocity directly for immediate burst response
+                    const burstSpeed = f.speed * 60 * 0.016; // approximate one frame
+                    f.vx = Math.cos(fleeAngle) * burstSpeed;
+                    f.vy = Math.sin(fleeAngle) * burstSpeed * 0.6;
+                    f.dartCooldown = Utils.rand(1.0, 2.0);
+                    f.nextTargetTime = performance.now() + Utils.rand(1500, 3000);
+                });
+
+                // Glass tap sound effect — intensity scales with fish count
+                ZenAudio.playTapGlass(Math.min(0.6 + crowdIntensity * 0.3, 1.2));
+
+                // Visual ripple effect — larger when more fish scatter
+                const rippleSize = 80 + nearbyFish.length * 15;
+                const ripple = document.createElement('div');
+                ripple.className = 'tap-ripple';
+                ripple.style.cssText = `left:${clickX - rippleSize/2}px; top:${clickY - rippleSize/2}px; width:${rippleSize}px; height:${rippleSize}px;`;
+                document.getElementById('tank').appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+
+                // Second ripple ring for dramatic effect when many fish
+                if (nearbyFish.length >= 3) {
+                    setTimeout(() => {
+                        const r2 = document.createElement('div');
+                        r2.className = 'tap-ripple';
+                        const s2 = rippleSize * 1.4;
+                        r2.style.cssText = `left:${clickX - s2/2}px; top:${clickY - s2/2}px; width:${s2}px; height:${s2}px;`;
+                        document.getElementById('tank').appendChild(r2);
+                        setTimeout(() => r2.remove(), 600);
+                    }, 100);
+                }
+
+                // Tapping stress — accumulates and hurts tank health
+                state.tapStressAccum += 3;
+                if (state.tapStressAccum > 10) {
+                    state.tankHealth = Math.max(0, state.tankHealth - 2);
+                    UI.showStatus('The fish are stressed from the tapping! 😰');
+                } else {
+                    UI.showStatus('*tap tap* Fish scatter! 👆');
+                }
+            } else {
+                // No fish nearby — drop food as before
+                if (state.score >= state.feedCost) {
+                    state.score -= state.feedCost;
+                    Food.dropFood(Utils.randInt(3, 6));
+                    ZenAudio.playPlop();
+                    UI.showStatus('Food dropped!');
+                }
+            }
+        });
+
+        // Resize handler
+        window.addEventListener('resize', Utils.debounce(() => {
+            const { w, h } = getSize();
+            Tank.syncSvgSizes();
+            Food.resize(w, h);
+            Creatures.resize(w, h);
+            state.fish.forEach(f => f.resize(w, h));
+        }, 200));
+    }
+
+    function onFeed() {
+        if (state.score < state.feedCost || state.isPaused) return;
+        state.score -= state.feedCost;
+        Food.dropFood(Utils.randInt(4, 8));
+        ZenAudio.playPlop();
+        UI.showStatus('Feeding time! 🍽');
+    }
+
+    function onClean() {
+        if (state.score < state.cleanCost || state.isPaused) return;
+        state.score -= state.cleanCost;
+        state.cleanlinessDecay = 0;
+        state.tankHealth = Math.min(100, state.tankHealth + 30);
+        ZenAudio.playCleaning();
+        UI.showStatus('Tank cleaned! ✨');
+    }
+
+    function onBuyFish(type) {
+        if (state.score < type.cost) return;
+        if (state.fish.length >= state.maxFish) {
+            UI.showStatus('Tank is full! (20 fish max)');
+            return;
+        }
+        state.score -= type.cost;
+        addFish(type);
+        UI.showStatus(`Added a ${type.name} to the tank!`);
+        // Refresh shop to update affordability
+        UI.populateFishShop(state.theme.fishTypes, state.score, onBuyFish);
+    }
+
+    function addFish(typeInfo, isBaby = false) {
+        const { w, h } = getSize();
+        const fish = FishFactory.create(typeInfo, w, h, isBaby);
+        state.fish.push(fish);
+        fishLayer.appendChild(fish.el);
+        return fish;
+    }
+
+    function removeFish(fish) {
+        const idx = state.fish.indexOf(fish);
+        if (idx !== -1) {
+            state.fish.splice(idx, 1);
+            if (fish.el && fish.el.parentNode) {
+                // Death animation: flip, float up, fade out
+                const el = fish.el;
+                const startX = fish.x;
+                const startY = fish.y;
+                const startTime = performance.now();
+                const duration = 1500;
+                function animateDeath(now) {
+                    const t = Math.min(1, (now - startTime) / duration);
+                    const eased = t * t;
+                    const y = startY - eased * 80;
+                    const rotate = t * 180;
+                    const opacity = 1 - t;
+                    const sizeRatio = fish.isBaby ? 0.3 + fish.growthProgress * 0.7 : 1;
+                    const scaleX = fish.facingRight ? sizeRatio : -sizeRatio;
+                    el.setAttribute('transform',
+                        `translate(${startX + Math.sin(t * 6) * 8}, ${y}) scale(${scaleX}, ${sizeRatio}) rotate(${rotate})`);
+                    el.style.opacity = opacity;
+                    if (t < 1) {
+                        requestAnimationFrame(animateDeath);
+                    } else {
+                        el.remove();
+                    }
+                }
+                requestAnimationFrame(animateDeath);
+            }
+        }
+    }
+
+    function onPause() {
+        state.isPaused = !state.isPaused;
+        if (state.isPaused) {
+            ZenAudio.pause();
+            UI.showStatus('Game paused');
+        } else {
+            ZenAudio.resume();
+            state.lastTime = performance.now();
+            UI.showStatus('Game resumed');
+        }
+    }
+
+    function onRestart() {
+        // Show styled restart confirmation modal
+        document.getElementById('restart-modal').classList.remove('hidden');
+    }
+
+    function doRestart() {
+        document.getElementById('restart-modal').classList.add('hidden');
+
+        // Stop game loop
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+        state.isRunning = false;
+
+        // Clear everything
+        state.fish.forEach(f => { if (f.el && f.el.parentNode) f.el.remove(); });
+        state.fish = [];
+        Food.clear();
+        Creatures.clear();
+
+        state.score = 100;
+        state.tankHealth = 100;
+        state.cleanlinessDecay = 0;
+        state.isPaused = false;
+        state.reproductionCooldowns = {};
+        state.autoMode = false;
+        state.autoFeedTimer = 0;
+        state.autoCleanTimer = 0;
+        state.autoBuyTimer = 0;
+        state.tapStressAccum = 0;
+
+        // Reset auto toggle UI
+        const autoToggle = document.getElementById('auto-toggle');
+        if (autoToggle) autoToggle.checked = false;
+
+        // Reset controls bar visibility
+        document.getElementById('controls').classList.remove('collapsed');
+        document.getElementById('controls-chevron').classList.remove('collapsed');
+
+        // Reset cloudiness overlay
+        const cloudinessEl = document.getElementById('tank-cloudiness');
+        if (cloudinessEl) cloudinessEl.style.opacity = '0';
+
+        ZenAudio.stopAmbient();
+
+        // Reset theme class so splash screen renders correctly
+        document.body.className = '';
+
+        // Go back to splash screen
+        UI.showSplash();
+    }
+
+    // Main game loop
+    function gameLoop(timestamp) {
+        animFrameId = requestAnimationFrame(gameLoop);
+
+        // Always update button states (so pause label updates)
+        UI.updateButtonStates(state.score, state.feedCost, state.cleanCost, state.buyCost, state.isPaused);
+
+        if (state.isPaused) return;
+
+        const dt = Math.min((timestamp - state.lastTime) / 1000, 0.1);
+        state.lastTime = timestamp;
+
+        // Update tank environment
+        Tank.update(dt);
+
+        // Update food
+        Food.update(dt);
+
+        // Update easter egg creatures
+        Creatures.update(dt, state.fish);
+
+        // Update fish
+        const foods = Food.getAll();
+        const deadFish = [];
+        const eatenFish = [];
+
+        for (const fish of state.fish) {
+            const prey = fish.update(dt, foods, state.fish);
+            if (!fish.alive) {
+                deadFish.push(fish);
+                if (prey === null) {
+                    // Died from starvation/health
+                } else {
+                    eatenFish.push(fish);
+                }
+            }
+            if (prey && prey !== fish) {
+                eatenFish.push(prey);
+            }
+        }
+
+        // Remove dead fish
+        for (const fish of deadFish) {
+            removeFish(fish);
+            UI.showStatus(`A ${fish.typeName} has perished...`);
+        }
+
+        for (const fish of eatenFish) {
+            if (state.fish.includes(fish)) {
+                removeFish(fish);
+                ZenAudio.playEaten();
+                UI.showStatus(`A ${fish.typeName} was eaten by a larger fish!`);
+            }
+        }
+
+        // Check reproduction
+        checkReproduction(dt);
+
+        // Auto mode logic
+        if (state.autoMode) {
+            updateAutoMode(dt);
+        }
+
+        // Tap stress decay over time
+        if (state.tapStressAccum > 0) {
+            state.tapStressAccum = Math.max(0, state.tapStressAccum - dt * 0.5);
+        }
+
+        // Update score (healthy fish generate value)
+        const healthyFish = state.fish.filter(f => f.alive && f.health > 50 && !f.isBaby);
+        state.score += healthyFish.length * state.scoreRate * dt;
+
+        // Tank health decay
+        state.cleanlinessDecay += dt * 0.3;
+        const overcrowdingPenalty = Math.max(0, state.fish.length - 12) * 0.1;
+        state.tankHealth = Math.max(0, 100 - state.cleanlinessDecay - overcrowdingPenalty * state.cleanlinessDecay);
+
+        // Tank health affects fish health
+        if (state.tankHealth < 30) {
+            state.fish.forEach(f => {
+                f.health = Math.max(0, f.health - dt * 2);
+            });
+        }
+
+        // Update UI
+        UI.updateScore(state.score);
+        UI.updateHealth(state.tankHealth);
+        UI.updateFishCount(state.fish.length, state.maxFish);
+        UI.updateButtonStates(state.score, state.feedCost, state.cleanCost, state.buyCost, state.isPaused);
+
+        // Update tank cloudiness based on health
+        const cloudinessEl = document.getElementById('tank-cloudiness');
+        if (cloudinessEl) {
+            const cloudiness = Math.max(0, (70 - state.tankHealth) / 70);
+            cloudinessEl.style.opacity = (cloudiness * 0.7).toFixed(3);
+        }
+
+        // Update fish detail panel
+        const fishByType = {};
+        state.fish.forEach(f => {
+            if (!fishByType[f.typeName]) {
+                fishByType[f.typeName] = { count: 0, color: f.bodyColor };
+            }
+            fishByType[f.typeName].count++;
+        });
+        UI.updateFishDetail(fishByType);
+    }
+
+    function updateAutoMode(dt) {
+        state.autoFeedTimer -= dt;
+        state.autoCleanTimer -= dt;
+        state.autoBuyTimer -= dt;
+
+        // Auto-feed: check if any fish are hungry
+        if (state.autoFeedTimer <= 0) {
+            state.autoFeedTimer = 3; // check every 3 seconds
+            const hungryFish = state.fish.filter(f => f.alive && f.hunger < 50);
+            if (hungryFish.length > 0 && state.score >= state.feedCost) {
+                state.score -= state.feedCost;
+                Food.dropFood(Utils.randInt(3, 6));
+                ZenAudio.playPlop();
+            }
+        }
+
+        // Auto-clean: clean when tank health drops below 60
+        if (state.autoCleanTimer <= 0) {
+            state.autoCleanTimer = 5; // check every 5 seconds
+            if (state.tankHealth < 60 && state.score >= state.cleanCost) {
+                state.score -= state.cleanCost;
+                state.cleanlinessDecay = 0;
+                state.tankHealth = Math.min(100, state.tankHealth + 30);
+                ZenAudio.playCleaning();
+            }
+        }
+
+        // Auto-buy: maintain population around 5-10 fish
+        if (state.autoBuyTimer <= 0) {
+            state.autoBuyTimer = 8; // check every 8 seconds
+            const aliveFish = state.fish.filter(f => f.alive).length;
+
+            if (aliveFish < 5 && state.fish.length < 10) {
+                // Need more fish — buy the cheapest affordable type
+                const affordable = state.theme.fishTypes
+                    .filter(t => t.cost <= state.score)
+                    .sort((a, b) => a.cost - b.cost);
+                if (affordable.length > 0) {
+                    const type = Utils.pick(affordable);
+                    state.score -= type.cost;
+                    addFish(type);
+                    UI.showStatus(`Auto: Added a ${type.name} 🤖`);
+                }
+            }
+        }
+    }
+
+    function checkReproduction(dt) {
+        const maxForReproduction = state.autoMode ? 10 : state.maxFish;
+        if (state.fish.length >= maxForReproduction) return;
+
+        // Group adult fish by type
+        const adultsByType = {};
+        state.fish.forEach(f => {
+            if (!f.alive || f.isBaby || f.hunger < 50 || f.health < 60) return;
+            if (!adultsByType[f.type]) adultsByType[f.type] = [];
+            adultsByType[f.type].push(f);
+        });
+
+        for (const [type, adults] of Object.entries(adultsByType)) {
+            if (adults.length < 2) continue;
+
+            // Cooldown per type
+            if (!state.reproductionCooldowns[type]) {
+                state.reproductionCooldowns[type] = 0;
+            }
+            state.reproductionCooldowns[type] -= dt;
+            if (state.reproductionCooldowns[type] > 0) continue;
+
+            // Check if conditions are right
+            const avgHunger = adults.reduce((s, f) => s + f.hunger, 0) / adults.length;
+            const avgHealth = adults.reduce((s, f) => s + f.health, 0) / adults.length;
+
+            if (avgHunger > 65 && avgHealth > 70 && state.tankHealth > 50) {
+                if (Math.random() < 0.02) { // Small chance each frame
+                    // Find the type info
+                    const typeInfo = state.theme.fishTypes.find(t => t.id === type);
+                    if (typeInfo && state.fish.length < state.maxFish) {
+                        const baby = addFish(typeInfo, true);
+                        // Position near parents
+                        const parent = Utils.pick(adults);
+                        baby.x = parent.x + Utils.rand(-30, 30);
+                        baby.y = parent.y + Utils.rand(-20, 20);
+                        baby.updateTransform();
+
+                        ZenAudio.playBirth();
+                        UI.showStatus(`A baby ${typeInfo.name} was born! 🎉`);
+                        state.reproductionCooldowns[type] = Utils.rand(20, 40);
+                    }
+                }
+            }
+        }
+    }
+
+    // Start everything
+    document.addEventListener('DOMContentLoaded', init);
+
+    return { state };
+})();
+
+    </script>
+</body>
+</html>
