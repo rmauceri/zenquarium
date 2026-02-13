@@ -856,6 +856,12 @@ html, body {
     font-size: 0.7rem;
     color: #f59e0b;
 }
+.shop-fish-personality {
+    font-size: 0.65rem;
+    font-style: italic;
+    color: rgba(255,255,255,0.5);
+    margin-top: 1px;
+}
 
 .modal-close {
     display: block;
@@ -2271,10 +2277,10 @@ const Themes = (() => {
             cssClass: 'theme-koi',
             cardBg: 'linear-gradient(135deg, #1a3a5c, #2a1f14)',
             fishTypes: [
-                { id: 'koi-orange', name: 'Orange Koi', bodyColor: '#e8845c', finColor: '#d4742c', accentColor: '#fff5e6', cost: 20, size: 1.2, speed: 0.7, shape: 'standard', aggression: 0.3 },
-                { id: 'koi-white', name: 'White Koi', bodyColor: '#f0e6d4', finColor: '#d4c8b0', accentColor: '#ffffff', cost: 25, size: 1.3, speed: 0.6, shape: 'standard', aggression: 0.2 },
-                { id: 'koi-red', name: 'Red Koi', bodyColor: '#c94040', finColor: '#a03030', accentColor: '#f0d0d0', cost: 30, size: 1.1, speed: 0.8, shape: 'round', aggression: 0.5 },
-                { id: 'goldfish', name: 'Goldfish', bodyColor: '#f0a830', finColor: '#d4901c', accentColor: '#fff0c0', cost: 15, size: 0.8, speed: 1.0, shape: 'round', aggression: 0.2 },
+                { id: 'koi-orange', name: 'Orange Koi', bodyColor: '#e8845c', finColor: '#d4742c', accentColor: '#fff5e6', cost: 20, size: 1.2, speed: 0.7, shape: 'standard', aggression: 0.3, traits: ['social', 'lazy'], personality: 'Social & easygoing' },
+                { id: 'koi-white', name: 'White Koi', bodyColor: '#f0e6d4', finColor: '#d4c8b0', accentColor: '#ffffff', cost: 25, size: 1.3, speed: 0.6, shape: 'standard', aggression: 0.2, traits: ['shy', 'explorer'], personality: 'Shy but adventurous' },
+                { id: 'koi-red', name: 'Red Koi', bodyColor: '#c94040', finColor: '#a03030', accentColor: '#f0d0d0', cost: 30, size: 1.1, speed: 0.8, shape: 'round', aggression: 0.5, traits: ['brave', 'greedy'], personality: 'Bold & competitive' },
+                { id: 'goldfish', name: 'Goldfish', bodyColor: '#f0a830', finColor: '#d4901c', accentColor: '#fff0c0', cost: 15, size: 0.8, speed: 1.0, shape: 'round', aggression: 0.2, traits: ['playful', 'curious'], personality: 'Playful & curious' },
             ],
             plantColors: ['#2d5a3a', '#3a7048', '#1a3d28', '#4a8858', '#5c9a6a', '#3d8050', '#1e4830', '#6aad78'],
             bubbleColor: 'rgba(255,255,255,0.15)',
@@ -2291,10 +2297,10 @@ const Themes = (() => {
             cssClass: 'theme-tropical',
             cardBg: 'linear-gradient(135deg, #0a4a6e, #3a2a18)',
             fishTypes: [
-                { id: 'clown', name: 'Clownfish', bodyColor: '#f08030', finColor: '#e06820', accentColor: '#ffffff', cost: 20, size: 0.7, speed: 1.2, shape: 'round', aggression: 0.4 },
-                { id: 'tang', name: 'Blue Tang', bodyColor: '#2080d0', finColor: '#1060a0', accentColor: '#f0e040', cost: 25, size: 0.9, speed: 1.0, shape: 'slim', aggression: 0.6 },
-                { id: 'angel', name: 'Angelfish', bodyColor: '#f0d040', finColor: '#d0b030', accentColor: '#303030', cost: 30, size: 1.1, speed: 0.8, shape: 'tall', aggression: 0.7 },
-                { id: 'neon', name: 'Neon Tetra', bodyColor: '#30c0f0', finColor: '#2090c0', accentColor: '#e04040', cost: 10, size: 0.5, speed: 1.5, shape: 'slim', aggression: 0.1 },
+                { id: 'clown', name: 'Clownfish', bodyColor: '#f08030', finColor: '#e06820', accentColor: '#ffffff', cost: 20, size: 0.7, speed: 1.2, shape: 'round', aggression: 0.4, traits: ['playful', 'brave'], personality: 'Playful & fearless' },
+                { id: 'tang', name: 'Blue Tang', bodyColor: '#2080d0', finColor: '#1060a0', accentColor: '#f0e040', cost: 25, size: 0.9, speed: 1.0, shape: 'slim', aggression: 0.6, traits: ['explorer', 'brave'], personality: 'Bold explorer' },
+                { id: 'angel', name: 'Angelfish', bodyColor: '#f0d040', finColor: '#d0b030', accentColor: '#303030', cost: 30, size: 1.1, speed: 0.8, shape: 'tall', aggression: 0.7, traits: ['greedy', 'brave'], personality: 'Dominant & hungry' },
+                { id: 'neon', name: 'Neon Tetra', bodyColor: '#30c0f0', finColor: '#2090c0', accentColor: '#e04040', cost: 10, size: 0.5, speed: 1.5, shape: 'slim', aggression: 0.1, traits: ['shy', 'social'], personality: 'Timid schooler' },
             ],
             plantColors: ['#e04060', '#f06080', '#d03050', '#c02040', '#ff8040', '#e8a020', '#d050d0', '#50d0a0'],
             bubbleColor: 'rgba(100,220,255,0.15)',
@@ -2309,10 +2315,10 @@ const Themes = (() => {
             cssClass: 'theme-deep',
             cardBg: 'linear-gradient(135deg, #060d18, #0a0f18)',
             fishTypes: [
-                { id: 'angler', name: 'Anglerfish', bodyColor: '#3a5070', finColor: '#2a3858', accentColor: '#00ffcc', cost: 30, size: 1.4, speed: 0.5, shape: 'round', aggression: 0.9, glowColor: 'rgba(0,255,204,0.2)' },
-                { id: 'jelly', name: 'Jellyfish', bodyColor: '#9050e8', finColor: '#7040c0', accentColor: '#e0a0ff', cost: 20, size: 0.9, speed: 0.4, shape: 'tall', aggression: 0.1, glowColor: 'rgba(224,160,255,0.2)' },
-                { id: 'lantern', name: 'Lanternfish', bodyColor: '#2878a8', finColor: '#1a5880', accentColor: '#80ff80', cost: 15, size: 0.6, speed: 1.1, shape: 'slim', aggression: 0.3, glowColor: 'rgba(128,255,128,0.2)' },
-                { id: 'biolum', name: 'Glowfin', bodyColor: '#305878', finColor: '#204060', accentColor: '#60d4ff', cost: 25, size: 0.8, speed: 0.9, shape: 'standard', aggression: 0.4, glowColor: 'rgba(96,212,255,0.2)' },
+                { id: 'angler', name: 'Anglerfish', bodyColor: '#3a5070', finColor: '#2a3858', accentColor: '#00ffcc', cost: 30, size: 1.4, speed: 0.5, shape: 'round', aggression: 0.9, glowColor: 'rgba(0,255,204,0.2)', traits: ['lazy', 'greedy'], personality: 'Patient predator' },
+                { id: 'jelly', name: 'Jellyfish', bodyColor: '#9050e8', finColor: '#7040c0', accentColor: '#e0a0ff', cost: 20, size: 0.9, speed: 0.4, shape: 'tall', aggression: 0.1, glowColor: 'rgba(224,160,255,0.2)', traits: ['shy', 'explorer'], personality: 'Drifting loner' },
+                { id: 'lantern', name: 'Lanternfish', bodyColor: '#2878a8', finColor: '#1a5880', accentColor: '#80ff80', cost: 15, size: 0.6, speed: 1.1, shape: 'slim', aggression: 0.3, glowColor: 'rgba(128,255,128,0.2)', traits: ['social', 'playful'], personality: 'Friendly & lively' },
+                { id: 'biolum', name: 'Glowfin', bodyColor: '#305878', finColor: '#204060', accentColor: '#60d4ff', cost: 25, size: 0.8, speed: 0.9, shape: 'standard', aggression: 0.4, glowColor: 'rgba(96,212,255,0.2)', traits: ['curious', 'explorer'], personality: 'Inquisitive roamer' },
             ],
             plantColors: ['#1a3040', '#203848', '#0d1a28', '#284050', '#1a4858', '#0a2838', '#305868', '#183848'],
             bubbleColor: 'rgba(77,201,246,0.1)',
@@ -2329,10 +2335,10 @@ const Themes = (() => {
             cssClass: 'theme-zen',
             cardBg: 'linear-gradient(135deg, #1a1a1a, #1a1810)',
             fishTypes: [
-                { id: 'zen-gold', name: 'Golden Carp', bodyColor: '#d4742c', finColor: '#b05820', accentColor: '#f0d8a0', cost: 25, size: 1.0, speed: 0.6, shape: 'standard', aggression: 0.3, glowColor: 'rgba(240,216,160,0.12)' },
-                { id: 'zen-silver', name: 'Silver Minnow', bodyColor: '#909898', finColor: '#707878', accentColor: '#c0c8c8', cost: 15, size: 0.6, speed: 1.2, shape: 'slim', aggression: 0.2, glowColor: 'rgba(192,200,200,0.1)' },
-                { id: 'zen-black', name: 'Ink Koi', bodyColor: '#282828', finColor: '#1a1a1a', accentColor: '#505050', cost: 30, size: 1.2, speed: 0.5, shape: 'round', aggression: 0.6, glowColor: 'rgba(120,120,120,0.18)' },
-                { id: 'zen-white', name: 'Pearl Koi', bodyColor: '#e8e0d0', finColor: '#d0c8b8', accentColor: '#ffffff', cost: 20, size: 1.1, speed: 0.7, shape: 'standard', aggression: 0.2, glowColor: 'rgba(255,255,255,0.1)' },
+                { id: 'zen-gold', name: 'Golden Carp', bodyColor: '#d4742c', finColor: '#b05820', accentColor: '#f0d8a0', cost: 25, size: 1.0, speed: 0.6, shape: 'standard', aggression: 0.3, glowColor: 'rgba(240,216,160,0.12)', traits: ['lazy', 'social'], personality: 'Calm companion' },
+                { id: 'zen-silver', name: 'Silver Minnow', bodyColor: '#909898', finColor: '#707878', accentColor: '#c0c8c8', cost: 15, size: 0.6, speed: 1.2, shape: 'slim', aggression: 0.2, glowColor: 'rgba(192,200,200,0.1)', traits: ['playful', 'explorer'], personality: 'Restless spirit' },
+                { id: 'zen-black', name: 'Ink Koi', bodyColor: '#282828', finColor: '#1a1a1a', accentColor: '#505050', cost: 30, size: 1.2, speed: 0.5, shape: 'round', aggression: 0.6, glowColor: 'rgba(120,120,120,0.18)', traits: ['brave', 'greedy'], personality: 'Silent authority' },
+                { id: 'zen-white', name: 'Pearl Koi', bodyColor: '#e8e0d0', finColor: '#d0c8b8', accentColor: '#ffffff', cost: 20, size: 1.1, speed: 0.7, shape: 'standard', aggression: 0.2, glowColor: 'rgba(255,255,255,0.1)', traits: ['curious', 'shy'], personality: 'Gentle observer' },
             ],
             plantColors: ['#2a2a20', '#343428', '#1a1a14', '#3a3a30', '#3d3a28', '#282818', '#4a4838', '#2e3020'],
             bubbleColor: 'rgba(255,255,255,0.08)',
@@ -2348,10 +2354,10 @@ const Themes = (() => {
             cssClass: 'theme-ink',
             cardBg: 'linear-gradient(135deg, #2a2520, #1a1815)',
             fishTypes: [
-                { id: 'ink-koi', name: 'Ink Koi', bodyColor: 'none', finColor: 'none', accentColor: '#5c3a1a', cost: 20, size: 1.1, speed: 0.7, shape: 'standard', aggression: 0.3, inkStyle: true, inkWash: 'rgba(92,58,26,0.06)' },
-                { id: 'ink-angel', name: 'Sketch Angel', bodyColor: 'none', finColor: 'none', accentColor: '#2a3a6a', cost: 25, size: 1.0, speed: 0.8, shape: 'tall', aggression: 0.5, inkStyle: true, inkWash: 'rgba(42,58,106,0.06)' },
-                { id: 'ink-tetra', name: 'Line Tetra', bodyColor: 'none', finColor: 'none', accentColor: '#2a5a3a', cost: 15, size: 0.6, speed: 1.3, shape: 'slim', aggression: 0.1, inkStyle: true, inkWash: 'rgba(42,90,58,0.06)' },
-                { id: 'ink-puffer', name: 'Doodle Puffer', bodyColor: 'none', finColor: 'none', accentColor: '#8a3a2a', cost: 30, size: 0.9, speed: 0.5, shape: 'round', aggression: 0.4, inkStyle: true, inkWash: 'rgba(138,58,42,0.06)' },
+                { id: 'ink-koi', name: 'Ink Koi', bodyColor: 'none', finColor: 'none', accentColor: '#5c3a1a', cost: 20, size: 1.1, speed: 0.7, shape: 'standard', aggression: 0.3, inkStyle: true, inkWash: 'rgba(92,58,26,0.06)', traits: ['social', 'lazy'], personality: 'Contemplative soul' },
+                { id: 'ink-angel', name: 'Sketch Angel', bodyColor: 'none', finColor: 'none', accentColor: '#2a3a6a', cost: 25, size: 1.0, speed: 0.8, shape: 'tall', aggression: 0.5, inkStyle: true, inkWash: 'rgba(42,58,106,0.06)', traits: ['curious', 'explorer'], personality: 'Wandering artist' },
+                { id: 'ink-tetra', name: 'Line Tetra', bodyColor: 'none', finColor: 'none', accentColor: '#2a5a3a', cost: 15, size: 0.6, speed: 1.3, shape: 'slim', aggression: 0.1, inkStyle: true, inkWash: 'rgba(42,90,58,0.06)', traits: ['playful', 'social'], personality: 'Energetic schooler' },
+                { id: 'ink-puffer', name: 'Doodle Puffer', bodyColor: 'none', finColor: 'none', accentColor: '#8a3a2a', cost: 30, size: 0.9, speed: 0.5, shape: 'round', aggression: 0.4, inkStyle: true, inkWash: 'rgba(138,58,42,0.06)', traits: ['shy', 'brave'], personality: 'Cautious but tough' },
             ],
             plantColors: ['#3a3a3a', '#4a4a4a', '#2a2a2a', '#5a5a5a', '#6a6a6a', '#1a1a1a'],
             bubbleColor: 'rgba(42,42,42,0.12)',
@@ -2442,10 +2448,25 @@ class Fish {
         this.bubbleDuration = 0;
         this.bubbleCount = 0;
 
+        // Personality traits — type-based with individual intensity variation
+        this.traits = typeInfo.traits || [];
+        this.traitIntensity = {};
+        this.traits.forEach(t => {
+            this.traitIntensity[t] = Utils.rand(0.7, 1.3);
+        });
+
+        // Lazy fish are inherently much slower
+        if (this.traitIntensity['lazy']) {
+            this.baseSpeed *= (1 - 0.35 * this.traitIntensity['lazy']);
+            this.speed = this.baseSpeed;
+        }
+
         // SVG element
         this.el = null;
         this.createSVG();
     }
+
+    hasTrait(name) { return this.traitIntensity[name] || 0; }
 
     createSVG() {
         const g = Utils.svgEl('g', { class: 'fish-group', id: this.id });
@@ -2704,9 +2725,41 @@ class Fish {
 
     updateTransform() {
         const scaleX = this.facingRight ? 1 : -1;
-        const sizeRatio = this.isBaby ? 0.3 + this.growthProgress * 0.7 : 1;
+        let sizeRatio = this.isBaby ? 0.3 + this.growthProgress * 0.7 : 1;
+
+        // Brave puff-up: temporarily scale larger when confronting
+        if (this._puffUp > 0) {
+            sizeRatio *= 1 + this._puffUp * 0.2;
+            this._puffUp -= 0.016;
+        }
+
+        // Shy flinch: quick shrink-and-recover
+        if (this._flinch > 0) {
+            sizeRatio *= 0.85 + this._flinch * 0.15;
+            this._flinch -= 0.02;
+        }
+
+        // Barrel roll for playful fish — full 360° rotation over ~0.4s
+        let rollAngle = 0;
+        if (this._barrelRoll) {
+            if (!this._rollProgress) this._rollProgress = 0;
+            this._rollProgress += 0.05;
+            rollAngle = this._rollProgress * 360;
+            if (this._rollProgress >= 1) {
+                this._barrelRoll = false;
+                this._rollProgress = 0;
+                rollAngle = 0;
+            }
+        }
+
+        // Lazy rocking: gentle rhythmic swaying when idle
+        let rockAngle = 0;
+        if (this.hasTrait('lazy') && this.dartCooldown <= 0 && !this.pursuingFood) {
+            rockAngle = Math.sin(performance.now() * 0.001 * this.hasTrait('lazy')) * 5;
+        }
+
         this.el.setAttribute('transform',
-            `translate(${this.x}, ${this.y}) scale(${scaleX * sizeRatio}, ${sizeRatio})`
+            `translate(${this.x}, ${this.y}) scale(${scaleX * sizeRatio}, ${sizeRatio}) rotate(${rollAngle + rockAngle})`
         );
         // Animate tail by rotating around where it connects to the body
         if (this.tailEl) {
@@ -2777,27 +2830,50 @@ class Fish {
     }
 
     pickNewTarget() {
-        // Fish occasionally dart quickly
-        const isDart = Math.random() < 0.15;
-        const range = isDart ? 300 : 150;
+        const playful = this.hasTrait('playful');
+        const lazy = this.hasTrait('lazy');
+        const explorer = this.hasTrait('explorer');
+        const shyness = this.hasTrait('shy');
+
+        // Playful fish dart frequently and energetically
+        const dartChance = playful ? 0.4 * playful : 0.15;
+        const isDart = Math.random() < dartChance;
+        // Explorer fish roam the full tank
+        const baseRange = explorer ? 350 * explorer : 150;
+        const range = isDart ? baseRange * 2.5 : baseRange;
 
         this.targetX = Utils.clamp(
             this.x + Utils.rand(-range, range),
             60, this.tankW - 60
         );
+        // Lazy fish strongly prefer bottom, shy fish hug edges
+        let yBias = 0;
+        if (lazy) yBias = this.tankH * 0.25 * lazy;
+        if (shyness) {
+            const edgePull = 80 * shyness;
+            this.targetX = Utils.clamp(
+                this.targetX + (this.x < this.tankW / 2 ? -edgePull : edgePull),
+                60, this.tankW - 60
+            );
+        }
         this.targetY = Utils.clamp(
-            this.y + Utils.rand(-range * 0.5, range * 0.5),
+            this.y + Utils.rand(-range * 0.5, range * 0.5) + yBias,
             60, this.tankH - 100
         );
 
         if (isDart) {
-            this.speed = this.baseSpeed * Utils.rand(2.5, 4);
-            this.dartCooldown = Utils.rand(0.2, 0.5);
+            const dartSpeed = playful ? Utils.rand(3, 5) : Utils.rand(2.5, 4);
+            this.speed = this.baseSpeed * dartSpeed;
+            this.dartCooldown = playful ? Utils.rand(0.1, 0.25) : Utils.rand(0.2, 0.5);
+            // Visual: playful fish occasionally barrel roll on fast darts
+            if (playful && Math.random() < 0.15) this._barrelRoll = true;
         } else {
-            this.speed = this.baseSpeed * Utils.rand(0.5, 1.2);
+            const idleSpeed = lazy ? Utils.rand(0.2, 0.5) : Utils.rand(0.5, 1.2);
+            this.speed = this.baseSpeed * idleSpeed;
         }
 
-        this.nextTargetTime = performance.now() + Utils.rand(1500, 4000);
+        const waitTime = lazy ? Utils.rand(3500, 8000) : (explorer ? Utils.rand(800, 1800) : Utils.rand(1500, 4000));
+        this.nextTargetTime = performance.now() + waitTime;
     }
 
     update(dt, foods, allFish) {
@@ -2820,7 +2896,7 @@ class Fish {
         // Health based on hunger
         if (this.hunger < 15) {
             this.health = Math.max(0, this.health - dt * 3);
-        } else if (this.hunger > 60) {
+        } else if (this.hunger > 40) {
             this.health = Math.min(100, this.health + dt * 2);
         }
 
@@ -2840,36 +2916,93 @@ class Fish {
 
         // Aggression interactions with nearby fish
         if (!this.pursuingFood && !this.pursuingPrey) {
+            const bravery = this.hasTrait('brave');
             for (const other of allFish) {
                 if (other === this || !other.alive) continue;
                 const d = Utils.dist(this.x, this.y, other.x, other.y);
-                if (d > 150) continue; // Only interact when nearby
+                if (d > 150) continue;
 
                 const aggrDiff = this.aggression - other.aggression;
                 if (aggrDiff > 0.15) {
-                    // We are more aggressive — chase them away
                     if (d < 100) {
-                        // Move toward the less aggressive fish (territorial)
-                        const chaseX = other.x;
-                        const chaseY = other.y;
-                        this.targetX = chaseX;
-                        this.targetY = chaseY;
+                        this.targetX = other.x;
+                        this.targetY = other.y;
                         this.speed = this.baseSpeed * 1.5;
                         this.nextTargetTime = performance.now() + 500;
+                        // Brave fish puff up when confronting
+                        if (bravery) this._puffUp = 0.6;
                         break;
                     }
                 } else if (aggrDiff < -0.15) {
-                    // We are less aggressive — flee from the aggressor
-                    if (d < 120) {
+                    // Brave fish barely flinch; non-brave flee dramatically
+                    const fleeThreshold = bravery ? 120 * (1 - bravery * 0.5) : 120;
+                    if (d < fleeThreshold) {
+                        const fleeDist = bravery ? 80 : 250;
                         const fleeAngle = Math.atan2(this.y - other.y, this.x - other.x);
-                        this.targetX = Utils.clamp(this.x + Math.cos(fleeAngle) * 200, 60, this.tankW - 60);
-                        this.targetY = Utils.clamp(this.y + Math.sin(fleeAngle) * 200, 60, this.tankH - 100);
-                        this.speed = this.baseSpeed * 1.8;
+                        this.targetX = Utils.clamp(this.x + Math.cos(fleeAngle) * fleeDist, 60, this.tankW - 60);
+                        this.targetY = Utils.clamp(this.y + Math.sin(fleeAngle) * fleeDist, 60, this.tankH - 100);
+                        this.speed = this.baseSpeed * (bravery ? 1.1 : 2.2);
+                        // Shy fish flinch visually
+                        if (this.hasTrait('shy')) this._flinch = 0.3;
                         this.nextTargetTime = performance.now() + 800;
                         break;
                     }
                 }
-                // Same aggression level (within 0.15) = passive, no interaction
+            }
+        }
+
+        // Social trait — gravitate toward same-type fish
+        const socialIntensity = this.hasTrait('social');
+        if (socialIntensity && !this.pursuingFood && !this.pursuingPrey && this.dartCooldown <= 0) {
+            let nearestFriend = null, friendDist = Infinity;
+            for (const other of allFish) {
+                if (other === this || !other.alive || other.type !== this.type) continue;
+                const d = Utils.dist(this.x, this.y, other.x, other.y);
+                if (d > 40 && d < 400 && d < friendDist) {
+                    friendDist = d;
+                    nearestFriend = other;
+                }
+            }
+            if (nearestFriend && friendDist > 60) {
+                const angle = Math.atan2(nearestFriend.y - this.y, nearestFriend.x - this.x);
+                this.vx += Math.cos(angle) * 0.6 * socialIntensity * dt * 60;
+                this.vy += Math.sin(angle) * 0.6 * socialIntensity * dt * 60;
+            }
+            // Social fish near friends have slower hunger decay + occasional happy bubble
+            if (nearestFriend && friendDist < 100) {
+                this.hunger = Math.min(100, this.hunger + dt * 0.6 * socialIntensity);
+                if (Math.random() < 0.002 * socialIntensity) this.emitMouthBubble();
+            }
+        }
+
+        // Schooling — 3+ of same type form coordinated swimming patterns
+        if (!this.pursuingFood && !this.pursuingPrey && this.dartCooldown <= 0) {
+            const sameType = allFish.filter(f => f !== this && f.alive && f.type === this.type);
+            if (sameType.length >= 2) {
+                // Find nearby same-type fish
+                const nearby = sameType.filter(f => Utils.dist(this.x, this.y, f.x, f.y) < 250);
+                if (nearby.length >= 2) {
+                    // Calculate centroid of the school
+                    let cx = this.x, cy = this.y;
+                    nearby.forEach(f => { cx += f.x; cy += f.y; });
+                    cx /= (nearby.length + 1);
+                    cy /= (nearby.length + 1);
+                    // Cohesion: steer toward centroid
+                    const cohAngle = Math.atan2(cy - this.y, cx - this.x);
+                    const cohStr = 0.3;
+                    this.vx += Math.cos(cohAngle) * cohStr * dt * 60;
+                    this.vy += Math.sin(cohAngle) * cohStr * dt * 60;
+                    // Alignment: match average velocity of school
+                    let avgVx = this.vx, avgVy = this.vy;
+                    nearby.forEach(f => { avgVx += f.vx; avgVy += f.vy; });
+                    avgVx /= (nearby.length + 1);
+                    avgVy /= (nearby.length + 1);
+                    this.vx = Utils.lerp(this.vx, avgVx, 0.05);
+                    this.vy = Utils.lerp(this.vy, avgVy, 0.05);
+                    this._schooling = true;
+                } else {
+                    this._schooling = false;
+                }
             }
         }
 
@@ -2891,14 +3024,18 @@ class Fish {
             this.vy += sepY * sepStr * dt * 60;
         }
 
-        // Pursue food if hungry
+        // Pursue food if hungry — greedy fish detect food from far, shy fish from close
+        const greedy = this.hasTrait('greedy');
+        const shyFood = this.hasTrait('shy');
+        const curFood = this.hasTrait('curious');
+        const foodDetectRange = greedy ? 700 * greedy : (shyFood ? 200 : (curFood ? 550 * curFood : 400));
         if (this.hunger < 70 && foods.length > 0) {
             let closest = null;
             let closestDist = Infinity;
             for (const food of foods) {
                 if (food.eaten) continue;
                 const d = Utils.dist(this.x, this.y, food.x, food.y);
-                if (d < closestDist && d < 400) {
+                if (d < closestDist && d < foodDetectRange) {
                     closestDist = d;
                     closest = food;
                 }
@@ -2907,10 +3044,12 @@ class Fish {
                 this.pursuingFood = closest;
                 this.targetX = closest.x;
                 this.targetY = closest.y;
-                this.speed = this.baseSpeed * 2;
+                const foodSpeed = greedy ? 3 * greedy : 2;
+                this.speed = this.baseSpeed * foodSpeed;
 
-                // Eat if close enough
-                if (closestDist < 20) {
+                // Eat if close enough — greedy fish eat from farther away
+                const eatDist = greedy ? 30 * greedy : 20;
+                if (closestDist < eatDist) {
                     closest.eaten = true;
                     this.hunger = Math.min(100, this.hunger + 30);
                     this.pursuingFood = null;
@@ -2944,6 +3083,19 @@ class Fish {
                     this.pursuingPrey = null;
                     return prey; // Signal that prey was eaten
                 }
+            }
+        }
+
+        // Curious fish pause and look toward the mouse when it's nearby
+        const curiosity = this.hasTrait('curious');
+        if (curiosity && this._mouseX > 0 && !this.pursuingFood && !this.pursuingPrey) {
+            const mouseDist = Utils.dist(this.x, this.y, this._mouseX, this._mouseY);
+            if (mouseDist < 200 * curiosity && mouseDist > 30) {
+                // Slow down and face the mouse
+                this.speed = this.baseSpeed * 0.2;
+                this.facingRight = this._mouseX > this.x;
+                // Extend wait time so they linger looking
+                this.nextTargetTime = Math.max(this.nextTargetTime, now + 800);
             }
         }
 
@@ -4011,6 +4163,9 @@ const UI = (() => {
 
             const info = Utils.htmlEl('div', 'shop-fish-info');
             info.appendChild(Utils.htmlEl('div', 'shop-fish-name', type.name));
+            if (type.personality) {
+                info.appendChild(Utils.htmlEl('div', 'shop-fish-personality', type.personality));
+            }
             info.appendChild(Utils.htmlEl('div', 'shop-fish-cost', `Cost: ${type.cost}`));
             item.appendChild(info);
 
@@ -4227,7 +4382,9 @@ const App = (() => {
         autoCleanTimer: 0,
         autoBuyTimer: 0,
         tapCooldown: 0,
-        tapStressAccum: 0
+        tapStressAccum: 0,
+        mouseX: -1,
+        mouseY: -1
     };
 
     let fishLayer = null;
@@ -4241,6 +4398,16 @@ const App = (() => {
             onThemePreview,
             onGameStart
         );
+
+        // Track mouse position for curious fish behavior
+        document.addEventListener('mousemove', (e) => {
+            const tank = document.getElementById('tank');
+            if (tank) {
+                const rect = tank.getBoundingClientRect();
+                state.mouseX = e.clientX - rect.left;
+                state.mouseY = e.clientY - rect.top;
+            }
+        });
     }
 
     function onThemePreview(themeId) {
@@ -4359,13 +4526,27 @@ const App = (() => {
                 // Tap the glass — scatter nearby fish dramatically
                 const crowdIntensity = Math.min(nearbyFish.length / 3, 2);
                 nearbyFish.forEach(f => {
-                    const fleeAngle = Math.atan2(f.y - clickY, f.x - clickX) + Utils.rand(-0.3, 0.3);
-                    const fleeDist = Utils.rand(250, 500) * (1 + crowdIntensity * 0.4);
-                    f.targetX = Utils.clamp(f.x + Math.cos(fleeAngle) * fleeDist, 60, f.tankW - 60);
-                    f.targetY = Utils.clamp(f.y + Math.sin(fleeAngle) * fleeDist * 0.6, 60, f.tankH - 100);
-                    f.speed = f.baseSpeed * Utils.rand(6, 10) * (1 + crowdIntensity * 0.3);
-                    // Set velocity directly for immediate burst response
-                    const burstSpeed = f.speed * 60 * 0.016; // approximate one frame
+                    const bravery = f.hasTrait('brave');
+                    const curiosity = f.hasTrait('curious');
+                    // Curious fish swim TOWARD the tap; brave fish flee less
+                    let fleeAngle;
+                    if (curiosity && Math.random() < 0.5 * curiosity) {
+                        // Curious: approach the tap point instead of fleeing
+                        fleeAngle = Math.atan2(clickY - f.y, clickX - f.x) + Utils.rand(-0.2, 0.2);
+                        const approachDist = Utils.rand(60, 120);
+                        f.targetX = Utils.clamp(f.x + Math.cos(fleeAngle) * approachDist, 60, f.tankW - 60);
+                        f.targetY = Utils.clamp(f.y + Math.sin(fleeAngle) * approachDist, 60, f.tankH - 100);
+                        f.speed = f.baseSpeed * Utils.rand(2, 3);
+                    } else {
+                        fleeAngle = Math.atan2(f.y - clickY, f.x - clickX) + Utils.rand(-0.3, 0.3);
+                        const braveMult = bravery ? (1 - bravery * 0.35) : 1;
+                        const fleeDist = Utils.rand(250, 500) * (1 + crowdIntensity * 0.4) * braveMult;
+                        f.targetX = Utils.clamp(f.x + Math.cos(fleeAngle) * fleeDist, 60, f.tankW - 60);
+                        f.targetY = Utils.clamp(f.y + Math.sin(fleeAngle) * fleeDist * 0.6, 60, f.tankH - 100);
+                        const speedMult = bravery ? Utils.rand(3, 5) : Utils.rand(6, 10);
+                        f.speed = f.baseSpeed * speedMult * (1 + crowdIntensity * 0.3);
+                    }
+                    const burstSpeed = f.speed * 60 * 0.016;
                     f.vx = Math.cos(fleeAngle) * burstSpeed;
                     f.vy = Math.sin(fleeAngle) * burstSpeed * 0.6;
                     f.dartCooldown = Utils.rand(1.0, 2.0);
@@ -4585,6 +4766,8 @@ const App = (() => {
         const eatenFish = [];
 
         for (const fish of state.fish) {
+            fish._mouseX = state.mouseX;
+            fish._mouseY = state.mouseY;
             const prey = fish.update(dt, foods, state.fish);
             if (!fish.alive) {
                 deadFish.push(fish);
@@ -4610,6 +4793,26 @@ const App = (() => {
                 removeFish(fish);
                 ZenAudio.playEaten();
                 UI.showStatus(`A ${fish.typeName} was eaten by a larger fish!`);
+            }
+        }
+
+        // Hunger warning messages (throttled to every 8 seconds)
+        if (!state._hungerWarnTime || timestamp - state._hungerWarnTime > 8000) {
+            const starving = state.fish.filter(f => f.alive && f.hunger < 20);
+            const hungry = state.fish.filter(f => f.alive && f.hunger >= 20 && f.hunger < 35);
+            if (starving.length > 0) {
+                const name = starving.length === 1 ? `Your ${starving[0].typeName} is` : `${starving.length} fish are`;
+                UI.showStatus(`⚠️ ${name} starving! Drop some food!`);
+                state._hungerWarnTime = timestamp;
+            } else if (hungry.length >= 2) {
+                UI.showStatus(`🐟 Your fish are getting hungry...`);
+                state._hungerWarnTime = timestamp;
+            }
+            // Predation warning
+            const hunters = state.fish.filter(f => f.alive && f.hunger < 20 && f.size > 0.9);
+            if (hunters.length > 0 && starving.length > 0) {
+                UI.showStatus(`⚠️ Hungry ${hunters[0].typeName} may attack smaller fish!`);
+                state._hungerWarnTime = timestamp;
             }
         }
 
