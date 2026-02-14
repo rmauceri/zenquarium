@@ -551,6 +551,10 @@ html, body {
     transition: opacity 0.3s ease;
 }
 
+.hud-left {
+    min-width: 280px;
+}
+
 .hud-item {
     background: var(--hud-bg);
     border: 1px solid var(--hud-border);
@@ -572,6 +576,13 @@ html, body {
     font-size: 1.2rem;
     font-weight: 300;
     letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+}
+
+#score-value {
+    display: inline-block;
+    min-width: 5ch;
+    text-align: right;
 }
 
 .health-bar {
@@ -1032,6 +1043,17 @@ html, body {
 @keyframes tentacleWave {
     0% { transform: rotate(-3deg) translateX(-1px); }
     100% { transform: rotate(3deg) translateX(1px); }
+}
+
+/* Jellyfish stingers */
+.stinger-group {
+    pointer-events: none;
+}
+
+/* Ink cloud from octopus/squid */
+.ink-cloud {
+    pointer-events: none;
+    transition: opacity 0.3s ease;
 }
 
 .fish-pectoral-fin {
@@ -2077,6 +2099,67 @@ const ZenAudio = (() => {
         noiseSrc.stop(t + noiseLen);
     }
 
+    // Jellyfish stinger release — eerie descending tones
+    function playStingerRelease() {
+        ensureCtx();
+        const t = ctx.currentTime;
+        for (let i = 0; i < 4; i++) {
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            const freq = Utils.rand(800, 1400);
+            osc.frequency.setValueAtTime(freq, t + i * 0.06);
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.3, t + i * 0.06 + 0.5);
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.06, t + i * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.5);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = freq * 0.8;
+            filter.Q.value = 5;
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(sfxGain);
+            osc.start(t + i * 0.06);
+            osc.stop(t + i * 0.06 + 0.6);
+        }
+    }
+
+    // Ink squirt — low whoosh with bubbling texture
+    function playInkSquirt() {
+        ensureCtx();
+        const t = ctx.currentTime;
+        // Low whoosh
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(200, t);
+        osc.frequency.exponentialRampToValueAtTime(60, t + 0.3);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.15, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+        osc.connect(gain);
+        gain.connect(sfxGain);
+        osc.start(t);
+        osc.stop(t + 0.4);
+        // Bubbling noise burst
+        const noiseLen = 0.15;
+        const buf = ctx.createBuffer(1, ctx.sampleRate * noiseLen, ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.4;
+        const noiseSrc = ctx.createBufferSource();
+        noiseSrc.buffer = buf;
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.1, t + 0.05);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+        const lpf = ctx.createBiquadFilter();
+        lpf.type = 'lowpass';
+        lpf.frequency.value = 400;
+        noiseSrc.connect(lpf);
+        lpf.connect(noiseGain);
+        noiseGain.connect(sfxGain);
+        noiseSrc.start(t + 0.05);
+        noiseSrc.stop(t + 0.05 + noiseLen);
+    }
+
     // Wind chime (occasional, barely perceptible)
     function playWindChime() {
         ensureCtx();
@@ -2258,6 +2341,7 @@ const ZenAudio = (() => {
         init, startAmbient, stopAmbient, setVolume, getVolume,
         startSplashAmbient, stopSplashAmbient,
         playPlop, playBirth, playEaten, playCleaning, playDrip, playBubble, playTapGlass,
+        playStingerRelease, playInkSquirt,
         pause, resume, ensureCtx
     };
 })();
@@ -2318,7 +2402,7 @@ const Themes = (() => {
                 { id: 'angler', name: 'Anglerfish', bodyColor: '#3a5070', finColor: '#2a3858', accentColor: '#00ffcc', cost: 30, size: 1.4, speed: 0.5, shape: 'round', aggression: 0.9, glowColor: 'rgba(0,255,204,0.2)', traits: ['lazy', 'greedy'], personality: 'Patient predator' },
                 { id: 'jelly', name: 'Jellyfish', bodyColor: '#9050e8', finColor: '#7040c0', accentColor: '#e0a0ff', cost: 20, size: 0.9, speed: 0.4, shape: 'tall', aggression: 0.1, glowColor: 'rgba(224,160,255,0.2)', traits: ['shy', 'explorer'], personality: 'Drifting loner' },
                 { id: 'lantern', name: 'Lanternfish', bodyColor: '#2878a8', finColor: '#1a5880', accentColor: '#80ff80', cost: 15, size: 0.6, speed: 1.1, shape: 'slim', aggression: 0.3, glowColor: 'rgba(128,255,128,0.2)', traits: ['social', 'playful'], personality: 'Friendly & lively' },
-                { id: 'biolum', name: 'Glowfin', bodyColor: '#305878', finColor: '#204060', accentColor: '#60d4ff', cost: 25, size: 0.8, speed: 0.9, shape: 'standard', aggression: 0.4, glowColor: 'rgba(96,212,255,0.2)', traits: ['curious', 'explorer'], personality: 'Inquisitive roamer' },
+                { id: 'biolum', name: 'Glowfin', bodyColor: '#1a4a2a', finColor: '#0d3a1a', accentColor: '#39ff14', cost: 25, size: 0.8, speed: 0.9, shape: 'standard', aggression: 0.4, glowColor: 'rgba(57,255,20,0.25)', traits: ['curious', 'explorer'], personality: 'Inquisitive roamer' },
             ],
             plantColors: ['#1a3040', '#203848', '#0d1a28', '#284050', '#1a4858', '#0a2838', '#305868', '#183848'],
             bubbleColor: 'rgba(77,201,246,0.1)',
@@ -2987,6 +3071,11 @@ class Fish {
                     nearby.forEach(f => { cx += f.x; cy += f.y; });
                     cx /= (nearby.length + 1);
                     cy /= (nearby.length + 1);
+                    // Bias centroid away from bottom 30% of tank toward mid-water
+                    const bottomThreshold = this.tankH * 0.7;
+                    if (cy > bottomThreshold) {
+                        cy = Utils.lerp(cy, this.tankH * 0.45, 0.15);
+                    }
                     // Cohesion: steer toward centroid
                     const cohAngle = Math.atan2(cy - this.y, cx - this.x);
                     const cohStr = 0.3;
@@ -3029,7 +3118,11 @@ class Fish {
         const shyFood = this.hasTrait('shy');
         const curFood = this.hasTrait('curious');
         const foodDetectRange = greedy ? 700 * greedy : (shyFood ? 200 : (curFood ? 550 * curFood : 400));
-        if (this.hunger < 70 && foods.length > 0) {
+        // Reset stale food pursuit — food may have been eaten by another fish or decayed
+        if (this.pursuingFood && (this.pursuingFood.eaten || !this.pursuingFood.el || !this.pursuingFood.el.parentNode)) {
+            this.pursuingFood = null;
+        }
+        if (this.hunger < 75 && foods.length > 0) {
             let closest = null;
             let closestDist = Infinity;
             for (const food of foods) {
@@ -3122,6 +3215,24 @@ class Fish {
         // Apply velocity
         this.x += this.vx;
         this.y += this.vy;
+
+        // Soft boundary repulsion — push fish away from edges before hard clamp
+        const edgeMargin = 80;
+        const edgePush = 3.0;
+        if (this.x < 40 + edgeMargin) {
+            const proximity = 1 - (this.x - 40) / edgeMargin;
+            this.vx += proximity * edgePush * dt * 60;
+        } else if (this.x > this.tankW - 40 - edgeMargin) {
+            const proximity = 1 - (this.tankW - 40 - this.x) / edgeMargin;
+            this.vx -= proximity * edgePush * dt * 60;
+        }
+        if (this.y < 50 + edgeMargin) {
+            const proximity = 1 - (this.y - 50) / edgeMargin;
+            this.vy += proximity * edgePush * dt * 60;
+        } else if (this.y > this.tankH - 80 - edgeMargin) {
+            const proximity = 1 - (this.tankH - 80 - this.y) / edgeMargin;
+            this.vy -= proximity * edgePush * dt * 60;
+        }
 
         // Boundaries
         this.x = Utils.clamp(this.x, 40, this.tankW - 40);
@@ -3317,7 +3428,7 @@ const Tank = (() => {
 
         for (let i = 0; i < plantCount; i++) {
             const x = Utils.rand(30, tankW - 30);
-            const plantH = Utils.rand(100, 320);
+            const plantH = tankH * Utils.rand(0.3, 0.5);
             const color1 = Utils.pick(colors);
             const color2 = Utils.pick(colors);
             const swayDuration = Utils.rand(3, 7);
@@ -3606,16 +3717,20 @@ const Food = (() => {
 
 const Creatures = (() => {
     let creatures = [];
+    let stingers = [];
+    let inkClouds = [];
     let tankW = 0, tankH = 0;
     let layer = null;
     let spawnTimer = 0;
     let themeId = 'koi';
+    const TAP_RESET_TIME = 5000; // reset tap count after 5s of no taps
 
     // Theme-appropriate creature definitions — large, impressive visitors
     const creatureDefs = {
         koi: [
             { type: 'jellyfish', name: 'Moon Jelly', color: '#f0c8c8', color2: '#e8b0b0', accent: '#d08080', glow: 'rgba(240,200,200,0.18)', size: 2.2 },
             { type: 'squid', name: 'Firefly Squid', color: '#e8c060', color2: '#d0a840', accent: '#c08020', glow: 'rgba(232,192,96,0.15)', size: 1.8 },
+            { type: 'octopus', name: 'Paper Octopus', color: '#c07848', color2: '#a06038', accent: '#e8a870', glow: 'rgba(192,120,72,0.15)', size: 2.0 },
         ],
         tropical: [
             { type: 'jellyfish', name: 'Blue Blubber', color: '#4090e0', color2: '#3070c0', accent: '#80c8ff', glow: 'rgba(64,144,224,0.22)', size: 2.4 },
@@ -3629,6 +3744,7 @@ const Creatures = (() => {
         zen: [
             { type: 'jellyfish', name: 'Ghost Jelly', color: '#c0c0b8', color2: '#a8a8a0', accent: '#e0e0d8', glow: 'rgba(200,200,184,0.12)', size: 2.0 },
             { type: 'squid', name: 'Glass Squid', color: '#a0a090', color2: '#888878', accent: '#d0d0c0', glow: 'rgba(160,160,144,0.12)', size: 1.8 },
+            { type: 'octopus', name: 'Stone Octopus', color: '#8a8878', color2: '#706860', accent: '#b0a898', glow: 'rgba(138,136,120,0.12)', size: 2.0 },
         ],
         ink: [
             { type: 'jellyfish', name: 'Ink Jelly', color: 'none', color2: 'none', accent: '#4a3a2a', glow: 'none', size: 2.2, ink: true },
@@ -3950,7 +4066,12 @@ const Creatures = (() => {
             bobSpeed: Utils.rand(1.2, 2.0),
             bobAmp: Utils.rand(10, 25),
             pulsePhase: 0,
-            el: null
+            el: null,
+            tapCount: 0,
+            lastTapTime: 0,
+            fleeing: false,
+            fleeTimer: 0,
+            normalSpeed: 0
         };
 
         // Swim direction: left-to-right or right-to-left
@@ -3958,10 +4079,200 @@ const Creatures = (() => {
             creature.x = tankW + 150;
             creature.speed = -creature.speed;
         }
+        creature.normalSpeed = creature.speed;
 
         creature.el = createCreatureSVG(def);
         layer.appendChild(creature.el);
         creatures.push(creature);
+    }
+
+    // --- Stinger system (jellyfish 3rd tap) ---
+    function dropStingers(creature) {
+        const s = creature.def.size * 40;
+        const bobY = Math.sin(creature.bobPhase) * creature.bobAmp;
+        const cx = creature.x;
+        const cy = creature.y + bobY + s * 0.2;
+        const count = Utils.randInt(5, 8);
+        const isInk = creature.def.ink;
+
+        for (let i = 0; i < count; i++) {
+            const stinger = {
+                x: cx + Utils.rand(-s * 0.7, s * 0.7),
+                y: cy + Utils.rand(-s * 0.1, s * 0.4),
+                vx: Utils.rand(-25, 25),
+                vy: Utils.rand(6, 20),
+                rotation: Utils.rand(0, 360),
+                time: 0,
+                maxLife: Utils.rand(12, 15),
+                el: null
+            };
+
+            const g = Utils.svgEl('g', { class: 'stinger-group' });
+            // Barbed stinger shape
+            const stingerLen = Utils.rand(8, 14);
+            const path = Utils.svgEl('path', {
+                d: `M 0 0 L ${Utils.rand(-2, 2)} ${stingerLen} M 0 ${stingerLen * 0.3} L ${-3} ${stingerLen * 0.15} M 0 ${stingerLen * 0.5} L ${3} ${stingerLen * 0.35} M 0 ${stingerLen * 0.7} L ${-2.5} ${stingerLen * 0.55}`,
+                stroke: isInk ? creature.def.accent : Utils.pick(['#e060a0', '#d050c0', '#c040a0', '#e08080']),
+                'stroke-width': isInk ? '0.8' : '1.2',
+                'stroke-linecap': 'round',
+                fill: 'none',
+                opacity: '0.8'
+            });
+            g.appendChild(path);
+            // Small venom droplet at tip
+            if (!isInk) {
+                const drop = Utils.svgEl('circle', {
+                    cx: 0, cy: stingerLen + 2, r: 1.5,
+                    fill: Utils.pick(['#e060a0', '#ff80c0']),
+                    opacity: '0.6'
+                });
+                g.appendChild(drop);
+            }
+
+            g.setAttribute('transform', `translate(${stinger.x}, ${stinger.y}) rotate(${stinger.rotation})`);
+            layer.appendChild(g);
+            stinger.el = g;
+            stingers.push(stinger);
+        }
+    }
+
+    // --- Ink cloud system (octopus/squid 3rd tap) ---
+    function squirtInk(creature) {
+        const s = creature.def.size * 40;
+        const bobY = Math.sin(creature.bobPhase) * creature.bobAmp;
+        const isOctopus = creature.def.type === 'octopus';
+        const isInk = creature.def.ink;
+
+        // Ink squirts behind the creature (opposite of flee direction)
+        const inkX = creature.x + (creature.speed > 0 ? -s * 0.3 : s * 0.3);
+        const inkY = creature.y + bobY;
+
+        // Main ink cloud
+        const cloud = {
+            x: inkX,
+            y: inkY,
+            vx: Utils.rand(-8, 8),
+            vy: Utils.rand(-4, 6),
+            time: 0,
+            maxLife: 10,
+            maxRadius: s * Utils.rand(1.8, 2.7),
+            el: null,
+            blobs: [] // individual blob elements with independent drift
+        };
+
+        const g = Utils.svgEl('g', { class: 'ink-cloud' });
+
+        if (isInk) {
+            // Ink theme: stroke-only splatter
+            const splatCount = Utils.randInt(5, 8);
+            for (let i = 0; i < splatCount; i++) {
+                const dx = Utils.rand(-20, 20);
+                const dy = Utils.rand(-20, 20);
+                const r = Utils.rand(6, 18);
+                const splat = Utils.svgEl('circle', {
+                    cx: dx, cy: dy, r: r,
+                    fill: 'none',
+                    stroke: creature.def.accent,
+                    'stroke-width': '1',
+                    opacity: '0.6'
+                });
+                g.appendChild(splat);
+                cloud.blobs.push({ el: splat, ox: dx, oy: dy, vx: Utils.rand(-15, 15), vy: Utils.rand(-10, 10) });
+            }
+        } else {
+            // 3 overlapping blobs for organic cloud shape
+            const inkColor = isOctopus ? 'rgba(10, 15, 40, 0.7)' : 'rgba(30, 180, 80, 0.55)';
+            const glowColor = isOctopus ? 'rgba(20, 30, 60, 0.3)' : 'rgba(50, 255, 100, 0.25)';
+            // Outer glow (added first so it's behind)
+            const glow = Utils.svgEl('ellipse', {
+                cx: 0, cy: 0, rx: 52, ry: 42,
+                fill: glowColor
+            });
+            g.appendChild(glow);
+            cloud.blobs.push({ el: glow, ox: 0, oy: 0, vx: Utils.rand(-5, 5), vy: Utils.rand(-3, 3) });
+            for (let i = 0; i < 3; i++) {
+                const dx = Utils.rand(-18, 18);
+                const dy = Utils.rand(-15, 15);
+                const rx = Utils.rand(22, 45);
+                const ry = Utils.rand(18, 38);
+                const blob = Utils.svgEl('ellipse', {
+                    cx: dx, cy: dy, rx: rx, ry: ry,
+                    fill: inkColor
+                });
+                g.appendChild(blob);
+                cloud.blobs.push({ el: blob, ox: dx, oy: dy, vx: Utils.rand(-18, 18), vy: Utils.rand(-12, 12) });
+            }
+        }
+
+        g.setAttribute('transform', `translate(${cloud.x}, ${cloud.y}) scale(0.3)`);
+        g.style.opacity = '1';
+        layer.appendChild(g);
+        cloud.el = g;
+        inkClouds.push(cloud);
+    }
+
+    // --- Handle tap near creature ---
+    function handleTap(clickX, clickY, state) {
+        const now = performance.now();
+        let tappedCreature = null;
+
+        for (const c of creatures) {
+            const s = c.def.size * 40;
+            const bobY = Math.sin(c.bobPhase) * c.bobAmp;
+            const dist = Utils.dist(clickX, clickY, c.x, c.y + bobY);
+            const hitRadius = s * 1.5;
+            if (dist < hitRadius) {
+                tappedCreature = c;
+                break;
+            }
+        }
+
+        if (!tappedCreature) return false;
+
+        const c = tappedCreature;
+
+        // Reset tap count if too long since last tap
+        if (now - c.lastTapTime > TAP_RESET_TIME) {
+            c.tapCount = 0;
+        }
+        c.tapCount++;
+        c.lastTapTime = now;
+
+        if (c.tapCount < 3) {
+            // Taps 1-2: creature flees in a random direction
+            if (!c.fleeing) c.normalSpeed = c.speed;
+            c.speed = (Math.random() < 0.5 ? 1 : -1) * Math.abs(c.normalSpeed) * Utils.rand(3, 4.5);
+            c.y += Utils.rand(-60, 60); // jolt vertically
+            c.y = Utils.clamp(c.y, tankH * 0.1, tankH * 0.6);
+            c.fleeing = true;
+            c.fleeTimer = Utils.rand(2, 3);
+            ZenAudio.playTapGlass(0.5);
+            return 'flee';
+        }
+
+        // 3rd tap — special reaction!
+        c.tapCount = 0;
+
+        if (c.def.type === 'jellyfish') {
+            dropStingers(c);
+            ZenAudio.playStingerRelease();
+            // Jellyfish bolts away
+            c.speed = (Math.random() < 0.5 ? 1 : -1) * Math.abs(c.normalSpeed || c.speed) * 5;
+            c.fleeing = true;
+            c.fleeTimer = 3;
+            return 'stingers';
+        } else {
+            // Octopus or squid
+            squirtInk(c);
+            ZenAudio.playInkSquirt();
+            // Health penalty
+            state.tankHealth = Math.max(0, state.tankHealth - Utils.rand(15, 20));
+            // Creature bolts away
+            c.speed = (Math.random() < 0.5 ? 1 : -1) * Math.abs(c.normalSpeed || c.speed) * 5;
+            c.fleeing = true;
+            c.fleeTimer = 3;
+            return c.def.type === 'octopus' ? 'octopus-ink' : 'squid-ink';
+        }
     }
 
     function update(dt, allFish) {
@@ -3980,6 +4291,15 @@ const Creatures = (() => {
             c.x += c.speed * 60 * dt;
             c.bobPhase += c.bobSpeed * dt;
             const bobY = Math.sin(c.bobPhase) * c.bobAmp;
+
+            // Flee timer — return to normal speed after fleeing
+            if (c.fleeing) {
+                c.fleeTimer -= dt;
+                if (c.fleeTimer <= 0) {
+                    c.fleeing = false;
+                    c.speed = c.normalSpeed;
+                }
+            }
 
             // Jellyfish pulsing animation
             c.pulsePhase += dt * 2;
@@ -4009,11 +4329,111 @@ const Creatures = (() => {
                 creatures.splice(i, 1);
             }
         }
+
+        // Update stingers — drift, collision detection, fade
+        for (let i = stingers.length - 1; i >= 0; i--) {
+            const st = stingers[i];
+            st.time += dt;
+
+            if (st.time >= st.maxLife) {
+                if (st.el && st.el.parentNode) st.el.remove();
+                stingers.splice(i, 1);
+                continue;
+            }
+
+            // Drift downward with slight horizontal sway
+            st.x += st.vx * dt;
+            st.y += st.vy * dt;
+            st.vx *= 0.98; // slow horizontal drift
+            st.rotation += dt * 20;
+
+            // Fade out in last 2 seconds
+            const opacity = st.time > st.maxLife - 2 ? Math.max(0, (st.maxLife - st.time) / 2) * 0.8 : 0.8;
+            if (st.el) {
+                st.el.setAttribute('transform', `translate(${st.x}, ${st.y}) rotate(${st.rotation})`);
+                st.el.style.opacity = opacity;
+            }
+
+            // Collision with fish — kill on contact
+            for (const fish of allFish) {
+                if (!fish.alive) continue;
+                const dist = Utils.dist(fish.x, fish.y, st.x, st.y);
+                if (dist < fish.size * 25 + 10) {
+                    fish.health = 0;
+                    fish.alive = false;
+                    // Remove stinger on hit
+                    if (st.el && st.el.parentNode) st.el.remove();
+                    stingers.splice(i, 1);
+                    break;
+                }
+            }
+        }
+
+        // Update ink clouds — expand, drift, fade, and kill fish on contact
+        for (let i = inkClouds.length - 1; i >= 0; i--) {
+            const cloud = inkClouds[i];
+            cloud.time += dt;
+
+            if (cloud.time >= cloud.maxLife) {
+                if (cloud.el && cloud.el.parentNode) cloud.el.remove();
+                inkClouds.splice(i, 1);
+                continue;
+            }
+
+            // Drift movement (whole cloud)
+            cloud.x += cloud.vx * dt;
+            cloud.y += cloud.vy * dt;
+            cloud.vx *= 0.995;
+            cloud.vy *= 0.995;
+
+            // Expand quickly then slow, fade out
+            const expandT = Math.min(cloud.time / 1.5, 1);
+            const scale = 0.3 + Utils.easeOutCubic(expandT) * 1.8;
+            const fadeT = cloud.time / cloud.maxLife;
+            const opacity = fadeT < 0.3 ? 1 : Math.max(0, 1 - (fadeT - 0.3) / 0.7);
+
+            // Drift individual blobs outward for dispersal effect
+            for (const blob of cloud.blobs) {
+                blob.ox += blob.vx * dt;
+                blob.oy += blob.vy * dt;
+                blob.vx *= 0.99;
+                blob.vy *= 0.99;
+                if (blob.el.tagName === 'ellipse') {
+                    blob.el.setAttribute('cx', blob.ox);
+                    blob.el.setAttribute('cy', blob.oy);
+                } else {
+                    blob.el.setAttribute('cx', blob.ox);
+                    blob.el.setAttribute('cy', blob.oy);
+                }
+            }
+
+            if (cloud.el) {
+                cloud.el.setAttribute('transform', `translate(${cloud.x}, ${cloud.y}) scale(${scale})`);
+                cloud.el.style.opacity = opacity;
+            }
+
+            // Kill fish that touch the ink cloud (while still visible)
+            if (opacity > 0.15) {
+                const hitRadius = cloud.maxRadius * scale * 0.4;
+                for (const fish of allFish) {
+                    if (!fish.alive) continue;
+                    const dist = Utils.dist(fish.x, fish.y, cloud.x, cloud.y);
+                    if (dist < hitRadius) {
+                        fish.health = 0;
+                        fish.alive = false;
+                    }
+                }
+            }
+        }
     }
 
     function clear() {
         creatures.forEach(c => { if (c.el && c.el.parentNode) c.el.remove(); });
         creatures = [];
+        stingers.forEach(s => { if (s.el && s.el.parentNode) s.el.remove(); });
+        stingers = [];
+        inkClouds.forEach(c => { if (c.el && c.el.parentNode) c.el.remove(); });
+        inkClouds = [];
         spawnTimer = Utils.rand(30, 60);
     }
 
@@ -4021,7 +4441,7 @@ const Creatures = (() => {
         tankW = w; tankH = h;
     }
 
-    return { init, update, clear, resize };
+    return { init, update, clear, resize, handleTap };
 })();
 
 
@@ -4087,12 +4507,19 @@ const UI = (() => {
 
     function showStatus(message) {
         statusQueue.push(message);
+        // Drop older messages if queue is backing up
+        if (statusQueue.length > 4) {
+            statusQueue.splice(0, statusQueue.length - 3);
+        }
         if (!statusTimer) processStatusQueue();
     }
 
     function processStatusQueue() {
         if (statusQueue.length === 0) {
             statusTimer = null;
+            // Fade out the last message
+            const el = document.getElementById('status-line');
+            if (el) el.style.opacity = '0';
             return;
         }
         const msg = statusQueue.shift();
@@ -4102,9 +4529,11 @@ const UI = (() => {
             setTimeout(() => {
                 el.textContent = msg;
                 el.style.opacity = '1';
-            }, 200);
+            }, 150);
         }
-        statusTimer = setTimeout(processStatusQueue, 3000);
+        // Shorter display when messages are queued, normal when caught up
+        const displayTime = statusQueue.length > 0 ? 1200 : 2500;
+        statusTimer = setTimeout(processStatusQueue, displayTime);
     }
 
     function updateButtonStates(score, feedCost, cleanCost, buyCost, isPaused) {
@@ -4514,6 +4943,28 @@ const App = (() => {
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
 
+            // Check if tapping near a creature first
+            const creatureResult = Creatures.handleTap(clickX, clickY, state);
+            if (creatureResult) {
+                if (creatureResult === 'stingers') {
+                    UI.showStatus('🪼 The jellyfish released its stingers! Watch out!');
+                } else if (creatureResult === 'octopus-ink') {
+                    UI.showStatus('🐙 The octopus squirted ink everywhere! 💨');
+                } else if (creatureResult === 'squid-ink') {
+                    UI.showStatus('🦑 The squid blasted glowing ink! 💚');
+                } else {
+                    UI.showStatus('The creature darts away! 🌊');
+                }
+                // Ripple effect at click
+                const rippleSize = 100;
+                const ripple = document.createElement('div');
+                ripple.className = 'tap-ripple';
+                ripple.style.cssText = `left:${clickX - rippleSize/2}px; top:${clickY - rippleSize/2}px; width:${rippleSize}px; height:${rippleSize}px;`;
+                document.getElementById('tank').appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+                return;
+            }
+
             // Check if any fish are near the click — use fish size for better hit detection
             const baseScatterRadius = 150;
             let nearbyFish = state.fish.filter(f => {
@@ -4653,11 +5104,11 @@ const App = (() => {
                 const startX = fish.x;
                 const startY = fish.y;
                 const startTime = performance.now();
-                const duration = 1500;
+                const duration = 6000;
                 function animateDeath(now) {
                     const t = Math.min(1, (now - startTime) / duration);
                     const eased = t * t;
-                    const y = startY - eased * 80;
+                    const y = startY - eased * 50;
                     const rotate = t * 180;
                     const opacity = 1 - t;
                     const sizeRatio = fish.isBaby ? 0.3 + fish.growthProgress * 0.7 : 1;
