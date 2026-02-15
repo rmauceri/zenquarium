@@ -1749,12 +1749,15 @@ html, body {
     /* HUD */
     .hud { top: 6px; left: 6px; right: 6px; flex-direction: row; gap: 4px; }
     .hud-left, .hud-center, .hud-right { gap: 4px; }
-    .hud-left { min-width: auto; }
+    .hud-left { min-width: auto; flex-shrink: 0; }
+    .hud-center { flex: 1 1 0; min-width: 0; overflow: hidden; }
+    .hud-right { flex-shrink: 0; }
     .hud-item { padding: 4px 8px; border-radius: 6px; }
     .hud-label { font-size: 0.5rem; }
     .hud-value { font-size: 0.9rem; }
     .health-bar { width: 60px; height: 4px; }
     #status-value { font-size: 0.55rem; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .status-line { min-width: 0; padding: 6px 10px; font-size: 0.65rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     /* Controls */
     .controls-wrapper { bottom: 6px; }
@@ -1809,7 +1812,7 @@ html, body {
     .hud-label { font-size: 0.45rem; }
     .hud-value { font-size: 0.8rem; }
     .health-bar { width: 45px; }
-    .hud-center { flex: 0 1 auto; overflow: hidden; }
+    .hud-center { flex: 0 1 auto; min-width: 0; overflow: hidden; }
     #status-value { max-width: 60px; }
     .ctrl-btn { padding: 4px 5px; min-width: 34px; min-height: 34px; }
     .ctrl-icon { font-size: 0.9rem; }
@@ -3238,8 +3241,9 @@ class Fish {
         this.inkWash = typeInfo.inkWash || null;
         this.glowColor = typeInfo.glowColor || null;
 
-        // Size with personality variation
-        this.baseSize = typeInfo.size * (isBaby ? 0.3 : Utils.rand(0.85, 1.15));
+        // Size with personality variation, scaled for tank width
+        const tankScale = Fish.tankScale(tankW);
+        this.baseSize = typeInfo.size * (isBaby ? 0.3 : Utils.rand(0.85, 1.15)) * tankScale;
         this.size = this.baseSize;
         this.isBaby = isBaby;
         this.growthProgress = isBaby ? 0 : 1;
@@ -3803,9 +3807,9 @@ class Fish {
             this.x + Utils.rand(-range, range),
             60, this.tankW - 60
         );
-        // Lazy fish strongly prefer bottom, shy fish hug edges
+        // Lazy fish strongly prefer lower-mid zone (not bottom), shy fish hug edges
         let yBias = 0;
-        if (lazy) yBias = this.tankH * 0.25 * lazy;
+        if (lazy) yBias = this.tankH * 0.12 * lazy;
         if (shyness) {
             const edgePull = 80 * shyness;
             this.targetX = Utils.clamp(
@@ -3813,8 +3817,11 @@ class Fish {
                 60, this.tankW - 60
             );
         }
+        // Mid-water bias: gently pull targets toward center band of the tank
+        const midY = this.tankH * 0.4;
+        const midPull = (midY - this.y) * 0.15;
         this.targetY = Utils.clamp(
-            this.y + Utils.rand(-range * 0.5, range * 0.5) + yBias,
+            this.y + Utils.rand(-range * 0.5, range * 0.5) + yBias + midPull,
             60, this.tankH - 100
         );
 
@@ -4177,6 +4184,12 @@ class Fish {
         };
     }
 }
+
+// Scale fish size for smaller screens (reference: 1200px wide = 1.0)
+Fish.tankScale = function(tankW) {
+    if (tankW >= 1000) return 1;
+    return Math.max(0.65, tankW / 1100);
+};
 
 // Fish factory
 const FishFactory = {
@@ -4948,7 +4961,12 @@ const Creatures = (() => {
             fleeing: false,
             fleeTimer: 0,
             normalSpeed: 0,
-            provoked: false
+            provoked: false,
+            eatCooldown: 0,
+            fishEaten: 0,
+            hunting: false,
+            huntTarget: null,
+            lungeScale: 0
         };
 
         // Swim direction: left-to-right or right-to-left
@@ -4965,6 +4983,12 @@ const Creatures = (() => {
         layer.appendChild(creature.el);
         creatures.push(creature);
         if (typeof Achievements !== 'undefined') Achievements.onCreatureSpawn(def.type);
+        // Warn the player
+        const icons = { jellyfish: '🪼', octopus: '🐙', squid: '🦑' };
+        const icon = icons[def.type] || '🦑';
+        if (typeof UI !== 'undefined' && UI.showStatus) {
+            UI.showStatus(`⚠️ ${icon} ${def.name} spotted! Tap to chase it away!`);
+        }
     }
 
     // --- Stinger system (jellyfish 3rd tap) ---
@@ -5158,6 +5182,8 @@ const Creatures = (() => {
     }
 
     function update(dt, allFish) {
+        const eatenByCreature = [];
+
         // Spawn timer
         spawnTimer -= dt;
         if (spawnTimer <= 0) {
@@ -5180,6 +5206,37 @@ const Creatures = (() => {
                 if (c.fleeTimer <= 0) {
                     c.fleeing = false;
                     c.speed = c.normalSpeed;
+                    c.hunting = false;
+                    c.huntTarget = null;
+                }
+            }
+
+            // Creature must be fully on-screen before hunting or eating
+            const fullyOnScreen = c.x > 50 && c.x < tankW - 50;
+
+            // Octopus/squid active hunting — lunge toward nearby fish
+            const isHunter = c.def.type === 'octopus' || c.def.type === 'squid';
+            if (isHunter && !c.fleeing && c.eatCooldown <= 0 && fullyOnScreen) {
+                let nearest = null, nearDist = Infinity;
+                for (const fish of allFish) {
+                    if (!fish.alive) continue;
+                    const d = Utils.dist(fish.x, fish.y, c.x, c.y + bobY);
+                    if (d < 200 && d < nearDist) {
+                        nearDist = d;
+                        nearest = fish;
+                    }
+                }
+                if (nearest) {
+                    c.hunting = true;
+                    c.huntTarget = nearest;
+                    // Lunge toward prey
+                    const angle = Math.atan2(nearest.y - (c.y + bobY), nearest.x - c.x);
+                    const lungeSpeed = 1.8;
+                    c.x += Math.cos(angle) * lungeSpeed * 60 * dt;
+                    c.y += Math.sin(angle) * lungeSpeed * 60 * dt;
+                } else {
+                    c.hunting = false;
+                    c.huntTarget = null;
                 }
             }
 
@@ -5187,27 +5244,53 @@ const Creatures = (() => {
             c.pulsePhase += dt * 2;
             const pulse = c.def.type === 'jellyfish' ? 1 + Math.sin(c.pulsePhase) * 0.06 : 1;
 
+            // Lunge scale animation (octopus/squid pounce on eat)
+            let lungeAnim = 1;
+            if (c.lungeScale > 0) {
+                c.lungeScale = Math.max(0, c.lungeScale - dt * 3);
+                lungeAnim = 1 + c.lungeScale * 0.3;
+            }
+
             const scaleX = c.speed > 0 ? 1 : -1;
             c.el.setAttribute('transform',
-                `translate(${c.x}, ${c.y + bobY}) scale(${scaleX * pulse}, ${pulse})`
+                `translate(${c.x}, ${c.y + bobY}) scale(${scaleX * pulse * lungeAnim}, ${pulse * lungeAnim})`
             );
 
-            // Animate eyes — pupils glance side to side (octopus & squid)
+            // Animate eyes — octopus/squid track prey when hunting, idle gaze otherwise
             if (c.pupils && c.pupils.length > 0) {
-                c.gazePhase += dt * 0.8;
-                // Stepped sine: glance, pause, glance the other way
-                const rawGaze = Math.sin(c.gazePhase);
-                const gaze = Math.abs(rawGaze) < 0.3 ? 0 : rawGaze; // pause in center
-                for (const p of c.pupils) {
-                    p.el.setAttribute('cx', p.baseCx + gaze * p.maxShift);
+                if (c.hunting && c.huntTarget && c.huntTarget.alive) {
+                    // Lock pupils on prey
+                    const preyDir = c.huntTarget.x > c.x ? 1 : -1;
+                    const gazeDir = preyDir * scaleX;
+                    for (const p of c.pupils) {
+                        p.el.setAttribute('cx', p.baseCx + gazeDir * p.maxShift * 0.8);
+                    }
+                } else {
+                    c.gazePhase += dt * 0.8;
+                    const rawGaze = Math.sin(c.gazePhase);
+                    const gaze = Math.abs(rawGaze) < 0.3 ? 0 : rawGaze;
+                    for (const p of c.pupils) {
+                        p.el.setAttribute('cx', p.baseCx + gaze * p.maxShift);
+                    }
                 }
             }
 
+            // Eat cooldown
+            if (c.eatCooldown > 0) c.eatCooldown -= dt;
+
             // Scare nearby fish — fish flee from large creatures
+            // Eat fish on close contact (kill radius varies by type, with cooldown)
+            const killRadius = c.def.type === 'jellyfish' ? 45 : 40;
             for (const fish of allFish) {
                 if (!fish.alive) continue;
                 const dist = Utils.dist(fish.x, fish.y, c.x, c.y + bobY);
-                if (dist < 250) {
+                if (dist < killRadius && c.eatCooldown <= 0 && !c.fleeing && fullyOnScreen) {
+                    fish.alive = false;
+                    c.eatCooldown = 8;
+                    c.fishEaten++;
+                    if (isHunter) c.lungeScale = 1;
+                    eatenByCreature.push({ fish, creature: c });
+                } else if (dist < 250) {
                     const fleeAngle = Math.atan2(fish.y - (c.y + bobY), fish.x - c.x);
                     fish.targetX = Utils.clamp(fish.x + Math.cos(fleeAngle) * 280, 60, fish.tankW - 60);
                     fish.targetY = Utils.clamp(fish.y + Math.sin(fleeAngle) * 160, 60, fish.tankH - 100);
@@ -5319,6 +5402,8 @@ const Creatures = (() => {
                 }
             }
         }
+
+        return eatenByCreature;
     }
 
     function clear() {
@@ -5569,7 +5654,7 @@ const Achievements = (() => {
     }
 
     function onCreatureExit(creature) {
-        if (!creature.provoked) {
+        if (creature.fishEaten === 0) {
             if (typeof App !== 'undefined' && App.scoreEvent) {
                 App.scoreEvent(30, '🕊️ Creature whisperer! +30');
             }
@@ -6262,6 +6347,9 @@ const App = (() => {
         Creatures.init(w, h, state.themeId);
         UI.init();
 
+        // Scale max fish for tank size (reference: 1200×800 = 20 fish, floor at 15)
+        state.maxFish = calcMaxFish(w, h);
+
         // Start with 2 fish
         const startTypes = state.theme.fishTypes.slice(0, 2);
         startTypes.forEach(type => {
@@ -6286,6 +6374,12 @@ const App = (() => {
     function getSize() {
         Tank.updateSize();
         return Tank.getSize();
+    }
+
+    function calcMaxFish(w, h) {
+        const refArea = 1200 * 800;
+        const ratio = (w * h) / refArea;
+        return Math.max(15, Math.min(20, Math.round(20 * ratio)));
     }
 
     function bindControls() {
@@ -6470,6 +6564,7 @@ const App = (() => {
             Food.resize(w, h);
             Creatures.resize(w, h);
             state.fish.forEach(f => f.resize(w, h));
+            state.maxFish = calcMaxFish(w, h);
         }, 200));
     }
 
@@ -6651,7 +6746,19 @@ const App = (() => {
         Food.update(dt);
 
         // Update easter egg creatures
-        Creatures.update(dt, state.fish);
+        const creatureEaten = Creatures.update(dt, state.fish);
+
+        // Handle fish eaten by creatures
+        for (const { fish, creature } of creatureEaten) {
+            if (state.fish.includes(fish)) {
+                removeFish(fish);
+                Achievements.onFishLost();
+                ZenAudio.playEaten();
+                const icons = { jellyfish: '🪼', octopus: '🐙', squid: '🦑' };
+                const icon = icons[creature.def.type] || '🦑';
+                scoreEvent(-15, `${icon} ${creature.def.name} caught your ${fish.typeName}! -15`);
+            }
+        }
 
         // Update fish
         const foods = Food.getAll();

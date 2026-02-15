@@ -64,12 +64,12 @@ These bonuses can be earned repeatedly throughout a session.
 
 ### Creature Interaction Bonuses
 
-Easter egg creatures (jellyfish, octopus, squid) visit your tank periodically. How you interact with them affects your score.
+Easter egg creatures (jellyfish, octopus, squid) visit your tank periodically. **Creatures are dangerous** — they will eat fish on contact. Tap a creature to chase it away, but don't tap 3 times or it will retaliate with stingers or ink.
 
 | Event | Points | Trigger |
 |-------|--------|---------|
-| Creature Sighting | +15 | Each time an easter egg creature spawns in your tank |
-| Creature Whisperer | +30 | A creature leaves your tank without being provoked (no 3rd tap) |
+| Creature Sighting | +15 | Each time a creature spawns in your tank |
+| Creature Whisperer | +30 | A creature leaves your tank without eating any fish |
 | Stinger Survivor | +50 | All fish survive a jellyfish stinger attack (awarded after stingers expire) |
 | Ink Cloud Survivor | +40 | All fish survive an octopus/squid ink cloud (awarded after cloud fades) |
 
@@ -84,7 +84,7 @@ Penalties reduce the score but never below zero.
 | Event | Points | Trigger |
 |-------|--------|---------|
 | Fish Death | −15 | A fish dies (non-starvation) |
-| Fish Eaten | −15 | A fish is eaten by a predator |
+| Fish Eaten | −15 | A fish is eaten by a predator fish or creature |
 | Starvation | −20 | A fish dies with hunger below 10% |
 | Overstressed | −5 | Excessive glass tapping (stress accumulator >10) |
 | Provoked Stingers | −25 | You tapped a jellyfish 3 times, triggering its stingers |
