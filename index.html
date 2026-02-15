@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0a1628">
     <meta name="description" content="Zenquarium - A meditative aquarium experience">
     <title>Zenquarium</title>
@@ -224,6 +224,11 @@ html, body {
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 
+.theme-card:active {
+    transform: translateY(-1px) scale(0.97);
+    transition-duration: 0.1s;
+}
+
 .theme-card.selected {
     border-color: var(--accent);
     box-shadow: 0 0 20px var(--accent-glow);
@@ -240,30 +245,6 @@ html, body {
     font-size: 0.65rem;
     opacity: 0.7;
     line-height: 1.4;
-}
-
-.start-btn {
-    padding: 14px 48px;
-    font-size: 1rem;
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    background: linear-gradient(135deg, var(--accent), #c9a96e);
-    color: #0a1628;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    opacity: 0.4;
-}
-
-.start-btn:not(:disabled) {
-    opacity: 1;
-}
-
-.start-btn:not(:disabled):hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 20px var(--accent-glow);
 }
 
 .splash-footer {
@@ -308,6 +289,284 @@ html, body {
 .splash-mute-btn:hover {
     border-color: rgba(232, 220, 200, 0.4);
     background: rgba(255,255,255,0.05);
+}
+
+/* Stats ribbon on splash */
+.stats-ribbon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin: 12px 0 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: rgba(232, 220, 200, 0.45);
+}
+
+.stats-ribbon .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.stats-ribbon .stat-icon {
+    font-size: 0.85rem;
+}
+
+.stats-ribbon .stat-value {
+    color: rgba(232, 220, 200, 0.65);
+    font-weight: 400;
+}
+
+/* Session summary overlay */
+.session-summary {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1200;
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+}
+
+.session-summary.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.session-summary-content {
+    text-align: center;
+    max-width: 420px;
+    padding: 40px;
+}
+
+.session-summary h2 {
+    font-size: 1.8rem;
+    font-weight: 200;
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+    color: var(--text-primary, #e8dcc8);
+}
+
+.session-summary .high-score-badge {
+    color: #c9a96e;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+.session-summary .summary-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.session-summary .summary-stat {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+.session-summary .summary-stat-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(232, 220, 200, 0.5);
+    display: block;
+}
+
+.session-summary .summary-stat-value {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: rgba(232, 220, 200, 0.9);
+}
+
+.session-summary .summary-achievements {
+    margin: 16px 0;
+    font-size: 0.75rem;
+    color: rgba(232, 220, 200, 0.6);
+}
+
+.session-summary .summary-achievements .achievement-earned {
+    display: inline-block;
+    background: rgba(201, 169, 110, 0.15);
+    border: 1px solid rgba(201, 169, 110, 0.3);
+    border-radius: 16px;
+    padding: 4px 12px;
+    margin: 4px;
+    font-size: 0.7rem;
+    color: #c9a96e;
+}
+
+.session-summary .summary-btn {
+    background: transparent;
+    border: 1px solid rgba(232, 220, 200, 0.3);
+    border-radius: 20px;
+    color: rgba(232, 220, 200, 0.8);
+    padding: 10px 32px;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 12px;
+}
+
+.session-summary .summary-btn:hover {
+    border-color: rgba(232, 220, 200, 0.5);
+    color: var(--text-primary, #e8dcc8);
+    background: rgba(255,255,255,0.05);
+}
+
+/* Achievements overlay */
+.achievements-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1100;
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.achievements-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.achievements-content {
+    max-width: 520px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: linear-gradient(180deg, rgba(20,30,50,0.95), rgba(10,18,38,0.98));
+    border: 1px solid rgba(232, 220, 200, 0.12);
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+}
+
+.achievements-content h2 {
+    font-size: 1.4rem;
+    font-weight: 200;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: #e8dcc8;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    text-align: left;
+}
+
+.achievement-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 12px;
+    transition: all 0.3s ease;
+}
+
+.achievement-card.unlocked {
+    border-color: rgba(201, 169, 110, 0.25);
+    background: rgba(201, 169, 110, 0.06);
+}
+
+.achievement-card.locked {
+    opacity: 0.45;
+}
+
+.achievement-card .ach-icon {
+    font-size: 1.3rem;
+    margin-bottom: 4px;
+}
+
+.achievement-card .ach-name {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #e8dcc8;
+    margin-bottom: 2px;
+}
+
+.achievement-card .ach-desc {
+    font-size: 0.6rem;
+    color: rgba(232, 220, 200, 0.5);
+    line-height: 1.3;
+}
+
+.achievement-card .ach-date {
+    font-size: 0.55rem;
+    color: rgba(201, 169, 110, 0.6);
+    margin-top: 4px;
+}
+
+.achievements-close {
+    background: transparent;
+    border: 1px solid rgba(232, 220, 200, 0.2);
+    border-radius: 20px;
+    color: var(--text-secondary, rgba(232,220,200,0.6));
+    padding: 8px 24px;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.achievements-close:hover {
+    border-color: rgba(232, 220, 200, 0.4);
+    color: #e8dcc8;
+}
+
+/* Achievement toast notification */
+.achievement-toast {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: rgba(20, 30, 50, 0.95);
+    border: 1px solid rgba(201, 169, 110, 0.4);
+    border-radius: 12px;
+    padding: 12px 24px;
+    z-index: 100;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+}
+
+.achievement-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.achievement-toast .toast-icon {
+    font-size: 1.5rem;
+}
+
+.achievement-toast .toast-label {
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #c9a96e;
+    display: block;
+    margin-top: 2px;
+}
+
+.achievement-toast .toast-name {
+    font-size: 0.85rem;
+    color: #e8dcc8;
+    font-weight: 300;
 }
 
 .about-overlay {
@@ -671,13 +930,14 @@ html, body {
 .controls {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     background: var(--hud-bg);
     border: 1px solid var(--hud-border);
     border-radius: 12px;
-    padding: 8px 16px;
+    padding: 6px 10px;
     backdrop-filter: blur(10px);
     transition: opacity 0.3s ease;
+    flex-wrap: nowrap;
 }
 
 .controls-wrapper.collapsed .controls {
@@ -687,15 +947,14 @@ html, body {
 
 .ctrl-btn {
     display: flex; flex-direction: column;
-    align-items: center; gap: 2px;
+    align-items: center; gap: 1px;
     background: transparent;
     border: 1px solid transparent;
     border-radius: 8px;
-    padding: 8px 14px;
+    padding: 6px 10px;
     color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s ease;
-    position: relative;
 }
 
 .ctrl-btn:hover {
@@ -710,29 +969,99 @@ html, body {
     cursor: not-allowed;
 }
 
-.ctrl-icon { font-size: 1.3rem; }
+.ctrl-icon { font-size: 1.3rem; line-height: 1; }
+.ctrl-icon svg { vertical-align: middle; }
 .ctrl-label { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; }
 .ctrl-cost {
-    font-size: 0.55rem;
+    font-size: 0.5rem;
     color: #f59e0b;
-    position: absolute;
-    top: 2px; right: 4px;
+    line-height: 1;
 }
 
 .ctrl-separator {
-    width: 1px; height: 36px;
+    width: 1px; height: 28px;
     background: var(--hud-border);
-    margin: 0 4px;
+    margin: 0 2px;
 }
 
-.volume-control {
-    display: flex; align-items: center; gap: 8px;
-    padding: 0 8px;
+.volume-flyout {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: 10px;
+    padding: 16px 10px;
+    margin-bottom: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform: translateY(6px);
+    backdrop-filter: blur(12px);
+    z-index: 30;
+}
+
+.volume-flyout.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.volume-slider-vertical {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    outline: none;
+}
+
+.volume-slider-vertical::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    cursor: pointer;
+}
+
+.volume-slider-vertical::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    border: none;
+    cursor: pointer;
+}
+
+.volume-slider-vertical::-moz-range-track {
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+}
+
+.theme-ink .volume-flyout {
+    background: rgba(245, 240, 232, 0.95);
+    border-color: rgba(42, 42, 42, 0.2);
+}
+
+.theme-ink .volume-slider-vertical {
+    background: rgba(42, 42, 42, 0.25);
+}
+
+.theme-ink .volume-slider-vertical::-webkit-slider-thumb {
+    background: #2a2a2a;
+}
+
+.theme-ink .volume-slider-vertical::-moz-range-thumb {
+    background: #2a2a2a;
+}
+
+.theme-ink .volume-slider-vertical::-moz-range-track {
+    background: rgba(42, 42, 42, 0.25);
 }
 
 .auto-control {
-    display: flex; align-items: center; gap: 6px;
-    padding: 0 8px;
+    display: flex; align-items: center; gap: 4px;
+    padding: 0 4px;
     cursor: pointer;
 }
 
@@ -775,23 +1104,6 @@ html, body {
 
 .theme-ink .auto-control input[type="checkbox"] {
     background: rgba(42, 42, 42, 0.2);
-}
-
-.volume-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 80px; height: 4px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 2px;
-    outline: none;
-}
-
-.volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: var(--text-primary);
-    cursor: pointer;
 }
 
 /* ============================================
@@ -890,6 +1202,75 @@ html, body {
 
 .modal-close:hover {
     background: var(--btn-hover);
+}
+
+/* Fish Shop Flyout */
+.fish-shop-flyout {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: linear-gradient(180deg, rgba(20,34,56,0.97), rgba(10,22,40,0.98));
+    border: 1px solid var(--hud-border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 8px;
+    width: max-content;
+    max-width: min(420px, calc(100vw - 24px));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    backdrop-filter: blur(12px);
+    z-index: 30;
+}
+
+.fish-shop-flyout.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+
+.fish-shop-flyout .fish-shop {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 0;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.fish-shop-flyout .shop-item {
+    padding: 8px 12px;
+    gap: 10px;
+}
+
+.fish-shop-flyout .shop-fish-preview {
+    width: 40px;
+    height: 28px;
+}
+
+.fish-shop-flyout .shop-fish-name {
+    font-size: 0.75rem;
+}
+
+.fish-shop-flyout .shop-fish-cost {
+    font-size: 0.65rem;
+}
+
+.fish-shop-flyout .shop-fish-personality {
+    font-size: 0.55rem;
+}
+
+/* Flyout backdrop for tap-outside-to-dismiss */
+.flyout-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 19;
+    display: none;
+}
+
+.flyout-backdrop.active {
+    display: block;
 }
 
 /* Restart Confirmation Modal */
@@ -1217,24 +1598,21 @@ html, body {
     background: rgba(0,0,0,0.08);
 }
 
-.theme-ink .status-line {
+.theme-ink .fish-shop-flyout {
+    background: linear-gradient(180deg, rgba(245,240,232,0.97), rgba(232,224,212,0.98));
+    border-color: rgba(42, 42, 42, 0.2);
+}
+
+.theme-ink .fish-shop-flyout .shop-fish-name {
     color: #2a2a2a;
 }
 
-.theme-ink .volume-slider {
-    background: rgba(42, 42, 42, 0.25);
+.theme-ink .fish-shop-flyout .shop-fish-cost {
+    color: #8a6e2f;
 }
 
-.theme-ink .volume-slider::-webkit-slider-thumb {
-    background: #2a2a2a;
-}
-
-.theme-ink .volume-slider::-moz-range-thumb {
-    background: #2a2a2a;
-}
-
-.theme-ink .volume-slider::-moz-range-track {
-    background: rgba(42, 42, 42, 0.25);
+.theme-ink .status-line {
+    color: #2a2a2a;
 }
 
 /* ============================================
@@ -1243,9 +1621,10 @@ html, body {
 
 @media (max-width: 768px) {
     .splash-title h1 { font-size: 2.5rem; }
+    .splash-content { padding: 24px 20px; }
     .theme-cards { grid-template-columns: repeat(2, 1fr); }
     .modal-content { min-width: auto; margin: 16px; }
-    .controls { flex-wrap: wrap; }
+    .achievements-content { margin: 16px; padding: 24px; }
 
     .hud.hud-minimized {
         justify-content: center;
@@ -1263,9 +1642,104 @@ html, body {
 }
 
 @media (max-width: 480px) {
-    .splash-title h1 { font-size: 2rem; letter-spacing: 0.15em; }
+    /* Splash */
+    .splash-title h1 { font-size: 1.8rem; letter-spacing: 0.12em; }
+    .splash-subtitle { font-size: 0.8rem; margin-bottom: 24px; letter-spacing: 0.12em; }
+    .splash-content { padding: 16px 12px; }
+    .splash-seaweed { display: none; }
+    .theme-selection h2 { font-size: 0.85rem; margin-bottom: 12px; }
     .theme-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .hud { flex-direction: column; gap: 8px; }
+    .theme-card { padding: 14px 10px; }
+    .theme-card-name { font-size: 0.75rem; }
+    .theme-card-desc { font-size: 0.55rem; }
+
+    /* Stats ribbon */
+    .stats-ribbon { gap: 12px; font-size: 0.6rem; }
+    .stats-ribbon .stat-icon { font-size: 0.75rem; }
+
+    /* Splash footer */
+    .splash-footer { margin-top: 16px; gap: 8px; }
+    .about-btn { padding: 6px 14px; font-size: 0.6rem; }
+    .splash-mute-btn { font-size: 1rem; width: 36px; height: 36px; }
+
+    /* HUD */
+    .hud { top: 6px; left: 6px; right: 6px; flex-direction: row; gap: 4px; }
+    .hud-left, .hud-center, .hud-right { gap: 4px; }
+    .hud-left { min-width: auto; }
+    .hud-item { padding: 4px 8px; border-radius: 6px; }
+    .hud-label { font-size: 0.5rem; }
+    .hud-value { font-size: 0.9rem; }
+    .health-bar { width: 60px; height: 4px; }
+    #status-value { font-size: 0.55rem; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Controls */
+    .controls-wrapper { bottom: 6px; }
+    .controls { padding: 5px 6px; gap: 1px; border-radius: 10px; flex-wrap: nowrap; }
+    .ctrl-btn { padding: 5px 6px; min-width: 38px; min-height: 38px; }
+    .ctrl-icon { font-size: 1rem; }
+    .ctrl-label { font-size: 0.4rem; letter-spacing: 0.03em; }
+    .ctrl-cost { font-size: 0.4rem; }
+    .ctrl-separator { display: none; }
+    .auto-control { padding: 0 3px; gap: 2px; }
+    .auto-label { font-size: 0.4rem; }
+
+    /* Modals */
+    .modal-content { padding: 20px 16px; border-radius: 12px; }
+    .modal-content h2 { font-size: 1rem; margin-bottom: 16px; }
+    .fish-shop { grid-template-columns: 1fr; gap: 8px; }
+    .shop-item { padding: 10px 12px; gap: 8px; }
+    .shop-fish-name { font-size: 0.75rem; }
+
+    /* Session summary */
+    .session-summary-content { padding: 24px 16px; max-width: 320px; }
+    .session-summary h2 { font-size: 1.4rem; }
+    .session-summary .summary-stats { gap: 8px; }
+    .session-summary .summary-stat { padding: 8px 10px; }
+    .session-summary .summary-stat-value { font-size: 0.95rem; }
+    .session-summary .summary-btn { padding: 10px 24px; }
+
+    /* Achievements overlay */
+    .achievements-content { margin: 12px; padding: 20px 16px; max-width: calc(100vw - 24px); }
+    .achievements-content h2 { font-size: 1.1rem; }
+    .achievements-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .achievement-card { padding: 10px; }
+    .achievement-card .ach-icon { font-size: 1.1rem; }
+    .achievement-card .ach-name { font-size: 0.65rem; }
+    .achievement-card .ach-desc { font-size: 0.5rem; }
+
+    /* Achievement toast */
+    .achievement-toast { top: 50px; padding: 8px 16px; }
+
+    /* Controls chevron */
+    .controls-chevron { width: 36px; height: 16px; }
+}
+
+@media (max-width: 360px) {
+    .splash-title h1 { font-size: 1.5rem; letter-spacing: 0.1em; }
+    .splash-subtitle { font-size: 0.7rem; }
+    .theme-cards { grid-template-columns: 1fr; gap: 6px; }
+    .theme-card { padding: 12px 10px; }
+    .stats-ribbon { flex-direction: column; gap: 6px; }
+    .hud-right { display: none; }
+    .achievements-grid { grid-template-columns: 1fr; }
+    .ctrl-btn { padding: 4px 5px; min-width: 34px; min-height: 34px; }
+    .ctrl-icon { font-size: 0.9rem; }
+    .ctrl-label { font-size: 0.35rem; }
+    .auto-control input[type="checkbox"] { width: 24px; height: 12px; }
+    .auto-control input[type="checkbox"]::after { width: 8px; height: 8px; }
+    .auto-control input[type="checkbox"]:checked::after { transform: translateX(12px); }
+}
+
+/* Touch device improvements */
+@media (hover: none) {
+    .about-btn { min-height: 44px; display: inline-flex; align-items: center; }
+    .shop-item { min-height: 48px; }
+    .theme-card:hover { transform: none; box-shadow: none; }
+    .theme-card:active { transform: scale(0.97); }
+    .ctrl-btn:hover { background: transparent; border-color: transparent; }
+    .ctrl-btn:active { background: var(--btn-hover); border-color: var(--hud-border); transform: scale(0.92); }
+    .controls-wrapper { bottom: max(6px, env(safe-area-inset-bottom)); }
+    .hud { top: max(6px, env(safe-area-inset-top)); }
 }
 
     </style>
@@ -1282,13 +1756,18 @@ html, body {
             <div class="splash-seaweed splash-seaweed-left" id="splash-seaweed-left"></div>
             <div class="splash-seaweed splash-seaweed-right" id="splash-seaweed-right"></div>
             <div class="theme-selection">
-                <h2>Choose Your Theme</h2>
+                <h2>Pick a theme to start</h2>
                 <div class="theme-cards" id="theme-cards"></div>
             </div>
-            <button class="start-btn" id="start-btn" disabled>Begin</button>
             <div class="splash-footer">
                 <button class="about-btn" id="about-btn">About</button>
+                <button class="about-btn" id="achievements-btn">Achievements</button>
                 <button class="splash-mute-btn" id="splash-mute-btn" title="Toggle Sound">🔊</button>
+            </div>
+            <div id="stats-ribbon" class="stats-ribbon">
+                <div class="stat-item"><span class="stat-icon">🏆</span> Best: <span class="stat-value" id="ribbon-high-score">0</span></div>
+                <div class="stat-item"><span class="stat-icon">🎮</span> Sessions: <span class="stat-value" id="ribbon-sessions">0</span></div>
+                <div class="stat-item"><span class="stat-icon">⭐</span> <span class="stat-value" id="ribbon-achievements">0</span>/<span id="ribbon-total-achievements">12</span></div>
             </div>
         </div>
     </div>
@@ -1305,8 +1784,8 @@ html, body {
             <h3>Interactions</h3>
             <p><strong>Click the tank</strong> to drop food. Use the control bar to feed, clean, buy fish, pause, or restart. Click the fish counter to see a breakdown by species. Tap the glass near fish to watch them scatter — but don't do it too often or it stresses them out!</p>
             
-            <h3>Auto Mode</h3>
-            <p>Toggle Auto mode in the control bar to let the aquarium manage itself. The game will feed, clean, and maintain a healthy population of 5–20 fish automatically. Perfect for when you just want to sit back and enjoy the view.</p>
+            <h3>Zen Mode</h3>
+            <p>Toggle Zen mode in the control bar to let the aquarium manage itself. The game will feed, clean, and maintain a healthy population of 5–20 fish automatically. Perfect for when you just want to sit back and enjoy the view.</p>
 
             <h3>Themes</h3>
             <p>Five distinct environments, each with unique fish, plants, colors, and ambient soundscapes: the warm tones of <strong>Koi Garden</strong>, vibrant <strong>Tropical Reef</strong>, mysterious <strong>Deep Ocean</strong>, minimalist <strong>Zen Garden</strong>, and the artistic <strong>Pen &amp; Ink</strong>.</p>
@@ -1318,6 +1797,58 @@ html, body {
 
             <button class="about-close" id="about-close">Close</button>
         </div>
+    </div>
+
+    <!-- Session Summary Overlay -->
+    <div id="session-summary" class="session-summary">
+        <div class="session-summary-content">
+            <h2>Session Complete</h2>
+            <div id="high-score-badge" class="high-score-badge" style="display:none">🏆 New High Score! 🏆</div>
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <span class="summary-stat-label">Score</span>
+                    <span class="summary-stat-value" id="summary-score">0</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="summary-stat-label">Best Score</span>
+                    <span class="summary-stat-value" id="summary-best">0</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="summary-stat-label">Duration</span>
+                    <span class="summary-stat-value" id="summary-duration">0:00</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="summary-stat-label">Fish Born</span>
+                    <span class="summary-stat-value" id="summary-born">0</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="summary-stat-label">Fish Lost</span>
+                    <span class="summary-stat-value" id="summary-lost">0</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="summary-stat-label">Peak Fish</span>
+                    <span class="summary-stat-value" id="summary-peak">0</span>
+                </div>
+            </div>
+            <div id="summary-achievements" class="summary-achievements"></div>
+            <button class="summary-btn" id="summary-continue">Continue</button>
+        </div>
+    </div>
+
+    <!-- Achievements Overlay -->
+    <div id="achievements-overlay" class="achievements-overlay">
+        <div class="achievements-content">
+            <h2 id="achievements-title">Achievements</h2>
+            <div id="achievements-grid" class="achievements-grid"></div>
+            <button class="achievements-close" id="achievements-close">Close</button>
+        </div>
+    </div>
+
+    <!-- Achievement Toast -->
+    <div id="achievement-toast" class="achievement-toast">
+        <span class="toast-icon" id="toast-icon"></span>
+        <span class="toast-label">Achievement Unlocked</span>
+        <span class="toast-name" id="toast-name"></span>
     </div>
 
     <!-- Game Screen -->
@@ -1422,7 +1953,7 @@ html, body {
             </button>
             <button class="ctrl-btn" id="btn-buy" title="Buy Fish">
                 <span class="ctrl-icon"></span>
-                <span class="ctrl-label">Buy Fish</span>
+                <span class="ctrl-label">Buy</span>
                 <span class="ctrl-cost" id="buy-cost">-20</span>
             </button>
             <div class="ctrl-separator"></div>
@@ -1431,30 +1962,32 @@ html, body {
                 <span class="ctrl-label">Pause</span>
             </button>
             <button class="ctrl-btn" id="btn-restart" title="Restart">
-                <span class="ctrl-icon"></span>
+                <span class="ctrl-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4.5 3.2A5.5 5.5 0 1 1 2.5 8"/><path d="M5 1v3.5H1.5" stroke-width="1.5"/></svg></span>
                 <span class="ctrl-label">Restart</span>
             </button>
             <div class="ctrl-separator"></div>
-            <label class="auto-control" title="Auto Mode">
+            <label class="auto-control" title="Zen Mode">
                 <input type="checkbox" id="auto-toggle">
-                <span class="auto-label">Auto</span>
+                <span class="auto-label">Zen</span>
             </label>
             <div class="ctrl-separator"></div>
-            <div class="volume-control">
-                <span class="ctrl-icon"></span>
-                <input type="range" id="volume-slider" min="0" max="100" value="50" class="volume-slider">
-            </div>
+            <button class="ctrl-btn" id="btn-volume" title="Volume">
+                <span class="ctrl-icon" id="volume-icon-display">🔊</span>
+                <span class="ctrl-label">Vol</span>
+            </button>
         </div>
+            <!-- Volume Flyout -->
+            <div id="volume-flyout" class="volume-flyout">
+                <input type="range" id="volume-slider" min="0" max="100" value="50" class="volume-slider volume-slider-vertical">
+            </div>
+            <!-- Fish Shop Flyout -->
+            <div id="fish-shop-flyout" class="fish-shop-flyout">
+                <div id="fish-shop" class="fish-shop"></div>
+            </div>
         </div>
 
-        <!-- Buy Fish Modal -->
-        <div id="buy-modal" class="modal hidden">
-            <div class="modal-content">
-                <h2>Buy Fish</h2>
-                <div id="fish-shop" class="fish-shop"></div>
-                <button class="modal-close" id="modal-close">Close</button>
-            </div>
-        </div>
+        <!-- Flyout backdrop -->
+        <div id="flyout-backdrop" class="flyout-backdrop"></div>
 
         <!-- Restart Confirmation Modal -->
         <div id="restart-modal" class="modal hidden">
@@ -1470,6 +2003,126 @@ html, body {
     </div>
 
     <script>
+/* ============================================
+   ZENQUARIUM - Persistent Storage
+   ============================================ */
+
+const ZenStorage = (() => {
+    const STORAGE_KEY = 'zenquarium_save';
+
+    const defaults = {
+        highScore: 0,
+        totalSessions: 0,
+        achievements: [],
+        achievementDates: {},
+        lastTheme: null,
+        themesPlayed: [],
+        stats: {
+            totalFishBorn: 0,
+            totalFishLost: 0,
+            longestSession: 0,
+            creaturesEncountered: 0,
+            totalFoodDropped: 0,
+            totalCleans: 0,
+            highestFishCount: 0
+        }
+    };
+
+    let data = null;
+
+    function load() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const saved = JSON.parse(raw);
+                // Merge with defaults so new fields are always present
+                data = { ...defaults, ...saved, stats: { ...defaults.stats, ...(saved.stats || {}) } };
+            } else {
+                data = JSON.parse(JSON.stringify(defaults));
+            }
+        } catch (e) {
+            data = JSON.parse(JSON.stringify(defaults));
+        }
+        return data;
+    }
+
+    function save() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) { /* storage full or unavailable */ }
+    }
+
+    function get() {
+        if (!data) load();
+        return data;
+    }
+
+    function updateHighScore(score) {
+        const d = get();
+        const rounded = Math.round(score);
+        if (rounded > d.highScore) {
+            d.highScore = rounded;
+            save();
+            return true; // new high score
+        }
+        return false;
+    }
+
+    function incrementSessions() {
+        const d = get();
+        d.totalSessions++;
+        save();
+    }
+
+    function addStat(key, amount = 1) {
+        const d = get();
+        if (key in d.stats) {
+            d.stats[key] += amount;
+            save();
+        }
+    }
+
+    function setStatMax(key, value) {
+        const d = get();
+        if (key in d.stats && value > d.stats[key]) {
+            d.stats[key] = value;
+            save();
+        }
+    }
+
+    function unlockAchievement(id) {
+        const d = get();
+        if (!d.achievements.includes(id)) {
+            d.achievements.push(id);
+            d.achievementDates[id] = new Date().toISOString().split('T')[0];
+            save();
+            return true; // newly unlocked
+        }
+        return false;
+    }
+
+    function hasAchievement(id) {
+        return get().achievements.includes(id);
+    }
+
+    function recordTheme(themeId) {
+        const d = get();
+        d.lastTheme = themeId;
+        if (!d.themesPlayed.includes(themeId)) {
+            d.themesPlayed.push(themeId);
+        }
+        save();
+    }
+
+    function reset() {
+        data = JSON.parse(JSON.stringify(defaults));
+        save();
+    }
+
+    return { load, save, get, updateHighScore, incrementSessions, addStat, setStatMax, unlockAchievement, hasAchievement, recordTheme, reset };
+})();
+
+
 /* ============================================
    ZENQUARIUM - Utility Functions
    ============================================ */
@@ -2612,11 +3265,11 @@ class Fish {
         });
         g.appendChild(sheen);
 
-        // Neon Tetra signature stripes — iridescent blue + red band
+        // Neon Tetra signature stripes — iridescent blue front + red rear
         if (this.type === 'neon') {
             // Bright neon blue lateral stripe (nose to mid-body)
             const neonStripe = Utils.svgEl('path', {
-                d: `M ${-bodyRx * 0.9} 0 Q ${-bodyRx * 0.3} ${-bodyRy * 0.15}, ${bodyRx * 0.15} ${-bodyRy * 0.05}`,
+                d: `M ${bodyRx * 0.9} ${-bodyRy * 0.05} Q ${bodyRx * 0.3} ${-bodyRy * 0.15}, ${-bodyRx * 0.15} 0`,
                 stroke: '#00d4ff',
                 'stroke-width': (bodyRy * 0.22).toFixed(1),
                 'stroke-linecap': 'round',
@@ -2626,7 +3279,7 @@ class Fish {
             g.appendChild(neonStripe);
             // Red rear stripe (mid-body to tail)
             const redStripe = Utils.svgEl('path', {
-                d: `M ${bodyRx * 0.05} ${bodyRy * 0.05} Q ${bodyRx * 0.5} ${bodyRy * 0.1}, ${bodyRx * 0.95} ${bodyRy * 0.02}`,
+                d: `M ${-bodyRx * 0.05} ${bodyRy * 0.05} Q ${-bodyRx * 0.5} ${bodyRy * 0.1}, ${-bodyRx * 0.95} ${bodyRy * 0.02}`,
                 stroke: '#e83030',
                 'stroke-width': (bodyRy * 0.28).toFixed(1),
                 'stroke-linecap': 'round',
@@ -4212,6 +4865,7 @@ const Creatures = (() => {
         creature.gazePhase = Math.random() * Math.PI * 2;
         layer.appendChild(creature.el);
         creatures.push(creature);
+        if (typeof Achievements !== 'undefined') Achievements.onCreatureSpawn();
     }
 
     // --- Stinger system (jellyfish 3rd tap) ---
@@ -4585,6 +5239,183 @@ const Creatures = (() => {
 
 
 /* ============================================
+   ZENQUARIUM - Achievements System
+   ============================================ */
+
+const Achievements = (() => {
+    const defs = [
+        { id: 'first-fish',       icon: '🐟', name: 'First Fish',       desc: 'Buy your first fish' },
+        { id: 'full-spectrum',    icon: '🌈', name: 'Full Spectrum',    desc: 'Own all 4 species of a theme at once' },
+        { id: 'schooling',       icon: '🎓', name: "School's In",      desc: 'Have 3+ of the same species schooling' },
+        { id: 'baby-boom',       icon: '🍼', name: 'Baby Boom',        desc: 'Have 3 babies born in one session' },
+        { id: 'survivor',        icon: '💀', name: 'Survivor',         desc: 'Recover tank health from below 20% to above 80%' },
+        { id: 'creature-encounter', icon: '🦑', name: 'Creature Encounter', desc: 'See your first Easter egg creature' },
+        { id: 'glass-tapper',    icon: '👆', name: 'Glass Tapper',     desc: 'Tap the glass 10 times in one session' },
+        { id: 'stinger-dodge',   icon: '🪼', name: 'Stinger Dodge',    desc: 'Survive a jellyfish stinger attack with no fish deaths' },
+        { id: 'ink-survivor',    icon: '🛡️', name: 'Ink Survivor',     desc: 'Have fish survive an ink cloud' },
+        { id: 'thousandaire',    icon: '💰', name: 'Thousandaire',     desc: 'Reach a score of 1,000' },
+        { id: 'ten-thousandaire', icon: '💎', name: 'Ten Thousandaire', desc: 'Reach a score of 10,000' },
+        { id: 'zen-master',      icon: '🏆', name: 'Zen Master',       desc: 'Play all 5 themes' },
+    ];
+
+    // Session-local tracking
+    let sessionData = {};
+
+    function resetSession() {
+        sessionData = {
+            fishBorn: 0,
+            fishLost: 0,
+            tapCount: 0,
+            peakFishCount: 0,
+            sawCreature: false,
+            tankWasBelow20: false,
+            stingerActiveNoDeaths: false,
+            stingerCheckActive: false,
+            inkCloudActiveNoDeaths: false,
+            inkCloudCheckActive: false,
+            startTime: performance.now(),
+            newAchievements: []
+        };
+    }
+
+    function tryUnlock(id) {
+        if (ZenStorage.unlockAchievement(id)) {
+            sessionData.newAchievements.push(id);
+            showToast(id);
+            return true;
+        }
+        return false;
+    }
+
+    function showToast(id) {
+        const def = defs.find(d => d.id === id);
+        if (!def) return;
+        const toast = document.getElementById('achievement-toast');
+        const icon = document.getElementById('toast-icon');
+        const name = document.getElementById('toast-name');
+        if (!toast) return;
+        icon.textContent = def.icon;
+        name.textContent = def.name;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // Called from game loop each frame
+    function check(state) {
+        const score = Math.round(state.score);
+        const aliveFish = state.fish.filter(f => f.alive);
+        const fishCount = aliveFish.length;
+
+        // Track peak fish
+        if (fishCount > sessionData.peakFishCount) {
+            sessionData.peakFishCount = fishCount;
+            ZenStorage.setStatMax('highestFishCount', fishCount);
+        }
+
+        // First fish
+        if (fishCount > 0) tryUnlock('first-fish');
+
+        // Score milestones
+        if (score >= 1000) tryUnlock('thousandaire');
+        if (score >= 10000) tryUnlock('ten-thousandaire');
+
+        // Full spectrum — all 4 types present
+        if (state.theme && state.theme.fishTypes) {
+            const typeIds = state.theme.fishTypes.map(t => t.id);
+            const presentTypes = new Set(aliveFish.map(f => f.type));
+            if (typeIds.length > 0 && typeIds.every(id => presentTypes.has(id))) {
+                tryUnlock('full-spectrum');
+            }
+        }
+
+        // Schooling — 3+ same type nearby
+        const typeCounts = {};
+        aliveFish.forEach(f => { typeCounts[f.type] = (typeCounts[f.type] || 0) + 1; });
+        if (Object.values(typeCounts).some(c => c >= 3)) tryUnlock('schooling');
+
+        // Survivor — tank was below 20 and is now above 80
+        if (state.tankHealth < 20) sessionData.tankWasBelow20 = true;
+        if (sessionData.tankWasBelow20 && state.tankHealth > 80) {
+            tryUnlock('survivor');
+            sessionData.tankWasBelow20 = false;
+        }
+
+        // Zen Master — play all 5 themes
+        const played = ZenStorage.get().themesPlayed;
+        if (played && played.length >= 5) {
+            tryUnlock('zen-master');
+        }
+    }
+
+    // Called from specific events
+    function onFishBorn() {
+        sessionData.fishBorn++;
+        ZenStorage.addStat('totalFishBorn');
+        if (sessionData.fishBorn >= 3) tryUnlock('baby-boom');
+    }
+
+    function onFishLost() {
+        sessionData.fishLost++;
+        ZenStorage.addStat('totalFishLost');
+        // Check stinger dodge failure
+        if (sessionData.stingerCheckActive) sessionData.stingerActiveNoDeaths = false;
+        if (sessionData.inkCloudCheckActive) sessionData.inkCloudActiveNoDeaths = false;
+    }
+
+    function onCreatureSpawn() {
+        sessionData.sawCreature = true;
+        ZenStorage.addStat('creaturesEncountered');
+        tryUnlock('creature-encounter');
+    }
+
+    function onGlassTap() {
+        sessionData.tapCount++;
+        if (sessionData.tapCount >= 10) tryUnlock('glass-tapper');
+    }
+
+    function onStingersReleased(fishCountBefore) {
+        sessionData.stingerCheckActive = true;
+        sessionData.stingerActiveNoDeaths = true;
+        // Check after stingers expire
+        setTimeout(() => {
+            if (sessionData.stingerActiveNoDeaths) tryUnlock('stinger-dodge');
+            sessionData.stingerCheckActive = false;
+        }, 16000);
+    }
+
+    function onInkSquirted(fishCountBefore) {
+        sessionData.inkCloudCheckActive = true;
+        sessionData.inkCloudActiveNoDeaths = true;
+        setTimeout(() => {
+            if (sessionData.inkCloudActiveNoDeaths) tryUnlock('ink-survivor');
+            sessionData.inkCloudCheckActive = false;
+        }, 11000);
+    }
+
+    function onFoodDropped(count) {
+        ZenStorage.addStat('totalFoodDropped', count);
+    }
+
+    function onClean() {
+        ZenStorage.addStat('totalCleans');
+    }
+
+    function getSessionData() { return sessionData; }
+    function getDefs() { return defs; }
+
+    function getSessionDuration() {
+        return (performance.now() - sessionData.startTime) / 1000;
+    }
+
+    return {
+        defs: defs, getDefs, resetSession, check, getSessionData, getSessionDuration,
+        onFishBorn, onFishLost, onCreatureSpawn, onGlassTap,
+        onStingersReleased, onInkSquirted, onFoodDropped, onClean
+    };
+})();
+
+
+/* ============================================
    ZENQUARIUM - UI System
    ============================================ */
 
@@ -4753,10 +5584,42 @@ const UI = (() => {
         document.getElementById(id).classList.add('hidden');
     }
 
+    function openFishShopFlyout() {
+        const flyout = document.getElementById('fish-shop-flyout');
+        const backdrop = document.getElementById('flyout-backdrop');
+        if (flyout) flyout.classList.add('open');
+        if (backdrop) backdrop.classList.add('active');
+    }
+
+    function closeFishShopFlyout() {
+        const flyout = document.getElementById('fish-shop-flyout');
+        const backdrop = document.getElementById('flyout-backdrop');
+        if (flyout) flyout.classList.remove('open');
+        if (backdrop) backdrop.classList.remove('active');
+    }
+
+    function openVolumeFlyout() {
+        const flyout = document.getElementById('volume-flyout');
+        const backdrop = document.getElementById('flyout-backdrop');
+        if (flyout) flyout.classList.add('open');
+        if (backdrop) backdrop.classList.add('active');
+    }
+
+    function closeVolumeFlyout() {
+        const flyout = document.getElementById('volume-flyout');
+        const backdrop = document.getElementById('flyout-backdrop');
+        if (flyout) flyout.classList.remove('open');
+        if (backdrop) backdrop.classList.remove('active');
+    }
+
+    function closeAllFlyouts() {
+        closeFishShopFlyout();
+        closeVolumeFlyout();
+    }
+
     // Splash screen
     function initSplash(themes, onSelect, onStart) {
         const cards = document.getElementById('theme-cards');
-        const startBtn = document.getElementById('start-btn');
         let selected = null;
 
         // Create splash bubbles
@@ -4842,14 +5705,10 @@ const UI = (() => {
                 document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
                 selected = t.id;
-                startBtn.disabled = false;
                 onSelect(t.id);
+                onStart(t.id);
             });
             cards.appendChild(card);
-        });
-
-        startBtn.addEventListener('click', () => {
-            if (selected) onStart(selected);
         });
 
         // About overlay
@@ -4907,6 +5766,8 @@ const UI = (() => {
         const splash = document.getElementById('splash-screen');
         splash.classList.remove('hidden', 'fade-out');
         document.getElementById('game-screen').classList.add('hidden');
+        // Update stats ribbon
+        updateStatsRibbon();
         // Restart splash ambient if not muted
         const muteBtn = document.getElementById('splash-mute-btn');
         if (muteBtn && muteBtn.textContent !== '🔇') {
@@ -4914,11 +5775,103 @@ const UI = (() => {
         }
     }
 
+    function updateStatsRibbon() {
+        const d = ZenStorage.get();
+        const hs = document.getElementById('ribbon-high-score');
+        const sess = document.getElementById('ribbon-sessions');
+        const ach = document.getElementById('ribbon-achievements');
+        const total = document.getElementById('ribbon-total-achievements');
+        if (hs) hs.textContent = d.highScore.toLocaleString();
+        if (sess) sess.textContent = d.totalSessions.toString();
+        if (ach) ach.textContent = d.achievements.length.toString();
+        if (total) total.textContent = Achievements.defs.length.toString();
+    }
+
+    function showSessionSummary(score, onContinue) {
+        const d = ZenStorage.get();
+        const isNewHigh = ZenStorage.updateHighScore(score);
+        const duration = Achievements.getSessionDuration();
+        const sd = Achievements.getSessionData();
+
+        document.getElementById('summary-score').textContent = Math.round(score).toLocaleString();
+        document.getElementById('summary-best').textContent = d.highScore.toLocaleString();
+        document.getElementById('summary-duration').textContent = formatDuration(duration);
+        document.getElementById('summary-born').textContent = sd.fishBorn.toString();
+        document.getElementById('summary-lost').textContent = sd.fishLost.toString();
+        document.getElementById('summary-peak').textContent = sd.peakFishCount.toString();
+
+        const badge = document.getElementById('high-score-badge');
+        badge.style.display = isNewHigh ? 'block' : 'none';
+
+        // Show achievements earned this session
+        const achDiv = document.getElementById('summary-achievements');
+        if (sd.newAchievements.length > 0) {
+            const achDefs = Achievements.getDefs();
+            achDiv.innerHTML = '<div style="margin-bottom:6px;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em">Achievements Earned</div>' +
+                sd.newAchievements.map(id => {
+                    const def = achDefs.find(a => a.id === id);
+                    return def ? `<span class="achievement-earned">${def.icon} ${def.name}</span>` : '';
+                }).join('');
+        } else {
+            achDiv.innerHTML = '';
+        }
+
+        // Update session stats
+        ZenStorage.setStatMax('longestSession', Math.round(duration));
+        ZenStorage.incrementSessions();
+
+        const overlay = document.getElementById('session-summary');
+        overlay.classList.add('visible');
+
+        const btn = document.getElementById('summary-continue');
+        const handler = () => {
+            btn.removeEventListener('click', handler);
+            overlay.classList.remove('visible');
+            if (onContinue) onContinue();
+        };
+        btn.addEventListener('click', handler);
+    }
+
+    function formatDuration(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function showAchievementsOverlay() {
+        const grid = document.getElementById('achievements-grid');
+        const d = ZenStorage.get();
+        const defs = Achievements.getDefs();
+        grid.innerHTML = '';
+
+        defs.forEach(def => {
+            const unlocked = d.achievements.includes(def.id);
+            const card = document.createElement('div');
+            card.className = `achievement-card ${unlocked ? 'unlocked' : 'locked'}`;
+            const dateStr = unlocked && d.achievementDates[def.id] ? d.achievementDates[def.id] : '';
+            card.innerHTML = `
+                <div class="ach-icon">${unlocked ? def.icon : '🔒'}</div>
+                <div class="ach-name">${def.name}</div>
+                <div class="ach-desc">${unlocked ? def.desc : def.desc}</div>
+                ${dateStr ? `<div class="ach-date">Earned ${dateStr}</div>` : ''}
+            `;
+            grid.appendChild(card);
+        });
+
+        document.getElementById('achievements-overlay').classList.add('visible');
+    }
+
+    function hideAchievementsOverlay() {
+        document.getElementById('achievements-overlay').classList.remove('visible');
+    }
+
     return {
         init, updateScore, updateHealth, updateFishCount,
         updateFishDetail, showStatus, updateButtonStates,
-        populateFishShop, showModal, hideModal,
-        initSplash, hideSplash, showSplash
+        populateFishShop, showModal, hideModal, openFishShopFlyout, closeFishShopFlyout, openVolumeFlyout, closeVolumeFlyout, closeAllFlyouts,
+        initSplash, hideSplash, showSplash,
+        updateStatsRibbon, showSessionSummary,
+        showAchievementsOverlay, hideAchievementsOverlay
     };
 })();
 
@@ -4959,6 +5912,9 @@ const App = (() => {
     let animFrameId = null;
 
     function init() {
+        // Initialize persistent storage
+        ZenStorage.load();
+        UI.updateStatsRibbon();
 
         // Setup splash screen
         UI.initSplash(
@@ -4966,6 +5922,32 @@ const App = (() => {
             onThemePreview,
             onGameStart
         );
+
+        // Achievements overlay button
+        document.getElementById('achievements-btn').addEventListener('click', () => {
+            UI.showAchievementsOverlay();
+        });
+        document.getElementById('achievements-close').addEventListener('click', () => {
+            UI.hideAchievementsOverlay();
+        });
+        document.getElementById('achievements-overlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('achievements-overlay')) {
+                UI.hideAchievementsOverlay();
+            }
+        });
+
+        // Hidden reset: triple-click achievements title
+        document.getElementById('achievements-title').addEventListener('click', (e) => {
+            if (e.detail === 3) {
+                const d = ZenStorage.get();
+                d.achievements = [];
+                d.achievementDates = {};
+                d.themesPlayed = [];
+                ZenStorage.save();
+                UI.showAchievementsOverlay();
+                UI.updateStatsRibbon();
+            }
+        });
 
         // Track mouse position for curious fish behavior
         document.addEventListener('mousemove', (e) => {
@@ -4985,6 +5967,8 @@ const App = (() => {
     function onGameStart(themeId) {
         state.themeId = themeId;
         state.theme = Themes.applyTheme(themeId);
+        Achievements.resetSession();
+        ZenStorage.recordTheme(themeId);
 
         // Init audio (needs user gesture)
         ZenAudio.ensureCtx();
@@ -5035,14 +6019,30 @@ const App = (() => {
         document.getElementById('btn-feed').addEventListener('click', onFeed);
         document.getElementById('btn-clean').addEventListener('click', onClean);
         document.getElementById('btn-buy').addEventListener('click', () => {
+            UI.closeVolumeFlyout();
             UI.populateFishShop(state.theme.fishTypes, state.score, onBuyFish);
-            UI.showModal('buy-modal');
+            UI.openFishShopFlyout();
         });
         document.getElementById('btn-pause').addEventListener('click', onPause);
         document.getElementById('btn-restart').addEventListener('click', onRestart);
-        document.getElementById('modal-close').addEventListener('click', () => UI.hideModal('buy-modal'));
+        document.getElementById('flyout-backdrop').addEventListener('click', () => {
+            UI.closeAllFlyouts();
+        });
         document.getElementById('volume-slider').addEventListener('input', (e) => {
-            ZenAudio.setVolume(e.target.value / 100);
+            const vol = e.target.value / 100;
+            ZenAudio.setVolume(vol);
+            document.getElementById('volume-icon-display').textContent = vol === 0 ? '🔇' : '🔊';
+        });
+
+        // Volume flyout toggle
+        document.getElementById('btn-volume').addEventListener('click', () => {
+            const flyout = document.getElementById('volume-flyout');
+            if (flyout.classList.contains('open')) {
+                UI.closeVolumeFlyout();
+            } else {
+                UI.closeFishShopFlyout();
+                UI.openVolumeFlyout();
+            }
         });
 
         // Restart confirmation modal buttons
@@ -5060,6 +6060,7 @@ const App = (() => {
         document.getElementById('controls-chevron').addEventListener('click', () => {
             const wrapper = document.getElementById('controls-wrapper');
             const isCollapsed = wrapper.classList.toggle('collapsed');
+            if (isCollapsed) UI.closeAllFlyouts();
             // On small screens, also toggle HUD visibility
             const hud = document.getElementById('hud');
             if (window.innerWidth <= 768) {
@@ -5070,7 +6071,7 @@ const App = (() => {
         // Auto mode toggle
         document.getElementById('auto-toggle').addEventListener('change', (e) => {
             state.autoMode = e.target.checked;
-            UI.showStatus(state.autoMode ? 'Auto mode enabled 🤖' : 'Auto mode disabled');
+            UI.showStatus(state.autoMode ? 'Zen mode enabled 🧘' : 'Zen mode disabled');
         });
 
         // Click tank — tap the glass or drop food
@@ -5086,10 +6087,13 @@ const App = (() => {
             const creatureResult = Creatures.handleTap(clickX, clickY, state);
             if (creatureResult) {
                 if (creatureResult === 'stingers') {
+                    Achievements.onStingersReleased(state.fish.filter(f => f.alive).length);
                     UI.showStatus('🪼 The jellyfish released its stingers! Watch out!');
                 } else if (creatureResult === 'octopus-ink') {
+                    Achievements.onInkSquirted(state.fish.filter(f => f.alive).length);
                     UI.showStatus('🐙 The octopus squirted ink everywhere! 💨');
                 } else if (creatureResult === 'squid-ink') {
+                    Achievements.onInkSquirted(state.fish.filter(f => f.alive).length);
                     UI.showStatus('🦑 The squid blasted glowing ink! 💚');
                 } else {
                     UI.showStatus('The creature darts away! 🌊');
@@ -5168,6 +6172,7 @@ const App = (() => {
 
                 // Tapping stress — accumulates and hurts tank health
                 state.tapStressAccum += 3;
+                Achievements.onGlassTap();
                 if (state.tapStressAccum > 10) {
                     state.tankHealth = Math.max(0, state.tankHealth - 2);
                     UI.showStatus('The fish are stressed from the tapping! 😰');
@@ -5198,7 +6203,9 @@ const App = (() => {
     function onFeed() {
         if (state.score < state.feedCost || state.isPaused) return;
         state.score -= state.feedCost;
-        Food.dropFood(Utils.randInt(4, 8));
+        const count = Utils.randInt(4, 8);
+        Food.dropFood(count);
+        Achievements.onFoodDropped(count);
         ZenAudio.playPlop();
         UI.showStatus('Feeding time! 🍽');
     }
@@ -5208,6 +6215,7 @@ const App = (() => {
         state.score -= state.cleanCost;
         state.cleanlinessDecay = 0;
         state.tankHealth = Math.min(100, state.tankHealth + 30);
+        Achievements.onClean();
         ZenAudio.playCleaning();
         UI.showStatus('Tank cleaned! ✨');
     }
@@ -5268,6 +6276,7 @@ const App = (() => {
 
     function onPause() {
         state.isPaused = !state.isPaused;
+        UI.closeAllFlyouts();
         if (state.isPaused) {
             ZenAudio.pause();
             UI.showStatus('Game paused');
@@ -5279,6 +6288,7 @@ const App = (() => {
     }
 
     function onRestart() {
+        UI.closeAllFlyouts();
         // Show styled restart confirmation modal
         document.getElementById('restart-modal').classList.remove('hidden');
     }
@@ -5291,42 +6301,48 @@ const App = (() => {
         animFrameId = null;
         state.isRunning = false;
 
+        // Capture score before reset
+        const finalScore = state.score;
+
         // Clear everything
         state.fish.forEach(f => { if (f.el && f.el.parentNode) f.el.remove(); });
         state.fish = [];
         Food.clear();
         Creatures.clear();
 
-        state.score = 100;
-        state.tankHealth = 100;
-        state.cleanlinessDecay = 0;
-        state.isPaused = false;
-        state.reproductionCooldowns = {};
-        state.autoMode = false;
-        state.autoFeedTimer = 0;
-        state.autoCleanTimer = 0;
-        state.autoBuyTimer = 0;
-        state.tapStressAccum = 0;
-
-        // Reset auto toggle UI
-        const autoToggle = document.getElementById('auto-toggle');
-        if (autoToggle) autoToggle.checked = false;
-
-        // Reset controls bar visibility
-        document.getElementById('controls-wrapper').classList.remove('collapsed');
-        document.getElementById('hud').classList.remove('hud-minimized');
-
-        // Reset cloudiness overlay
-        const cloudinessEl = document.getElementById('tank-cloudiness');
-        if (cloudinessEl) cloudinessEl.style.opacity = '0';
-
         ZenAudio.stopAmbient();
 
-        // Reset theme class so splash screen renders correctly
-        document.body.className = '';
+        // Show session summary, then proceed to splash
+        UI.showSessionSummary(finalScore, () => {
+            state.score = 100;
+            state.tankHealth = 100;
+            state.cleanlinessDecay = 0;
+            state.isPaused = false;
+            state.reproductionCooldowns = {};
+            state.autoMode = false;
+            state.autoFeedTimer = 0;
+            state.autoCleanTimer = 0;
+            state.autoBuyTimer = 0;
+            state.tapStressAccum = 0;
 
-        // Go back to splash screen
-        UI.showSplash();
+            // Reset auto toggle UI
+            const autoToggle = document.getElementById('auto-toggle');
+            if (autoToggle) autoToggle.checked = false;
+
+            // Reset controls bar visibility
+            document.getElementById('controls-wrapper').classList.remove('collapsed');
+            document.getElementById('hud').classList.remove('hud-minimized');
+
+            // Reset cloudiness overlay
+            const cloudinessEl = document.getElementById('tank-cloudiness');
+            if (cloudinessEl) cloudinessEl.style.opacity = '0';
+
+            // Reset theme class so splash screen renders correctly
+            document.body.className = '';
+
+            // Go back to splash screen
+            UI.showSplash();
+        });
     }
 
     // Main game loop
@@ -5375,12 +6391,14 @@ const App = (() => {
         // Remove dead fish
         for (const fish of deadFish) {
             removeFish(fish);
+            Achievements.onFishLost();
             UI.showStatus(`A ${fish.typeName} has perished...`);
         }
 
         for (const fish of eatenFish) {
             if (state.fish.includes(fish)) {
                 removeFish(fish);
+                Achievements.onFishLost();
                 ZenAudio.playEaten();
                 UI.showStatus(`A ${fish.typeName} was eaten by a larger fish!`);
             }
@@ -5418,6 +6436,9 @@ const App = (() => {
         if (state.tapStressAccum > 0) {
             state.tapStressAccum = Math.max(0, state.tapStressAccum - dt * 0.5);
         }
+
+        // Check achievements
+        Achievements.check(state);
 
         // Update score (healthy fish generate value)
         const healthyFish = state.fish.filter(f => f.alive && f.health > 50 && !f.isBaby);
@@ -5545,6 +6566,7 @@ const App = (() => {
                         baby.updateTransform();
 
                         ZenAudio.playBirth();
+                        Achievements.onFishBorn();
                         UI.showStatus(`A baby ${typeInfo.name} was born! 🎉`);
                         state.reproductionCooldowns[type] = Utils.rand(20, 40);
                     }
