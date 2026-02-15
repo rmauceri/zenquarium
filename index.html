@@ -863,6 +863,85 @@ html, body {
 .health-fill.warning { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
 .health-fill.danger { background: linear-gradient(90deg, #ef4444, #dc2626); }
 
+/* Multiplier badge */
+.multiplier-badge {
+    font-size: 0.55rem;
+    font-weight: 500;
+    color: rgba(232, 220, 200, 0.4);
+    letter-spacing: 0.05em;
+    display: block;
+    transition: color 0.5s ease, text-shadow 0.5s ease;
+}
+
+.multiplier-badge.active {
+    color: #f59e0b;
+}
+
+.multiplier-badge.high {
+    color: #fb923c;
+    text-shadow: 0 0 8px rgba(251, 146, 60, 0.5);
+}
+
+.multiplier-badge.max {
+    color: #ef4444;
+    text-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+    animation: multiplierPulse 2s ease-in-out infinite;
+}
+
+@keyframes multiplierPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Multiplier detail panel */
+.multiplier-panel {
+    position: absolute;
+    top: 55px; left: 12px;
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    backdrop-filter: blur(10px);
+    z-index: 21;
+    min-width: 180px;
+    pointer-events: auto;
+}
+
+.multiplier-detail-title {
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.multiplier-detail-value {
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.multiplier-detail-desc {
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.multiplier-tier {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.55rem;
+    padding: 2px 0;
+    color: var(--text-secondary);
+}
+
+.multiplier-tier.current {
+    color: #f59e0b;
+    font-weight: 500;
+}
+
 .status-line {
     background: var(--hud-bg);
     border: 1px solid var(--hud-border);
@@ -1615,6 +1694,11 @@ html, body {
     color: #2a2a2a;
 }
 
+.theme-ink .multiplier-panel {
+    background: rgba(245, 240, 232, 0.95);
+    border-color: rgba(42, 42, 42, 0.2);
+}
+
 /* ============================================
    RESPONSIVE
    ============================================ */
@@ -1720,8 +1804,13 @@ html, body {
     .theme-cards { grid-template-columns: 1fr; gap: 6px; }
     .theme-card { padding: 12px 10px; }
     .stats-ribbon { flex-direction: column; gap: 6px; }
-    .hud-right { display: none; }
     .achievements-grid { grid-template-columns: 1fr; }
+    .hud-item { padding: 3px 6px; }
+    .hud-label { font-size: 0.45rem; }
+    .hud-value { font-size: 0.8rem; }
+    .health-bar { width: 45px; }
+    .hud-center { flex: 0 1 auto; overflow: hidden; }
+    #status-value { max-width: 60px; }
     .ctrl-btn { padding: 4px 5px; min-width: 34px; min-height: 34px; }
     .ctrl-icon { font-size: 0.9rem; }
     .ctrl-label { font-size: 0.35rem; }
@@ -1776,22 +1865,25 @@ html, body {
     <div id="about-overlay" class="about-overlay">
         <div class="about-content">
             <h2>Zenquarium</h2>
-            <p>Zenquarium is a meditative aquarium experience — a living, breathing digital fishtank designed to bring a moment of calm to your screen. Watch beautiful fish swim, feed, and interact in a lovingly crafted underwater world.</p>
+            <p>A meditative aquarium that's also a game. Tend a living digital fishtank — or sit back and let it tend itself.</p>
             
             <h3>How to Play</h3>
-            <p>Choose a theme and tend to your aquarium Tamagotchi-style. Feed your fish, keep the tank clean, and buy new species to build a thriving ecosystem. Healthy, well-fed fish generate value over time which you spend on food and cleaning. Neglect your tank and fish will grow hungry — big fish may even eat smaller ones.</p>
+            <p>Pick a theme and build your aquarium. Feed your fish, keep the tank clean, and buy new species to create a thriving ecosystem. Healthy fish earn points; neglected fish get hungry — and big fish eat smaller ones.</p>
 
-            <h3>Interactions</h3>
-            <p><strong>Click the tank</strong> to drop food. Use the control bar to feed, clean, buy fish, pause, or restart. Click the fish counter to see a breakdown by species. Tap the glass near fish to watch them scatter — but don't do it too often or it stresses them out!</p>
-            
+            <h3>Score &amp; Multiplier</h3>
+            <p>Everything you do affects your score. Keep all fish healthy to build a streak multiplier (up to ×3). Proactive cleaning, diverse tanks, and baby fish earn bonus points. Starvation, neglect, and stressed fish cost you.</p>
+
+            <h3>Creatures &amp; Risk</h3>
+            <p>Mystery creatures may visit your tank. Leave them alone for a peaceful bonus, or tap three times to provoke a dangerous reaction. If your fish survive the attack, you'll earn big points. If they don't… you won't.</p>
+
+            <h3>Achievements</h3>
+            <p>Discover 20 achievements across exploration, caretaking, and daring play — each with a one-time score bonus. Can you unlock Zen Master?</p>
+
             <h3>Zen Mode</h3>
-            <p>Toggle Zen mode in the control bar to let the aquarium manage itself. The game will feed, clean, and maintain a healthy population of 5–20 fish automatically. Perfect for when you just want to sit back and enjoy the view.</p>
+            <p>Toggle Zen mode to let the aquarium manage itself. Perfect for when you just want to sit back and enjoy the view.</p>
 
             <h3>Themes</h3>
-            <p>Five distinct environments, each with unique fish, plants, colors, and ambient soundscapes: the warm tones of <strong>Koi Garden</strong>, vibrant <strong>Tropical Reef</strong>, mysterious <strong>Deep Ocean</strong>, minimalist <strong>Zen Garden</strong>, and the artistic <strong>Pen &amp; Ink</strong>.</p>
-
-            <h3>Why Zenquarium?</h3>
-            <p>Created as a digital retreat — something beautiful to leave running on a second monitor, a desk companion that asks for just a little care in return. No ads, no accounts, no pressure. Just fish, water, and a quiet moment.</p>
+            <p>Five handcrafted environments with unique fish, plants, and ambient soundscapes: <strong>Koi Garden</strong>, <strong>Tropical Reef</strong>, <strong>Deep Ocean</strong>, <strong>Zen Garden</strong>, and <strong>Pen &amp; Ink</strong>.</p>
 
             <p class="about-byline">Created by Coffee Czar ☕</p>
 
@@ -1802,7 +1894,7 @@ html, body {
     <!-- Session Summary Overlay -->
     <div id="session-summary" class="session-summary">
         <div class="session-summary-content">
-            <h2>Session Complete</h2>
+            <h2>Game Summary</h2>
             <div id="high-score-badge" class="high-score-badge" style="display:none">🏆 New High Score! 🏆</div>
             <div class="summary-stats">
                 <div class="summary-stat">
@@ -1909,8 +2001,9 @@ html, body {
         <div id="hud" class="hud">
             <div class="hud-left">
                 <div class="hud-item" id="score-display">
-                    <span class="hud-label">Value</span>
+                    <span class="hud-label">Score</span>
                     <span class="hud-value" id="score-value">100</span>
+                    <span class="multiplier-badge" id="multiplier-badge">×1</span>
                 </div>
                 <div class="hud-item" id="health-display">
                     <span class="hud-label">Tank Health</span>
@@ -1933,6 +2026,11 @@ html, body {
         <!-- Fish Count Detail Panel -->
         <div id="fish-detail-panel" class="fish-detail-panel hidden">
             <div id="fish-detail-list"></div>
+        </div>
+
+        <!-- Multiplier Detail Panel -->
+        <div id="multiplier-panel" class="multiplier-panel hidden">
+            <div id="multiplier-detail"></div>
         </div>
 
         <!-- Controls Wrapper (chevron + bar) -->
@@ -4849,7 +4947,8 @@ const Creatures = (() => {
             lastTapTime: 0,
             fleeing: false,
             fleeTimer: 0,
-            normalSpeed: 0
+            normalSpeed: 0,
+            provoked: false
         };
 
         // Swim direction: left-to-right or right-to-left
@@ -4865,7 +4964,7 @@ const Creatures = (() => {
         creature.gazePhase = Math.random() * Math.PI * 2;
         layer.appendChild(creature.el);
         creatures.push(creature);
-        if (typeof Achievements !== 'undefined') Achievements.onCreatureSpawn();
+        if (typeof Achievements !== 'undefined') Achievements.onCreatureSpawn(def.type);
     }
 
     // --- Stinger system (jellyfish 3rd tap) ---
@@ -5034,6 +5133,7 @@ const Creatures = (() => {
 
         // 3rd tap — special reaction!
         c.tapCount = 0;
+        c.provoked = true;
 
         if (c.def.type === 'jellyfish') {
             dropStingers(c);
@@ -5119,6 +5219,7 @@ const Creatures = (() => {
             // Remove when off-screen
             if ((c.speed > 0 && c.x > tankW + 180) || (c.speed < 0 && c.x < -180)) {
                 if (c.el.parentNode) c.el.remove();
+                if (typeof Achievements !== 'undefined') Achievements.onCreatureExit(c);
                 creatures.splice(i, 1);
             }
         }
@@ -5256,6 +5357,14 @@ const Achievements = (() => {
         { id: 'thousandaire',    icon: '💰', name: 'Thousandaire',     desc: 'Reach a score of 1,000' },
         { id: 'ten-thousandaire', icon: '💎', name: 'Ten Thousandaire', desc: 'Reach a score of 10,000' },
         { id: 'zen-master',      icon: '🏆', name: 'Zen Master',       desc: 'Play all 5 themes' },
+        { id: 'pacifist',        icon: '☮️', name: 'Pacifist',         desc: 'Complete a session with zero fish deaths' },
+        { id: 'speed-run',      icon: '⚡', name: 'Speed Run',        desc: 'Reach 1,000 points in under 3 minutes' },
+        { id: 'fish-whisperer', icon: '🐠', name: 'Fish Whisperer',  desc: 'Have 15+ fish alive at once' },
+        { id: 'night-owl',      icon: '🌙', name: 'Night Owl',        desc: 'Play for 10+ minutes in a session' },
+        { id: 'streak-master',  icon: '🔥', name: 'Streak Master',    desc: 'Reach a ×3 score multiplier' },
+        { id: 'creature-collector', icon: '🧬', name: 'Creature Collector', desc: 'See all 3 creature types in one session' },
+        { id: 'danger-zone',   icon: '⚠️', name: 'Danger Zone',      desc: 'Survive 3 creature attacks in one session' },
+        { id: 'high-roller',   icon: '🎰', name: 'High Roller',      desc: 'Reach a score of 5,000 in a single session' },
     ];
 
     // Session-local tracking
@@ -5273,15 +5382,33 @@ const Achievements = (() => {
             stingerCheckActive: false,
             inkCloudActiveNoDeaths: false,
             inkCloudCheckActive: false,
+            creatureTypesSeen: new Set(),
+            attacksSurvived: 0,
             startTime: performance.now(),
             newAchievements: []
         };
     }
 
+    const achievementBonuses = {
+        'first-fish': 25, 'full-spectrum': 100, 'schooling': 50,
+        'baby-boom': 75, 'survivor': 150, 'creature-encounter': 50,
+        'glass-tapper': 25, 'stinger-dodge': 75, 'ink-survivor': 75,
+        'thousandaire': 50, 'ten-thousandaire': 100, 'zen-master': 500,
+        'pacifist': 200, 'speed-run': 100, 'fish-whisperer': 100,
+        'night-owl': 50, 'streak-master': 250,
+        'creature-collector': 200, 'danger-zone': 150,
+        'high-roller': 150
+    };
+
     function tryUnlock(id) {
         if (ZenStorage.unlockAchievement(id)) {
             sessionData.newAchievements.push(id);
             showToast(id);
+            const bonus = achievementBonuses[id] || 0;
+            if (bonus > 0 && typeof App !== 'undefined' && App.scoreEvent) {
+                const def = defs.find(d => d.id === id);
+                App.scoreEvent(bonus, `🏆 ${def ? def.name : id}! +${bonus}`);
+            }
             return true;
         }
         return false;
@@ -5317,6 +5444,7 @@ const Achievements = (() => {
 
         // Score milestones
         if (score >= 1000) tryUnlock('thousandaire');
+        if (score >= 5000) tryUnlock('high-roller');
         if (score >= 10000) tryUnlock('ten-thousandaire');
 
         // Full spectrum — all 4 types present
@@ -5345,6 +5473,19 @@ const Achievements = (() => {
         if (played && played.length >= 5) {
             tryUnlock('zen-master');
         }
+
+        // Fish Whisperer — 15+ fish alive
+        if (fishCount >= 15) tryUnlock('fish-whisperer');
+
+        // Speed Run — 1000 points in under 3 minutes
+        const sessionSec = (performance.now() - sessionData.startTime) / 1000;
+        if (score >= 1000 && sessionSec < 180) tryUnlock('speed-run');
+
+        // Night Owl — 10+ minutes session
+        if (sessionSec >= 600) tryUnlock('night-owl');
+
+        // Streak Master — ×3 multiplier
+        if (state.multiplier >= 3) tryUnlock('streak-master');
     }
 
     // Called from specific events
@@ -5362,10 +5503,17 @@ const Achievements = (() => {
         if (sessionData.inkCloudCheckActive) sessionData.inkCloudActiveNoDeaths = false;
     }
 
-    function onCreatureSpawn() {
+    function onCreatureSpawn(creatureType) {
         sessionData.sawCreature = true;
         ZenStorage.addStat('creaturesEncountered');
         tryUnlock('creature-encounter');
+        if (typeof App !== 'undefined' && App.scoreEvent) {
+            App.scoreEvent(15, '🦑 Creature sighting! +15');
+        }
+        if (creatureType) {
+            sessionData.creatureTypesSeen.add(creatureType);
+            if (sessionData.creatureTypesSeen.size >= 3) tryUnlock('creature-collector');
+        }
     }
 
     function onGlassTap() {
@@ -5376,9 +5524,19 @@ const Achievements = (() => {
     function onStingersReleased(fishCountBefore) {
         sessionData.stingerCheckActive = true;
         sessionData.stingerActiveNoDeaths = true;
+        if (typeof App !== 'undefined' && App.scoreEvent) {
+            App.scoreEvent(-25, '🪼 Provoked stingers! -25');
+        }
         // Check after stingers expire
         setTimeout(() => {
-            if (sessionData.stingerActiveNoDeaths) tryUnlock('stinger-dodge');
+            if (sessionData.stingerActiveNoDeaths) {
+                tryUnlock('stinger-dodge');
+                sessionData.attacksSurvived++;
+                if (sessionData.attacksSurvived >= 3) tryUnlock('danger-zone');
+                if (typeof App !== 'undefined' && App.scoreEvent) {
+                    App.scoreEvent(50, '🛡️ Stinger survivor! +50');
+                }
+            }
             sessionData.stingerCheckActive = false;
         }, 16000);
     }
@@ -5386,8 +5544,18 @@ const Achievements = (() => {
     function onInkSquirted(fishCountBefore) {
         sessionData.inkCloudCheckActive = true;
         sessionData.inkCloudActiveNoDeaths = true;
+        if (typeof App !== 'undefined' && App.scoreEvent) {
+            App.scoreEvent(-20, '🐙 Provoked ink! -20');
+        }
         setTimeout(() => {
-            if (sessionData.inkCloudActiveNoDeaths) tryUnlock('ink-survivor');
+            if (sessionData.inkCloudActiveNoDeaths) {
+                tryUnlock('ink-survivor');
+                sessionData.attacksSurvived++;
+                if (sessionData.attacksSurvived >= 3) tryUnlock('danger-zone');
+                if (typeof App !== 'undefined' && App.scoreEvent) {
+                    App.scoreEvent(40, '🛡️ Ink cloud survivor! +40');
+                }
+            }
             sessionData.inkCloudCheckActive = false;
         }, 11000);
     }
@@ -5400,6 +5568,14 @@ const Achievements = (() => {
         ZenStorage.addStat('totalCleans');
     }
 
+    function onCreatureExit(creature) {
+        if (!creature.provoked) {
+            if (typeof App !== 'undefined' && App.scoreEvent) {
+                App.scoreEvent(30, '🕊️ Creature whisperer! +30');
+            }
+        }
+    }
+
     function getSessionData() { return sessionData; }
     function getDefs() { return defs; }
 
@@ -5407,9 +5583,17 @@ const Achievements = (() => {
         return (performance.now() - sessionData.startTime) / 1000;
     }
 
+    function onSessionEnd() {
+        const duration = getSessionDuration();
+        // Pacifist — zero fish deaths in a session lasting 2+ minutes
+        if (sessionData.fishLost === 0 && duration >= 120) {
+            tryUnlock('pacifist');
+        }
+    }
+
     return {
-        defs: defs, getDefs, resetSession, check, getSessionData, getSessionDuration,
-        onFishBorn, onFishLost, onCreatureSpawn, onGlassTap,
+        defs: defs, getDefs, resetSession, check, getSessionData, getSessionDuration, onSessionEnd,
+        onFishBorn, onFishLost, onCreatureSpawn, onCreatureExit, onGlassTap,
         onStingersReleased, onInkSquirted, onFoodDropped, onClean
     };
 })();
@@ -5430,6 +5614,15 @@ const UI = (() => {
         if (fishCountEl) {
             fishCountEl.style.cursor = 'pointer';
             fishCountEl.addEventListener('click', toggleFishDetail);
+        }
+        // Score display click to toggle multiplier detail
+        const scoreEl = document.getElementById('score-display');
+        if (scoreEl) {
+            scoreEl.style.cursor = 'pointer';
+            scoreEl.addEventListener('click', () => {
+                const appState = App.getState();
+                toggleMultiplierPanel(appState.multiplier, appState.streakActive, appState.streakStart);
+            });
         }
     }
 
@@ -5471,8 +5664,67 @@ const UI = (() => {
 
     function toggleFishDetail() {
         const panel = document.getElementById('fish-detail-panel');
+        const backdrop = document.getElementById('flyout-backdrop');
         fishDetailVisible = !fishDetailVisible;
         panel.classList.toggle('hidden', !fishDetailVisible);
+        if (fishDetailVisible) {
+            multiplierPanelVisible = false;
+            document.getElementById('multiplier-panel').classList.add('hidden');
+            backdrop.classList.add('active');
+        } else {
+            backdrop.classList.remove('active');
+        }
+    }
+
+    let multiplierPanelVisible = false;
+
+    function updateMultiplier(value) {
+        const badge = document.getElementById('multiplier-badge');
+        if (!badge) return;
+        badge.textContent = value > 1 ? `×${value}` : '×1';
+        badge.className = 'multiplier-badge';
+        if (value >= 3) badge.classList.add('max');
+        else if (value >= 2) badge.classList.add('high');
+        else if (value > 1) badge.classList.add('active');
+    }
+
+    function toggleMultiplierPanel(multiplier, streakActive, streakStart) {
+        const panel = document.getElementById('multiplier-panel');
+        const detail = document.getElementById('multiplier-detail');
+        const backdrop = document.getElementById('flyout-backdrop');
+        multiplierPanelVisible = !multiplierPanelVisible;
+        panel.classList.toggle('hidden', !multiplierPanelVisible);
+        if (multiplierPanelVisible) {
+            fishDetailVisible = false;
+            document.getElementById('fish-detail-panel').classList.add('hidden');
+            backdrop.classList.add('active');
+        } else {
+            backdrop.classList.remove('active');
+            return;
+        }
+
+        const streakSec = streakActive ? Math.floor((performance.now() - streakStart) / 1000) : 0;
+        const tiers = [
+            { threshold: 30, label: '×1.5', time: '30s' },
+            { threshold: 90, label: '×2', time: '90s' },
+            { threshold: 180, label: '×3', time: '3min' }
+        ];
+
+        let html = `<div class="multiplier-detail-title">Score Multiplier</div>`;
+        html += `<div class="multiplier-detail-value">×${multiplier}</div>`;
+        if (streakActive) {
+            html += `<div class="multiplier-detail-desc">All fish healthy for ${streakSec}s</div>`;
+        } else {
+            html += `<div class="multiplier-detail-desc">Keep all fish above 80% health to build a streak</div>`;
+        }
+        html += `<div style="margin-top:8px;">`;
+        tiers.forEach(t => {
+            const isCurrent = multiplier >= parseFloat(t.label.replace('×', ''));
+            html += `<div class="multiplier-tier${isCurrent ? ' current' : ''}">`
+                + `<span>${t.label}</span><span>${t.time} streak</span></div>`;
+        });
+        html += `</div>`;
+        detail.innerHTML = html;
     }
 
     function showStatus(message) {
@@ -5615,6 +5867,15 @@ const UI = (() => {
     function closeAllFlyouts() {
         closeFishShopFlyout();
         closeVolumeFlyout();
+        // Close HUD panels
+        fishDetailVisible = false;
+        multiplierPanelVisible = false;
+        const fp = document.getElementById('fish-detail-panel');
+        const mp = document.getElementById('multiplier-panel');
+        if (fp) fp.classList.add('hidden');
+        if (mp) mp.classList.add('hidden');
+        const backdrop = document.getElementById('flyout-backdrop');
+        if (backdrop) backdrop.classList.remove('active');
     }
 
     // Splash screen
@@ -5867,7 +6128,7 @@ const UI = (() => {
 
     return {
         init, updateScore, updateHealth, updateFishCount,
-        updateFishDetail, showStatus, updateButtonStates,
+        updateFishDetail, updateMultiplier, toggleMultiplierPanel, showStatus, updateButtonStates,
         populateFishShop, showModal, hideModal, openFishShopFlyout, closeFishShopFlyout, openVolumeFlyout, closeVolumeFlyout, closeAllFlyouts,
         initSplash, hideSplash, showSplash,
         updateStatsRibbon, showSessionSummary,
@@ -5905,11 +6166,23 @@ const App = (() => {
         tapCooldown: 0,
         tapStressAccum: 0,
         mouseX: -1,
-        mouseY: -1
+        mouseY: -1,
+        multiplier: 1,
+        streakStart: 0,
+        streakActive: false,
+        lastMultiplierLevel: 1,
+        perfectTankTimer: 0,
+        biodiversityTimer: 0,
+        neglectTimer: 0
     };
 
     let fishLayer = null;
     let animFrameId = null;
+
+    function scoreEvent(amount, message) {
+        state.score = Math.max(0, state.score + amount);
+        UI.showStatus(message);
+    }
 
     function init() {
         // Initialize persistent storage
@@ -6175,7 +6448,7 @@ const App = (() => {
                 Achievements.onGlassTap();
                 if (state.tapStressAccum > 10) {
                     state.tankHealth = Math.max(0, state.tankHealth - 2);
-                    UI.showStatus('The fish are stressed from the tapping! 😰');
+                    scoreEvent(-5, '😰 Fish stressed! -5');
                 } else {
                     UI.showStatus('*tap tap* Fish scatter! 👆');
                 }
@@ -6217,7 +6490,11 @@ const App = (() => {
         state.tankHealth = Math.min(100, state.tankHealth + 30);
         Achievements.onClean();
         ZenAudio.playCleaning();
-        UI.showStatus('Tank cleaned! ✨');
+        if (state.tankHealth > 70) {
+            scoreEvent(20, '🧹 Clean sweep! +20');
+        } else {
+            UI.showStatus('Tank cleaned! ✨');
+        }
     }
 
     function onBuyFish(type) {
@@ -6312,6 +6589,9 @@ const App = (() => {
 
         ZenAudio.stopAmbient();
 
+        // Check end-of-session achievements
+        Achievements.onSessionEnd();
+
         // Show session summary, then proceed to splash
         UI.showSessionSummary(finalScore, () => {
             state.score = 100;
@@ -6324,6 +6604,13 @@ const App = (() => {
             state.autoCleanTimer = 0;
             state.autoBuyTimer = 0;
             state.tapStressAccum = 0;
+            state.multiplier = 1;
+            state.streakStart = 0;
+            state.streakActive = false;
+            state.lastMultiplierLevel = 1;
+            state.perfectTankTimer = 0;
+            state.biodiversityTimer = 0;
+            state.neglectTimer = 0;
 
             // Reset auto toggle UI
             const autoToggle = document.getElementById('auto-toggle');
@@ -6392,7 +6679,11 @@ const App = (() => {
         for (const fish of deadFish) {
             removeFish(fish);
             Achievements.onFishLost();
-            UI.showStatus(`A ${fish.typeName} has perished...`);
+            if (fish.hunger < 10) {
+                scoreEvent(-20, `😢 ${fish.typeName} starved! -20`);
+            } else {
+                scoreEvent(-15, `💀 ${fish.typeName} lost! -15`);
+            }
         }
 
         for (const fish of eatenFish) {
@@ -6400,7 +6691,7 @@ const App = (() => {
                 removeFish(fish);
                 Achievements.onFishLost();
                 ZenAudio.playEaten();
-                UI.showStatus(`A ${fish.typeName} was eaten by a larger fish!`);
+                scoreEvent(-15, `💀 ${fish.typeName} was eaten! -15`);
             }
         }
 
@@ -6440,9 +6731,82 @@ const App = (() => {
         // Check achievements
         Achievements.check(state);
 
-        // Update score (healthy fish generate value)
+        // Health streak multiplier
+        const aliveFish = state.fish.filter(f => f.alive);
+        const allHealthy = aliveFish.length > 0 && aliveFish.every(f => f.health > 80);
+        const anyLow = aliveFish.some(f => f.health < 50);
+
+        if (allHealthy) {
+            if (!state.streakActive) {
+                state.streakActive = true;
+                state.streakStart = timestamp;
+            }
+            const streakTime = (timestamp - state.streakStart) / 1000;
+            let newMultiplier = 1;
+            if (streakTime >= 180) newMultiplier = 3;
+            else if (streakTime >= 90) newMultiplier = 2;
+            else if (streakTime >= 30) newMultiplier = 1.5;
+
+            if (newMultiplier !== state.lastMultiplierLevel) {
+                state.lastMultiplierLevel = newMultiplier;
+                if (newMultiplier > 1) {
+                    UI.showStatus(`🔥 Score multiplier now ×${newMultiplier}!`);
+                }
+            }
+            state.multiplier = newMultiplier;
+        } else if (anyLow && state.multiplier > 1) {
+            state.multiplier = 1;
+            state.streakActive = false;
+            state.lastMultiplierLevel = 1;
+            UI.showStatus('💔 Multiplier lost — a fish is struggling!');
+        } else if (!allHealthy) {
+            state.streakActive = false;
+            state.lastMultiplierLevel = state.multiplier > 1 ? state.multiplier : 1;
+        }
+
+        // Update multiplier badge
+        UI.updateMultiplier(state.multiplier);
+
+        // Update score (healthy fish generate score)
         const healthyFish = state.fish.filter(f => f.alive && f.health > 50 && !f.isBaby);
-        state.score += healthyFish.length * state.scoreRate * dt;
+        state.score += healthyFish.length * state.scoreRate * dt * state.multiplier;
+
+        // Repeatable score bonuses
+        const aliveFishCount = aliveFish.length;
+
+        // Perfect Tank: +25 every 60s while health >90% and 5+ fish
+        state.perfectTankTimer += dt;
+        if (state.tankHealth > 90 && aliveFishCount >= 5 && state.perfectTankTimer >= 60) {
+            state.perfectTankTimer = 0;
+            scoreEvent(25, '✨ Perfect tank! +25');
+        } else if (state.tankHealth <= 90) {
+            state.perfectTankTimer = 0;
+        }
+
+        // Biodiversity: +15 every 45s while all 4 species alive
+        state.biodiversityTimer += dt;
+        if (state.theme && state.theme.fishTypes) {
+            const typeIds = state.theme.fishTypes.map(t => t.id);
+            const presentTypes = new Set(aliveFish.map(f => f.type));
+            const allPresent = typeIds.length > 0 && typeIds.every(id => presentTypes.has(id));
+            if (allPresent && state.biodiversityTimer >= 45) {
+                state.biodiversityTimer = 0;
+                scoreEvent(15, '🌈 Biodiversity! +15');
+            } else if (!allPresent) {
+                state.biodiversityTimer = 0;
+            }
+        }
+
+        // Neglected Tank penalty: -10 every 30s while health <25%
+        if (state.tankHealth < 25) {
+            state.neglectTimer += dt;
+            if (state.neglectTimer >= 30) {
+                state.neglectTimer = 0;
+                scoreEvent(-10, '🚨 Tank neglected! -10');
+            }
+        } else {
+            state.neglectTimer = 0;
+        }
 
         // Tank health decay
         state.cleanlinessDecay += dt * 0.3;
@@ -6567,7 +6931,7 @@ const App = (() => {
 
                         ZenAudio.playBirth();
                         Achievements.onFishBorn();
-                        UI.showStatus(`A baby ${typeInfo.name} was born! 🎉`);
+                        scoreEvent(10, `🍼 Baby ${typeInfo.name} born! +10`);
                         state.reproductionCooldowns[type] = Utils.rand(20, 40);
                     }
                 }
@@ -6575,10 +6939,12 @@ const App = (() => {
         }
     }
 
+    function getState() { return state; }
+
     // Start everything
     document.addEventListener('DOMContentLoaded', init);
 
-    return { state };
+    return { state, getState, scoreEvent };
 })();
 
     </script>
