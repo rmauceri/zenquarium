@@ -64,7 +64,7 @@ These bonuses can be earned repeatedly throughout a session.
 
 ### Creature Interaction Bonuses
 
-Easter egg creatures (jellyfish, octopus, squid) visit your tank periodically. **Creatures are dangerous** — they will eat fish on contact. Tap a creature to chase it away, but don't tap 3 times or it will retaliate with stingers or ink.
+Easter egg creatures (jellyfish, octopus, squid) visit your tank periodically. **Creatures are dangerous** — they will eat fish on contact. Jellyfish drift passively and kill by accident. Octopus and squid actively hunt nearby fish, lunging toward prey. Tap a creature to chase it away (it flees for 2-3 seconds), but don't tap 3 times within 5 seconds or it will retaliate with stingers or ink. Creatures only begin attacking once fully on-screen, and have an 8-second cooldown between kills.
 
 | Event | Points | Trigger |
 |-------|--------|---------|
@@ -118,5 +118,5 @@ These actions spend score points (not penalties — they are purchases).
 4. **Avoid tapping the glass** — it stresses the fish and costs points.
 5. **Feed regularly** — starving fish incur a harsher penalty (−20) than regular deaths (−15).
 6. **Aim for a full tank** — 5+ fish with high health earns the Perfect Tank bonus every 60 seconds.
-7. **Leave creatures alone** — a peaceful departure earns +30, but provoking them costs −20 to −25 (though surviving the attack earns +40 to +50 if no fish die).
-8. **Take calculated risks** — provoking a creature is a gamble: you lose points up front, but earn even more if all fish survive the attack.
+7. **Defend against creatures** — tap to chase them away before they eat your fish. A creature that leaves without eating earns +30. But don't tap 3 times or you'll provoke stingers/ink (−20 to −25), though surviving the attack earns +40 to +50.
+8. **Watch for octopus and squid** — they actively hunt your fish, unlike passive jellyfish. Their eyes lock onto prey before lunging.
