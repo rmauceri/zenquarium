@@ -174,7 +174,7 @@ html, body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 3;
+    z-index: 1;
     overflow: hidden;
 }
 
@@ -3294,7 +3294,7 @@ const Themes = (() => {
             name: 'Pen & Ink',
             description: 'Elegant line drawings',
             cssClass: 'theme-ink',
-            cardBg: 'linear-gradient(135deg, #2a2520, #1a1815)',
+            cardBg: 'linear-gradient(135deg, #2a2a3a, #1a1520)',
             fishTypes: [
                 { id: 'ink-koi', name: 'Ink Koi', bodyColor: 'none', finColor: 'none', accentColor: '#5c3a1a', cost: 20, size: 1.1, speed: 0.7, shape: 'standard', aggression: 0.3, inkStyle: true, inkWash: 'rgba(92,58,26,0.06)', traits: ['social', 'lazy'], personality: 'Contemplative soul' },
                 { id: 'ink-angel', name: 'Sketch Angel', bodyColor: 'none', finColor: 'none', accentColor: '#2a3a6a', cost: 25, size: 1.0, speed: 0.8, shape: 'tall', aggression: 0.5, inkStyle: true, inkWash: 'rgba(42,58,106,0.06)', traits: ['curious', 'explorer'], personality: 'Wandering artist' },
@@ -6220,14 +6220,12 @@ const UI = (() => {
         window.addEventListener('resize', resizeSplashTetras);
 
         function tetraPickTarget(t, w, h) {
-            const range = Utils.rand(80, 200);
+            const range = Utils.rand(100, 250);
             const isDart = Math.random() < 0.15;
             const r = isDart ? range * 2 : range;
             t.targetX = Utils.clamp(t.x + Utils.rand(-r, r), 40, w - 40);
-            // Mid-water bias
-            const midY = h * 0.4;
-            const midPull = (midY - t.y) * 0.12;
-            t.targetY = Utils.clamp(t.y + Utils.rand(-r * 0.5, r * 0.5) + midPull, h * 0.12, h * 0.82);
+            // Pick target anywhere in the tank — full vertical range
+            t.targetY = Utils.rand(h * 0.08, h * 0.92);
             if (isDart) {
                 t.speed = t.baseSpeed * Utils.rand(2.5, 4);
             } else {
@@ -6396,17 +6394,17 @@ const UI = (() => {
                     const prox = 1 - (cw - 30 - t.x) / edgeM;
                     t.vx -= Math.max(0, prox) * edgeP * dt * 60;
                 }
-                if (t.y < ch * 0.1 + edgeM) {
-                    const prox = 1 - (t.y - ch * 0.1) / edgeM;
+                if (t.y < ch * 0.06 + edgeM) {
+                    const prox = 1 - (t.y - ch * 0.06) / edgeM;
                     t.vy += Math.max(0, prox) * edgeP * dt * 60;
-                } else if (t.y > ch * 0.85 - edgeM) {
-                    const prox = 1 - (ch * 0.85 - t.y) / edgeM;
+                } else if (t.y > ch * 0.94 - edgeM) {
+                    const prox = 1 - (ch * 0.94 - t.y) / edgeM;
                     t.vy -= Math.max(0, prox) * edgeP * dt * 60;
                 }
 
                 // Clamp
                 t.x = Utils.clamp(t.x, 20, cw - 20);
-                t.y = Utils.clamp(t.y, ch * 0.08, ch * 0.88);
+                t.y = Utils.clamp(t.y, ch * 0.05, ch * 0.95);
 
                 // Face direction of movement
                 if (Math.abs(t.vx) > 0.1) {
