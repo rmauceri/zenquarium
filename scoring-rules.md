@@ -98,6 +98,34 @@ Penalties reduce the score but never below zero.
 
 ---
 
+## Victory Milestones
+
+Reaching a milestone pauses the game and offers a choice: **Keep Playing** to push for a higher milestone, or **End on a High Note** to finish with a victory. Each milestone triggers only once per session.
+
+| Milestone | Icon | Trigger |
+|-----------|------|---------|
+| Bronze Aquarist | 🥉 | Reach 1,000 points |
+| Silver Aquarist | 🥈 | Reach 5,000 points |
+| Gold Aquarist | 🥇 | Reach 10,000 points |
+| Master Aquarist | 🏆 | Maintain 15+ fish with all 4 species alive for 3 continuous minutes |
+
+Your highest milestone ever achieved is displayed under your Best Score on the start screen and game summary.
+
+---
+
+## Game Over
+
+The session ends in defeat if either condition is met:
+
+| Condition | Behavior |
+|-----------|----------|
+| **All fish lost** | 5-second grace period with warning ("Your tank is empty! Buy fish!"). If no fish are purchased, the game ends. |
+| **Tank health reaches zero** | Immediate game over — the tank has become uninhabitable. |
+
+The cause of defeat is shown in red on the Game Summary screen.
+
+---
+
 ## Score Costs
 
 These actions spend score points (not penalties — they are purchases).
@@ -120,3 +148,4 @@ These actions spend score points (not penalties — they are purchases).
 6. **Aim for a full tank** — 5+ fish with high health earns the Perfect Tank bonus every 60 seconds.
 7. **Defend against creatures** — tap to chase them away before they eat your fish. A creature that leaves without eating earns +30. But don't tap 3 times or you'll provoke stingers/ink (−20 to −25), though surviving the attack earns +40 to +50.
 8. **Watch for octopus and squid** — they actively hunt your fish, unlike passive jellyfish. Their eyes lock onto prey before lunging.
+9. **Know when to quit** — hitting a milestone lets you end on a high note. Pushing for the next one risks a game-over that ends your session without a victory.

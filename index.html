@@ -349,6 +349,14 @@ html, body {
     color: var(--text-primary, #e8dcc8);
 }
 
+.defeat-cause {
+    font-size: 0.85rem;
+    color: #e08080;
+    margin-bottom: 12px;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+}
+
 .session-summary .high-score-badge {
     color: #c9a96e;
     font-size: 1rem;
@@ -1414,6 +1422,88 @@ html, body {
     background: var(--btn-hover);
 }
 
+/* Milestone modal */
+.milestone-modal-content {
+    background: linear-gradient(180deg, #1a2a3a 0%, #0d1b2a 100%);
+    border: 1px solid rgba(201, 169, 110, 0.4);
+    border-radius: 16px;
+    padding: 32px 40px;
+    text-align: center;
+    min-width: 320px;
+    max-width: 400px;
+}
+
+.milestone-icon {
+    font-size: 3rem;
+    margin-bottom: 8px;
+}
+
+.milestone-modal-content h3 {
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0 0 8px 0;
+    font-size: 1.2rem;
+    color: #c9a96e;
+}
+
+.milestone-modal-content p {
+    margin: 0 0 24px 0;
+    opacity: 0.8;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.milestone-btn-continue {
+    background: transparent;
+    border: 1px solid var(--hud-border);
+    color: var(--text-primary);
+    padding: 10px 28px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.milestone-btn-continue:hover {
+    background: var(--btn-hover);
+}
+
+.milestone-btn-end {
+    background: rgba(201, 169, 110, 0.2);
+    border: 1px solid rgba(201, 169, 110, 0.5);
+    color: #c9a96e;
+    padding: 10px 28px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.milestone-btn-end:hover {
+    background: rgba(201, 169, 110, 0.35);
+}
+
+/* Victory cause (gold, vs red defeat-cause) */
+.victory-cause {
+    font-size: 0.85rem;
+    color: #c9a96e;
+    margin-bottom: 12px;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+}
+
+/* Best milestone badge on stats ribbon and summary */
+.best-milestone {
+    font-size: 0.6rem;
+    color: #c9a96e;
+    letter-spacing: 0.05em;
+}
+
 /* Controls Chevron Toggle */
 .controls-chevron {
     width: 48px;
@@ -1857,7 +1947,7 @@ html, body {
                 <button class="splash-mute-btn" id="splash-mute-btn" title="Toggle Sound">🔊</button>
             </div>
             <div id="stats-ribbon" class="stats-ribbon">
-                <div class="stat-item"><span class="stat-icon">🏆</span> Best: <span class="stat-value" id="ribbon-high-score">0</span></div>
+                <div class="stat-item"><span class="stat-icon">🏆</span> Best: <span class="stat-value" id="ribbon-high-score">0</span> <span class="best-milestone" id="ribbon-best-milestone"></span></div>
                 <div class="stat-item"><span class="stat-icon">🎮</span> Sessions: <span class="stat-value" id="ribbon-sessions">0</span></div>
                 <div class="stat-item"><span class="stat-icon">⭐</span> <span class="stat-value" id="ribbon-achievements">0</span>/<span id="ribbon-total-achievements">12</span></div>
             </div>
@@ -1898,6 +1988,8 @@ html, body {
     <div id="session-summary" class="session-summary">
         <div class="session-summary-content">
             <h2>Game Summary</h2>
+            <div id="defeat-cause" class="defeat-cause" style="display:none"></div>
+            <div id="victory-cause" class="victory-cause" style="display:none"></div>
             <div id="high-score-badge" class="high-score-badge" style="display:none">🏆 New High Score! 🏆</div>
             <div class="summary-stats">
                 <div class="summary-stat">
@@ -1907,6 +1999,7 @@ html, body {
                 <div class="summary-stat">
                     <span class="summary-stat-label">Best Score</span>
                     <span class="summary-stat-value" id="summary-best">0</span>
+                    <span class="best-milestone" id="summary-best-milestone"></span>
                 </div>
                 <div class="summary-stat">
                     <span class="summary-stat-label">Duration</span>
@@ -2101,6 +2194,18 @@ html, body {
                 </div>
             </div>
         </div>
+
+        <div id="milestone-modal" class="modal hidden">
+            <div class="milestone-modal-content">
+                <div class="milestone-icon" id="milestone-icon">🥉</div>
+                <h3 id="milestone-title">Bronze Aquarist</h3>
+                <p id="milestone-message">You've reached 1,000 points!</p>
+                <div class="restart-modal-btns">
+                    <button class="milestone-btn-continue" id="milestone-continue">Keep Playing</button>
+                    <button class="milestone-btn-end" id="milestone-end">End on a High Note</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -2118,6 +2223,7 @@ const ZenStorage = (() => {
         achievementDates: {},
         lastTheme: null,
         themesPlayed: [],
+        bestMilestone: null,
         stats: {
             totalFishBorn: 0,
             totalFishLost: 0,
@@ -6131,9 +6237,19 @@ const UI = (() => {
         if (sess) sess.textContent = d.totalSessions.toString();
         if (ach) ach.textContent = d.achievements.length.toString();
         if (total) total.textContent = Achievements.defs.length.toString();
+        const ribbonMilestone = document.getElementById('ribbon-best-milestone');
+        if (ribbonMilestone) {
+            const bm = d.bestMilestone;
+            if (bm) {
+                const mDef = [{id:'bronze',icon:'🥉',title:'Bronze'},{id:'silver',icon:'🥈',title:'Silver'},{id:'gold',icon:'🥇',title:'Gold'},{id:'master',icon:'🏆',title:'Master'}].find(m => m.id === bm);
+                ribbonMilestone.textContent = mDef ? `${mDef.icon} ${mDef.title}` : '';
+            } else {
+                ribbonMilestone.textContent = '';
+            }
+        }
     }
 
-    function showSessionSummary(score, onContinue) {
+    function showSessionSummary(score, onContinue, defeatCause, victoryCause) {
         const d = ZenStorage.get();
         const isNewHigh = ZenStorage.updateHighScore(score);
         const duration = Achievements.getSessionDuration();
@@ -6148,6 +6264,34 @@ const UI = (() => {
 
         const badge = document.getElementById('high-score-badge');
         badge.style.display = isNewHigh ? 'block' : 'none';
+
+        // Show defeat or victory cause
+        const defeatEl = document.getElementById('defeat-cause');
+        const victoryEl = document.getElementById('victory-cause');
+        if (defeatCause) {
+            defeatEl.textContent = defeatCause;
+            defeatEl.style.display = 'block';
+            victoryEl.style.display = 'none';
+        } else if (victoryCause) {
+            victoryEl.textContent = victoryCause;
+            victoryEl.style.display = 'block';
+            defeatEl.style.display = 'none';
+        } else {
+            defeatEl.style.display = 'none';
+            victoryEl.style.display = 'none';
+        }
+
+        // Show best milestone under Best Score
+        const bestMilestoneEl = document.getElementById('summary-best-milestone');
+        if (bestMilestoneEl) {
+            const bm = d.bestMilestone;
+            if (bm) {
+                const mDef = [{id:'bronze',icon:'🥉',title:'Bronze Aquarist'},{id:'silver',icon:'🥈',title:'Silver Aquarist'},{id:'gold',icon:'🥇',title:'Gold Aquarist'},{id:'master',icon:'🏆',title:'Master Aquarist'}].find(m => m.id === bm);
+                bestMilestoneEl.textContent = mDef ? `${mDef.icon} ${mDef.title}` : '';
+            } else {
+                bestMilestoneEl.textContent = '';
+            }
+        }
 
         // Show achievements earned this session
         const achDiv = document.getElementById('summary-achievements');
@@ -6258,7 +6402,13 @@ const App = (() => {
         lastMultiplierLevel: 1,
         perfectTankTimer: 0,
         biodiversityTimer: 0,
-        neglectTimer: 0
+        neglectTimer: 0,
+        gameOverTimer: 0,
+        gameOverWarning: false,
+        gameOverTriggered: false,
+        milestonesShown: new Set(),
+        thrivingTimer: 0,
+        pendingMilestone: null
     };
 
     let fishLayer = null;
@@ -6421,6 +6571,21 @@ const App = (() => {
             if (e.target === e.currentTarget) {
                 document.getElementById('restart-modal').classList.add('hidden');
             }
+        });
+
+        // Milestone modal buttons
+        document.getElementById('milestone-continue').addEventListener('click', () => {
+            document.getElementById('milestone-modal').classList.add('hidden');
+            state.isPaused = false;
+            state.lastTime = performance.now();
+        });
+        document.getElementById('milestone-end').addEventListener('click', () => {
+            // Find the highest milestone reached this session
+            let best = null;
+            for (const m of milestones) {
+                if (state.milestonesShown.has(m.id)) best = m;
+            }
+            if (best) endWithVictory(best);
         });
 
         // Controls chevron toggle
@@ -6706,6 +6871,12 @@ const App = (() => {
             state.perfectTankTimer = 0;
             state.biodiversityTimer = 0;
             state.neglectTimer = 0;
+            state.gameOverTimer = 0;
+            state.gameOverWarning = false;
+            state.gameOverTriggered = false;
+            state.milestonesShown = new Set();
+            state.thrivingTimer = 0;
+            state.pendingMilestone = null;
 
             // Reset auto toggle UI
             const autoToggle = document.getElementById('auto-toggle');
@@ -6725,6 +6896,155 @@ const App = (() => {
             // Go back to splash screen
             UI.showSplash();
         });
+    }
+
+    function endGame(defeatCause) {
+        if (state.gameOverTriggered) return;
+        state.gameOverTriggered = true;
+
+        // Stop game loop
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+        state.isRunning = false;
+
+        const finalScore = state.score;
+
+        // Show defeat message for 3 seconds, then summary
+        UI.showStatus(defeatCause);
+        ZenAudio.stopAmbient();
+        Achievements.onSessionEnd();
+
+        setTimeout(() => {
+            // Clear everything
+            state.fish.forEach(f => { if (f.el && f.el.parentNode) f.el.remove(); });
+            state.fish = [];
+            Food.clear();
+            Creatures.clear();
+
+            UI.showSessionSummary(finalScore, () => {
+                state.score = 100;
+                state.tankHealth = 100;
+                state.cleanlinessDecay = 0;
+                state.isPaused = false;
+                state.reproductionCooldowns = {};
+                state.autoMode = false;
+                state.autoFeedTimer = 0;
+                state.autoCleanTimer = 0;
+                state.autoBuyTimer = 0;
+                state.tapStressAccum = 0;
+                state.multiplier = 1;
+                state.streakStart = 0;
+                state.streakActive = false;
+                state.lastMultiplierLevel = 1;
+                state.perfectTankTimer = 0;
+                state.biodiversityTimer = 0;
+                state.neglectTimer = 0;
+                state.gameOverTimer = 0;
+                state.gameOverWarning = false;
+                state.gameOverTriggered = false;
+                state.milestonesShown = new Set();
+                state.thrivingTimer = 0;
+                state.pendingMilestone = null;
+
+                const autoToggle = document.getElementById('auto-toggle');
+                if (autoToggle) autoToggle.checked = false;
+                document.getElementById('controls-wrapper').classList.remove('collapsed');
+                document.getElementById('hud').classList.remove('hud-minimized');
+                const cloudinessEl = document.getElementById('tank-cloudiness');
+                if (cloudinessEl) cloudinessEl.style.opacity = '0';
+                document.body.className = '';
+                UI.showSplash();
+            }, defeatCause);
+        }, 3000);
+    }
+
+    // Milestone definitions
+    const milestones = [
+        { id: 'bronze',  score: 1000,  icon: '🥉', title: 'Bronze Aquarist',  msg: "You've reached 1,000 points!" },
+        { id: 'silver',  score: 5000,  icon: '🥈', title: 'Silver Aquarist',  msg: "You've reached 5,000 points!" },
+        { id: 'gold',    score: 10000, icon: '🥇', title: 'Gold Aquarist',    msg: "You've reached 10,000 points!" },
+        { id: 'master',  score: 0,     icon: '🏆', title: 'Master Aquarist',  msg: 'Your tank is thriving! A true master aquarist.' }
+    ];
+
+    function getMilestoneForScore(score) {
+        let best = null;
+        for (const m of milestones) {
+            if (m.score > 0 && score >= m.score) best = m;
+        }
+        return best;
+    }
+
+    function showMilestoneModal(milestone) {
+        state.isPaused = true;
+        document.getElementById('milestone-icon').textContent = milestone.icon;
+        document.getElementById('milestone-title').textContent = milestone.title;
+        document.getElementById('milestone-message').textContent = milestone.msg;
+        document.getElementById('milestone-modal').classList.remove('hidden');
+    }
+
+    function endWithVictory(milestone) {
+        document.getElementById('milestone-modal').classList.add('hidden');
+        state.isPaused = false;
+
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+        state.isRunning = false;
+
+        const finalScore = state.score;
+        const victoryCause = `${milestone.icon} ${milestone.title}`;
+
+        ZenAudio.stopAmbient();
+        Achievements.onSessionEnd();
+
+        // Store best milestone
+        const d = ZenStorage.get();
+        const currentBest = d.bestMilestone || '';
+        const rank = milestones.findIndex(m => m.id === milestone.id);
+        const prevRank = milestones.findIndex(m => m.id === currentBest);
+        if (rank > prevRank) {
+            d.bestMilestone = milestone.id;
+            ZenStorage.save();
+        }
+
+        state.fish.forEach(f => { if (f.el && f.el.parentNode) f.el.remove(); });
+        state.fish = [];
+        Food.clear();
+        Creatures.clear();
+
+        UI.showSessionSummary(finalScore, () => {
+            state.score = 100;
+            state.tankHealth = 100;
+            state.cleanlinessDecay = 0;
+            state.isPaused = false;
+            state.reproductionCooldowns = {};
+            state.autoMode = false;
+            state.autoFeedTimer = 0;
+            state.autoCleanTimer = 0;
+            state.autoBuyTimer = 0;
+            state.tapStressAccum = 0;
+            state.multiplier = 1;
+            state.streakStart = 0;
+            state.streakActive = false;
+            state.lastMultiplierLevel = 1;
+            state.perfectTankTimer = 0;
+            state.biodiversityTimer = 0;
+            state.neglectTimer = 0;
+            state.gameOverTimer = 0;
+            state.gameOverWarning = false;
+            state.gameOverTriggered = false;
+            state.milestonesShown = new Set();
+            state.thrivingTimer = 0;
+            state.pendingMilestone = null;
+
+            const autoToggle = document.getElementById('auto-toggle');
+            if (autoToggle) autoToggle.checked = false;
+            document.getElementById('controls-wrapper').classList.remove('collapsed');
+            document.getElementById('hud').classList.remove('hud-minimized');
+            const cloudinessEl = document.getElementById('tank-cloudiness');
+            if (cloudinessEl) cloudinessEl.style.opacity = '0';
+            document.body.className = '';
+            UI.showSplash();
+        }, null, victoryCause);
     }
 
     // Main game loop
@@ -6802,6 +7122,24 @@ const App = (() => {
             }
         }
 
+        // Game over check: all fish lost (with 5-second grace period)
+        const aliveFishNow = state.fish.filter(f => f.alive);
+        if (aliveFishNow.length === 0 && state.fish.length === 0 && !state.gameOverTriggered) {
+            if (!state.gameOverWarning) {
+                state.gameOverWarning = true;
+                state.gameOverTimer = 5;
+                UI.showStatus('⚠️ Your tank is empty! Buy fish before it\'s too late!');
+            }
+            state.gameOverTimer -= dt;
+            if (state.gameOverTimer <= 0) {
+                endGame('💀 Your last fish has perished...');
+                return;
+            }
+        } else if (state.fish.length > 0) {
+            state.gameOverWarning = false;
+            state.gameOverTimer = 0;
+        }
+
         // Hunger warning messages (throttled to every 8 seconds)
         if (!state._hungerWarnTime || timestamp - state._hungerWarnTime > 8000) {
             const starving = state.fish.filter(f => f.alive && f.hunger < 20);
@@ -6837,6 +7175,42 @@ const App = (() => {
 
         // Check achievements
         Achievements.check(state);
+
+        // Check milestones (1s delay after threshold to let achievement toasts show first)
+        const currentScore = Math.round(state.score);
+        for (const m of milestones) {
+            if (m.score > 0 && currentScore >= m.score && !state.milestonesShown.has(m.id) && !state.pendingMilestone) {
+                state.pendingMilestone = { milestone: m, delay: 1.0 };
+                state.milestonesShown.add(m.id);
+            }
+        }
+
+        // Thriving tank: 15+ fish, all 4 species, for 3 minutes
+        const aliveFishForThriving = state.fish.filter(f => f.alive);
+        if (aliveFishForThriving.length >= 15 && state.theme && state.theme.fishTypes) {
+            const typeIds = state.theme.fishTypes.map(t => t.id);
+            const present = new Set(aliveFishForThriving.map(f => f.type));
+            if (typeIds.every(id => present.has(id))) {
+                state.thrivingTimer += dt;
+                if (state.thrivingTimer >= 180 && !state.milestonesShown.has('master') && !state.pendingMilestone) {
+                    state.pendingMilestone = { milestone: milestones.find(m => m.id === 'master'), delay: 1.0 };
+                    state.milestonesShown.add('master');
+                }
+            } else {
+                state.thrivingTimer = 0;
+            }
+        } else {
+            state.thrivingTimer = 0;
+        }
+
+        // Process pending milestone with delay
+        if (state.pendingMilestone) {
+            state.pendingMilestone.delay -= dt;
+            if (state.pendingMilestone.delay <= 0) {
+                showMilestoneModal(state.pendingMilestone.milestone);
+                state.pendingMilestone = null;
+            }
+        }
 
         // Health streak multiplier
         const aliveFish = state.fish.filter(f => f.alive);
@@ -6925,6 +7299,12 @@ const App = (() => {
             state.fish.forEach(f => {
                 f.health = Math.max(0, f.health - dt * 2);
             });
+        }
+
+        // Game over check: tank health zero
+        if (state.tankHealth <= 0 && !state.gameOverTriggered) {
+            endGame('🌊 The tank has become uninhabitable...');
+            return;
         }
 
         // Update UI
