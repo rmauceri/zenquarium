@@ -105,8 +105,9 @@ Reaching a milestone pauses the game and offers a choice: **Keep Playing** to pu
 | Milestone | Icon | Trigger |
 |-----------|------|---------|
 | Bronze Aquarist | 🥉 | Reach 1,000 points |
-| Silver Aquarist | 🥈 | Reach 5,000 points |
-| Gold Aquarist | 🥇 | Reach 10,000 points |
+| Silver Aquarist | 🥈 | Reach 2,500 points |
+| Gold Aquarist | 🥇 | Reach 5,000 points |
+| Platinum Aquarist | 💎 | Reach 10,000 points |
 | Master Aquarist | 🏆 | Maintain 15+ fish with all 4 species alive for 3 continuous minutes |
 
 Your highest milestone ever achieved is displayed under your Best Score on the start screen and game summary.

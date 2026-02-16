@@ -68,6 +68,7 @@ html, body {
     max-width: 700px;
     padding: 40px;
     position: relative;
+    z-index: 2;
 }
 
 .splash-title h1 {
@@ -93,7 +94,7 @@ html, body {
     font-weight: 300;
     letter-spacing: 0.2em;
     color: var(--text-secondary);
-    margin-bottom: 48px;
+    margin-bottom: 64px;
 }
 
 .splash-bubbles {
@@ -117,70 +118,64 @@ html, body {
     100% { transform: translateY(-100vh) scale(1); opacity: 0; }
 }
 
-/* Splash screen kelp */
-.splash-seaweed {
+/* Splash screen plants */
+.splash-plants {
     position: absolute;
     bottom: 0;
-    width: 100px;
+    left: 0;
+    right: 0;
     height: 100%;
     pointer-events: none;
-    overflow: visible;
     z-index: 0;
+    overflow: hidden;
 }
 
-.splash-seaweed-left {
-    left: -70px;
-}
-
-.splash-seaweed-right {
-    right: -70px;
-}
-
-.kelp-stipe {
+.splash-plant {
     position: absolute;
     bottom: 0;
-    width: 6px;
-    border-radius: 3px 3px 0 0;
     transform-origin: bottom center;
-    animation: kelpSway ease-in-out infinite alternate;
+    animation: plantSway ease-in-out infinite alternate;
 }
 
-@keyframes kelpSway {
-    0% { transform: rotate(-3deg) translateX(-2px); }
-    25% { transform: rotate(1deg) translateX(1px); }
-    50% { transform: rotate(-2deg) translateX(-1px); }
-    75% { transform: rotate(2deg) translateX(2px); }
-    100% { transform: rotate(-1deg) translateX(-1px); }
-}
-
-.kelp-blade {
+.splash-plant-leaf {
     position: absolute;
-    border-radius: 60% 40% 50% 50% / 50%;
+    border-radius: 0 80% 0 80%;
     transform-origin: bottom center;
-    animation: bladeSway ease-in-out infinite alternate;
+    animation: leafSway ease-in-out infinite alternate;
 }
 
-.kelp-blade.left-blade {
-    transform-origin: bottom right;
+.splash-plant-leaf.mirror {
+    border-radius: 80% 0 80% 0;
 }
 
-.kelp-blade.right-blade {
-    transform-origin: bottom left;
-}
-
-@keyframes bladeSway {
-    0% { transform: rotate(-12deg) scaleY(1); }
-    30% { transform: rotate(4deg) scaleY(0.97); }
-    60% { transform: rotate(-6deg) scaleY(1.02); }
-    100% { transform: rotate(8deg) scaleY(0.98); }
-}
-
-.kelp-bulb {
+.splash-carpet {
     position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    transform-origin: bottom center;
+    bottom: 0;
+    border-radius: 50% 50% 0 0;
+}
+
+@keyframes plantSway {
+    0% { transform: rotate(-2deg) translateX(-1px); }
+    33% { transform: rotate(1deg) translateX(0.5px); }
+    66% { transform: rotate(-1.5deg) translateX(-0.5px); }
+    100% { transform: rotate(1.5deg) translateX(1px); }
+}
+
+@keyframes leafSway {
+    0% { transform: rotate(-8deg); }
+    50% { transform: rotate(3deg); }
+    100% { transform: rotate(-5deg); }
+}
+
+/* Splash screen neon tetras */
+.splash-tetras {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+    overflow: hidden;
 }
 
 .theme-selection h2 {
@@ -222,6 +217,8 @@ html, body {
 .theme-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    border-color: rgba(232, 220, 200, 0.4);
+    background-blend-mode: lighten;
 }
 
 .theme-card:active {
@@ -1818,9 +1815,10 @@ html, body {
 @media (max-width: 480px) {
     /* Splash */
     .splash-title h1 { font-size: 1.8rem; letter-spacing: 0.12em; }
-    .splash-subtitle { font-size: 0.8rem; margin-bottom: 24px; letter-spacing: 0.12em; }
+    .splash-subtitle { font-size: 0.8rem; margin-bottom: 36px; letter-spacing: 0.12em; }
     .splash-content { padding: 16px 12px; }
-    .splash-seaweed { display: none; }
+    .splash-plants .splash-plant { transform: scale(0.6); transform-origin: bottom center; }
+    .splash-tetras { opacity: 0.7; }
     .theme-selection h2 { font-size: 0.85rem; margin-bottom: 12px; }
     .theme-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
     .theme-card { padding: 14px 10px; }
@@ -1893,7 +1891,7 @@ html, body {
 
 @media (max-width: 360px) {
     .splash-title h1 { font-size: 1.5rem; letter-spacing: 0.1em; }
-    .splash-subtitle { font-size: 0.7rem; }
+    .splash-subtitle { font-size: 0.7rem; margin-bottom: 28px; }
     .theme-cards { grid-template-columns: 1fr; gap: 6px; }
     .theme-card { padding: 12px 10px; }
     .stats-ribbon { flex-direction: column; gap: 6px; }
@@ -1929,14 +1927,14 @@ html, body {
 <body>
     <!-- Splash Screen -->
     <div id="splash-screen" class="splash-screen">
+        <div class="splash-plants" id="splash-plants"></div>
+        <div class="splash-tetras" id="splash-tetras"></div>
         <div class="splash-content">
             <div class="splash-title">
                 <h1>Zenquarium</h1>
                 <p class="splash-subtitle">A meditative aquarium experience</p>
             </div>
             <div class="splash-bubbles" id="splash-bubbles"></div>
-            <div class="splash-seaweed splash-seaweed-left" id="splash-seaweed-left"></div>
-            <div class="splash-seaweed splash-seaweed-right" id="splash-seaweed-right"></div>
             <div class="theme-selection">
                 <h2>Pick a theme to start</h2>
                 <div class="theme-cards" id="theme-cards"></div>
@@ -5798,6 +5796,11 @@ const UI = (() => {
     let statusQueue = [];
     let statusTimer = null;
     let fishDetailVisible = false;
+    let splashAnimId = null;
+    let splashTetras = [];
+    let lastSplashTime = 0;
+    let _animateSplashTetras = null;
+    let _resizeSplashTetras = null;
 
     function init() {
         // Fish count click to toggle detail
@@ -6089,62 +6092,341 @@ const UI = (() => {
             bubblesEl.appendChild(b);
         }
 
-        // Create splash kelp strands
-        const kelpPalette = [
-            { stipe: '#3d2b1a', blade: '#2d5a2a', bulb: '#4a7a3a' },
-            { stipe: '#4a3520', blade: '#3a6830', bulb: '#5a8840' },
-            { stipe: '#352818', blade: '#2a4e22', bulb: '#3d6830' },
-            { stipe: '#503a25', blade: '#4a7040', bulb: '#6a9050' },
-            { stipe: '#3a2c1a', blade: '#355e2e', bulb: '#4e7a38' }
+        // Create splash plants (planted-tank style, full-bleed)
+        const plantContainer = document.getElementById('splash-plants');
+        const plantPalette = [
+            { stem: '#2d5a3a', leaf: '#3a7048', tip: '#5c9a6a' },
+            { stem: '#1a3d28', leaf: '#2d5a3a', tip: '#4a8858' },
+            { stem: '#1e4830', leaf: '#3d8050', tip: '#6aad78' },
+            { stem: '#264d34', leaf: '#458c5a', tip: '#72b888' },
+            { stem: '#1b3825', leaf: '#2a5035', tip: '#4a7858' }
         ];
-        ['splash-seaweed-left', 'splash-seaweed-right'].forEach(containerId => {
-            const container = document.getElementById(containerId);
-            const strandCount = Utils.randInt(3, 5);
-            for (let si = 0; si < strandCount; si++) {
-                const colors = Utils.pick(kelpPalette);
-                const stipe = Utils.htmlEl('div', 'kelp-stipe');
-                const h = Utils.rand(150, 320);
-                const x = Utils.rand(5, 70);
-                const swayDur = Utils.rand(5, 10);
-                const swayDelay = Utils.rand(0, 4);
-                stipe.style.cssText = `
-                    left: ${x}px; height: ${h}px;
-                    background: linear-gradient(to top, ${colors.stipe}, ${colors.stipe}cc);
-                    animation-duration: ${swayDur}s;
-                    animation-delay: ${swayDelay}s;
-                    opacity: ${Utils.rand(0.5, 0.8).toFixed(2)};
+
+        // Dense plant positions across the full width, taller on edges, shorter toward center
+        const plantPositions = [
+            { x: 1,  h: [250, 450], count: [3, 5] },
+            { x: 5,  h: [220, 400], count: [3, 5] },
+            { x: 10, h: [180, 350], count: [2, 4] },
+            { x: 16, h: [140, 280], count: [2, 3] },
+            { x: 22, h: [100, 200], count: [1, 3] },
+            { x: 30, h: [60, 140],  count: [1, 2] },
+            { x: 40, h: [40, 100],  count: [1, 2] },
+            { x: 50, h: [30, 80],   count: [0, 2] },
+            { x: 60, h: [40, 100],  count: [1, 2] },
+            { x: 70, h: [60, 140],  count: [1, 2] },
+            { x: 78, h: [100, 200], count: [1, 3] },
+            { x: 84, h: [140, 280], count: [2, 3] },
+            { x: 90, h: [180, 350], count: [2, 4] },
+            { x: 95, h: [220, 400], count: [3, 5] },
+            { x: 99, h: [250, 450], count: [3, 5] }
+        ];
+
+        plantPositions.forEach(pos => {
+            const count = Utils.randInt(pos.count[0], pos.count[1]);
+            for (let i = 0; i < count; i++) {
+                const colors = Utils.pick(plantPalette);
+                const stem = Utils.htmlEl('div', 'splash-plant');
+                const h = Utils.rand(pos.h[0], pos.h[1]);
+                const xOff = pos.x + Utils.rand(-3, 3);
+                stem.style.cssText = `
+                    left: ${xOff}%; height: ${h}px; width: 3px;
+                    background: linear-gradient(to top, ${colors.stem}, ${colors.leaf}cc);
+                    animation-duration: ${Utils.rand(6, 12)}s;
+                    animation-delay: ${Utils.rand(0, 5)}s;
+                    opacity: ${Utils.rand(0.35, 0.7).toFixed(2)};
+                    border-radius: 2px 2px 0 0;
                 `;
-                // Add kelp blades along the stipe
-                const bladeCount = Utils.randInt(3, 6);
-                for (let bi = 0; bi < bladeCount; bi++) {
-                    const blade = Utils.htmlEl('div', 'kelp-blade');
-                    const isLeft = Math.random() > 0.5;
-                    blade.classList.add(isLeft ? 'left-blade' : 'right-blade');
-                    const bladeY = ((bi + 0.5) / bladeCount) * h;
-                    const bladeW = Utils.rand(20, 40);
-                    const bladeH = Utils.rand(8, 16);
-                    blade.style.cssText = `
-                        bottom: ${bladeY}px;
-                        ${isLeft ? 'right' : 'left'}: 2px;
-                        width: ${bladeW}px; height: ${bladeH}px;
-                        background: linear-gradient(${isLeft ? 'to left' : 'to right'}, ${colors.blade}cc, ${colors.blade}44);
-                        animation-duration: ${Utils.rand(4, 8)}s;
-                        animation-delay: ${Utils.rand(0, 3)}s;
-                        opacity: ${Utils.rand(0.5, 0.8).toFixed(2)};
+                const leafCount = Utils.randInt(3, 7);
+                for (let li = 0; li < leafCount; li++) {
+                    const leaf = Utils.htmlEl('div', 'splash-plant-leaf');
+                    const isLeft = li % 2 === 0;
+                    if (isLeft) leaf.classList.add('mirror');
+                    const leafY = ((li + 0.5) / leafCount) * h;
+                    const leafW = Utils.rand(15, 35);
+                    const leafH = Utils.rand(4, 8);
+                    leaf.style.cssText = `
+                        bottom: ${leafY}px;
+                        ${isLeft ? 'right' : 'left'}: 1px;
+                        width: ${leafW}px; height: ${leafH}px;
+                        background: linear-gradient(${isLeft ? 'to left' : 'to right'}, ${colors.leaf}bb, ${colors.tip}44);
+                        animation-duration: ${Utils.rand(5, 10)}s;
+                        animation-delay: ${Utils.rand(0, 4)}s;
                     `;
-                    stipe.appendChild(blade);
+                    stem.appendChild(leaf);
                 }
-                // Add gas bladder (bulb) near top
-                const bulb = Utils.htmlEl('div', 'kelp-bulb');
-                bulb.style.cssText = `
-                    top: -4px; left: -1px;
-                    background: radial-gradient(circle at 40% 40%, ${colors.bulb}, ${colors.blade});
-                    opacity: ${Utils.rand(0.5, 0.7).toFixed(2)};
-                `;
-                stipe.appendChild(bulb);
-                container.appendChild(stipe);
+                plantContainer.appendChild(stem);
             }
         });
+
+        // Dense carpet plants along the bottom
+        for (let ci = 0; ci < 50; ci++) {
+            const carpet = Utils.htmlEl('div', 'splash-carpet');
+            const colors = Utils.pick(plantPalette);
+            const w = Utils.rand(14, 35);
+            const h = Utils.rand(6, 18);
+            carpet.style.cssText = `
+                left: ${Utils.rand(0, 98)}%;
+                width: ${w}px; height: ${h}px;
+                background: radial-gradient(ellipse at center bottom, ${colors.leaf}88, ${colors.tip}22);
+                opacity: ${Utils.rand(0.3, 0.6).toFixed(2)};
+            `;
+            plantContainer.appendChild(carpet);
+        }
+
+        // Create splash neon tetras with natural swimming (game-style movement)
+        const tetraContainer = document.getElementById('splash-tetras');
+        splashTetras = [];
+        const tetraDefs = [
+            { scale: 0.9, startY: 0.35, startX: 0.2 },
+            { scale: 0.75, startY: 0.55, startX: 0.7 },
+            { scale: 0.65, startY: 0.42, startX: 0.45 }
+        ];
+
+        tetraDefs.forEach(td => {
+            const canvas = document.createElement('canvas');
+            canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;';
+            tetraContainer.appendChild(canvas);
+            splashTetras.push({
+                canvas, ctx: null,
+                // Position in pixels (set after first resize)
+                x: 0, y: 0, initFrac: { x: td.startX, y: td.startY },
+                vx: 0, vy: 0,
+                targetX: 0, targetY: 0,
+                speed: Utils.rand(0.6, 1.0),
+                baseSpeed: Utils.rand(0.6, 1.0),
+                nextTargetTime: 0,
+                facingRight: Math.random() > 0.5,
+                scale: td.scale,
+                tailPhase: Math.random() * Math.PI * 2,
+                needsInit: true
+            });
+        });
+
+        function resizeSplashTetras() {
+            const rect = tetraContainer.getBoundingClientRect();
+            splashTetras.forEach(t => {
+                t.canvas.width = rect.width;
+                t.canvas.height = rect.height;
+                t.ctx = t.canvas.getContext('2d');
+                if (t.needsInit) {
+                    t.x = t.initFrac.x * rect.width;
+                    t.y = t.initFrac.y * rect.height;
+                    t.needsInit = false;
+                    tetraPickTarget(t, rect.width, rect.height);
+                }
+            });
+        }
+        resizeSplashTetras();
+        window.addEventListener('resize', resizeSplashTetras);
+
+        function tetraPickTarget(t, w, h) {
+            const range = Utils.rand(80, 200);
+            const isDart = Math.random() < 0.15;
+            const r = isDart ? range * 2 : range;
+            t.targetX = Utils.clamp(t.x + Utils.rand(-r, r), 40, w - 40);
+            // Mid-water bias
+            const midY = h * 0.4;
+            const midPull = (midY - t.y) * 0.12;
+            t.targetY = Utils.clamp(t.y + Utils.rand(-r * 0.5, r * 0.5) + midPull, h * 0.12, h * 0.82);
+            if (isDart) {
+                t.speed = t.baseSpeed * Utils.rand(2.5, 4);
+            } else {
+                t.speed = t.baseSpeed * Utils.rand(0.5, 1.2);
+            }
+            t.nextTargetTime = performance.now() + Utils.rand(1500, 4000);
+        }
+
+        function drawTetra(ctx, cx, cy, scale, facingRight, tailPhase) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            const scaleX = facingRight ? 1 : -1;
+            ctx.scale(scaleX, 1);
+
+            // Match game fish: size = 0.6, scale * 40 = w/2, so w = size*80
+            // Slim shape: bodyRx = w*0.42, bodyRy = h*0.25 where h = w/2
+            const fishSize = scale * 0.6;
+            const w = fishSize * 80;
+            const h = w * 0.5;
+            const bodyRx = w * 0.42;
+            const bodyRy = h * 0.25;
+
+            const tailWag = Math.sin(tailPhase) * 3;
+
+            // Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.beginPath();
+            ctx.ellipse(0, h * 0.5, w * 0.3, h * 0.06, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Tail fin
+            ctx.fillStyle = '#88b0c8';
+            ctx.globalAlpha = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(-w * 0.35, 0);
+            ctx.quadraticCurveTo(-w * 0.55, -h * 0.35 + tailWag, -w * 0.65, -h * 0.3 + tailWag);
+            ctx.quadraticCurveTo(-w * 0.45, tailWag * 0.3, -w * 0.65, h * 0.3 + tailWag);
+            ctx.quadraticCurveTo(-w * 0.55, h * 0.35 + tailWag, -w * 0.35, 0);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Body (slim ellipse like game neon tetra)
+            ctx.fillStyle = '#a8c8d8';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, bodyRx, bodyRy, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Body sheen
+            ctx.fillStyle = 'rgba(224, 64, 64, 0.12)';
+            ctx.beginPath();
+            ctx.ellipse(w * 0.05, -h * 0.06, w * 0.22, h * 0.14, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Neon blue lateral stripe (nose to mid-body) — matches game SVG path
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = bodyRy * 0.22;
+            ctx.lineCap = 'round';
+            ctx.shadowColor = '#00d4ff';
+            ctx.shadowBlur = 3;
+            ctx.globalAlpha = 0.85;
+            ctx.beginPath();
+            ctx.moveTo(bodyRx * 0.9, -bodyRy * 0.05);
+            ctx.quadraticCurveTo(bodyRx * 0.3, -bodyRy * 0.15, -bodyRx * 0.15, 0);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = 1;
+
+            // Red rear stripe (mid-body to tail) — matches game SVG path
+            ctx.strokeStyle = '#e83030';
+            ctx.lineWidth = bodyRy * 0.28;
+            ctx.globalAlpha = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(-bodyRx * 0.05, bodyRy * 0.05);
+            ctx.quadraticCurveTo(-bodyRx * 0.5, bodyRy * 0.1, -bodyRx * 0.95, bodyRy * 0.02);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+
+            // Dorsal fin
+            ctx.fillStyle = '#88b0c8';
+            ctx.globalAlpha = 0.7;
+            ctx.beginPath();
+            ctx.moveTo(-w * 0.1, -h * 0.25);
+            ctx.quadraticCurveTo(0, -h * 0.5, w * 0.15, -h * 0.25);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Pectoral fin
+            ctx.fillStyle = '#88b0c8';
+            ctx.globalAlpha = 0.6;
+            ctx.beginPath();
+            ctx.moveTo(w * 0.05, h * 0.08);
+            ctx.quadraticCurveTo(w * 0.15, h * 0.28, -w * 0.05, h * 0.24);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Eye (white outer + dark pupil)
+            const eyeX = w * 0.2;
+            const eyeY = -h * 0.04;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(eyeX, eyeY, h * 0.07, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#1a1a2e';
+            ctx.beginPath();
+            ctx.arc(eyeX + h * 0.015, eyeY, h * 0.035, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Mouth (subtle)
+            ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(w * 0.35, h * 0.015);
+            ctx.quadraticCurveTo(w * 0.37, h * 0.05, w * 0.34, h * 0.06);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function animateSplashTetras(timestamp) {
+            if (!lastSplashTime) lastSplashTime = timestamp;
+            const dt = Math.min((timestamp - lastSplashTime) / 1000, 0.1);
+            lastSplashTime = timestamp;
+
+            const container = tetraContainer.getBoundingClientRect();
+            if (container.width === 0) {
+                splashAnimId = requestAnimationFrame(animateSplashTetras);
+                return;
+            }
+            const cw = container.width;
+            const ch = container.height;
+
+            splashTetras.forEach(t => {
+                if (!t.ctx) return;
+
+                // Pick new target when timer expires or close to current target
+                const now = performance.now();
+                const dx = t.targetX - t.x;
+                const dy = t.targetY - t.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (now >= t.nextTargetTime || dist < 5) {
+                    tetraPickTarget(t, cw, ch);
+                }
+
+                // Move toward target (same as game fish: lerp velocity)
+                if (dist > 2) {
+                    const moveSpeed = t.speed * 60 * dt;
+                    const ratio = Math.min(1, moveSpeed / dist);
+                    t.vx = Utils.lerp(t.vx, dx * ratio, 0.1);
+                    t.vy = Utils.lerp(t.vy, dy * ratio, 0.1);
+                } else {
+                    t.vx *= 0.95;
+                    t.vy *= 0.95;
+                }
+
+                // Apply velocity
+                t.x += t.vx;
+                t.y += t.vy;
+
+                // Soft boundary repulsion
+                const edgeM = 60;
+                const edgeP = 2.0;
+                if (t.x < 30 + edgeM) {
+                    const prox = 1 - (t.x - 30) / edgeM;
+                    t.vx += Math.max(0, prox) * edgeP * dt * 60;
+                } else if (t.x > cw - 30 - edgeM) {
+                    const prox = 1 - (cw - 30 - t.x) / edgeM;
+                    t.vx -= Math.max(0, prox) * edgeP * dt * 60;
+                }
+                if (t.y < ch * 0.1 + edgeM) {
+                    const prox = 1 - (t.y - ch * 0.1) / edgeM;
+                    t.vy += Math.max(0, prox) * edgeP * dt * 60;
+                } else if (t.y > ch * 0.85 - edgeM) {
+                    const prox = 1 - (ch * 0.85 - t.y) / edgeM;
+                    t.vy -= Math.max(0, prox) * edgeP * dt * 60;
+                }
+
+                // Clamp
+                t.x = Utils.clamp(t.x, 20, cw - 20);
+                t.y = Utils.clamp(t.y, ch * 0.08, ch * 0.88);
+
+                // Face direction of movement
+                if (Math.abs(t.vx) > 0.1) {
+                    t.facingRight = t.vx > 0;
+                }
+
+                // Tail animation
+                t.tailPhase += dt * 8 * (0.5 + Math.abs(t.vx) * 0.3);
+
+                // Draw
+                t.ctx.clearRect(0, 0, t.canvas.width, t.canvas.height);
+                drawTetra(t.ctx, t.x, t.y, t.scale, t.facingRight, t.tailPhase);
+            });
+
+            splashAnimId = requestAnimationFrame(animateSplashTetras);
+        }
+
+        _animateSplashTetras = animateSplashTetras;
+        _resizeSplashTetras = resizeSplashTetras;
+        splashAnimId = requestAnimationFrame(animateSplashTetras);
 
         themes.forEach(t => {
             const card = Utils.htmlEl('div', 'theme-card');
@@ -6205,6 +6487,7 @@ const UI = (() => {
 
     function hideSplash(onVisible) {
         ZenAudio.stopSplashAmbient();
+        if (splashAnimId) { cancelAnimationFrame(splashAnimId); splashAnimId = null; }
         const splash = document.getElementById('splash-screen');
         splash.classList.add('fade-out');
         setTimeout(() => {
@@ -6220,6 +6503,12 @@ const UI = (() => {
         document.getElementById('game-screen').classList.add('hidden');
         // Update stats ribbon
         updateStatsRibbon();
+        // Resize tetra canvases (they were 0 while splash was hidden) and restart animation
+        if (_resizeSplashTetras) requestAnimationFrame(() => _resizeSplashTetras());
+        if (_animateSplashTetras && !splashAnimId) {
+            lastSplashTime = 0;
+            splashAnimId = requestAnimationFrame(_animateSplashTetras);
+        }
         // Restart splash ambient if not muted
         const muteBtn = document.getElementById('splash-mute-btn');
         if (muteBtn && muteBtn.textContent !== '🔇') {
@@ -6241,7 +6530,7 @@ const UI = (() => {
         if (ribbonMilestone) {
             const bm = d.bestMilestone;
             if (bm) {
-                const mDef = [{id:'bronze',icon:'🥉',title:'Bronze'},{id:'silver',icon:'🥈',title:'Silver'},{id:'gold',icon:'🥇',title:'Gold'},{id:'master',icon:'🏆',title:'Master'}].find(m => m.id === bm);
+                const mDef = [{id:'bronze',icon:'🥉',title:'Bronze'},{id:'silver',icon:'🥈',title:'Silver'},{id:'gold',icon:'🥇',title:'Gold'},{id:'platinum',icon:'💎',title:'Platinum'},{id:'master',icon:'🏆',title:'Master'}].find(m => m.id === bm);
                 ribbonMilestone.textContent = mDef ? `${mDef.icon} ${mDef.title}` : '';
             } else {
                 ribbonMilestone.textContent = '';
@@ -6286,7 +6575,7 @@ const UI = (() => {
         if (bestMilestoneEl) {
             const bm = d.bestMilestone;
             if (bm) {
-                const mDef = [{id:'bronze',icon:'🥉',title:'Bronze Aquarist'},{id:'silver',icon:'🥈',title:'Silver Aquarist'},{id:'gold',icon:'🥇',title:'Gold Aquarist'},{id:'master',icon:'🏆',title:'Master Aquarist'}].find(m => m.id === bm);
+                const mDef = [{id:'bronze',icon:'🥉',title:'Bronze Aquarist'},{id:'silver',icon:'🥈',title:'Silver Aquarist'},{id:'gold',icon:'🥇',title:'Gold Aquarist'},{id:'platinum',icon:'💎',title:'Platinum Aquarist'},{id:'master',icon:'🏆',title:'Master Aquarist'}].find(m => m.id === bm);
                 bestMilestoneEl.textContent = mDef ? `${mDef.icon} ${mDef.title}` : '';
             } else {
                 bestMilestoneEl.textContent = '';
@@ -6960,10 +7249,11 @@ const App = (() => {
 
     // Milestone definitions
     const milestones = [
-        { id: 'bronze',  score: 1000,  icon: '🥉', title: 'Bronze Aquarist',  msg: "You've reached 1,000 points!" },
-        { id: 'silver',  score: 5000,  icon: '🥈', title: 'Silver Aquarist',  msg: "You've reached 5,000 points!" },
-        { id: 'gold',    score: 10000, icon: '🥇', title: 'Gold Aquarist',    msg: "You've reached 10,000 points!" },
-        { id: 'master',  score: 0,     icon: '🏆', title: 'Master Aquarist',  msg: 'Your tank is thriving! A true master aquarist.' }
+        { id: 'bronze',   score: 1000,  icon: '🥉', title: 'Bronze Aquarist',    msg: "You've reached 1,000 points!" },
+        { id: 'silver',   score: 2500,  icon: '🥈', title: 'Silver Aquarist',    msg: "You've reached 2,500 points!" },
+        { id: 'gold',     score: 5000,  icon: '🥇', title: 'Gold Aquarist',      msg: "You've reached 5,000 points!" },
+        { id: 'platinum', score: 10000, icon: '💎', title: 'Platinum Aquarist',  msg: "You've reached 10,000 points!" },
+        { id: 'master',   score: 0,     icon: '🏆', title: 'Master Aquarist',    msg: 'Your tank is thriving! A true master aquarist.' }
     ];
 
     function getMilestoneForScore(score) {
