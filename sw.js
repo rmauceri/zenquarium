@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zenquarium-v1';
+const CACHE_NAME = 'zenquarium-v4';
 const ASSETS = [
   './',
   './index.html',

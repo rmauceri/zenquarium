@@ -66,6 +66,9 @@ html, body {
     transform: scale(1.05);
     pointer-events: none;
 }
+.splash-screen.paused *, .splash-screen.paused::after, .splash-screen.paused::before {
+    animation-play-state: paused !important;
+}
 
 .splash-content {
     text-align: center;
@@ -693,6 +696,9 @@ html, body {
     overflow: hidden;
     background: linear-gradient(180deg, var(--water-top) 0%, var(--water-mid) 50%, var(--water-bottom) 100%);
     transition: background 1.5s ease;
+}
+.tank.paused *, .tank.paused::after, .tank.paused::before {
+    animation-play-state: paused !important;
 }
 
 /* Sand bottom */
@@ -6503,6 +6509,21 @@ const UI = (() => {
         }, 1000);
     }
 
+    function pauseSplash() {
+        const splash = document.getElementById('splash-screen');
+        if (splash) splash.classList.add('paused');
+        if (splashAnimId) { cancelAnimationFrame(splashAnimId); splashAnimId = null; }
+    }
+
+    function resumeSplash() {
+        const splash = document.getElementById('splash-screen');
+        if (splash) splash.classList.remove('paused');
+        if (_animateSplashTetras && !splashAnimId) {
+            lastSplashTime = 0;
+            splashAnimId = requestAnimationFrame(_animateSplashTetras);
+        }
+    }
+
     function showSplash() {
         const splash = document.getElementById('splash-screen');
         splash.classList.remove('hidden', 'fade-out');
@@ -6654,7 +6675,7 @@ const UI = (() => {
         init, updateScore, updateHealth, updateFishCount,
         updateFishDetail, updateMultiplier, toggleMultiplierPanel, showStatus, updateButtonStates,
         populateFishShop, showModal, hideModal, openFishShopFlyout, closeFishShopFlyout, openVolumeFlyout, closeVolumeFlyout, closeAllFlyouts,
-        initSplash, hideSplash, showSplash,
+        initSplash, hideSplash, showSplash, pauseSplash, resumeSplash,
         updateStatsRibbon, showSessionSummary,
         showAchievementsOverlay, hideAchievementsOverlay
     };
@@ -6876,6 +6897,8 @@ const App = (() => {
         document.getElementById('milestone-continue').addEventListener('click', () => {
             document.getElementById('milestone-modal').classList.add('hidden');
             state.isPaused = false;
+            const tankEl = document.getElementById('tank');
+            if (tankEl) tankEl.classList.remove('paused');
             state.lastTime = performance.now();
         });
         document.getElementById('milestone-end').addEventListener('click', () => {
@@ -7113,13 +7136,16 @@ const App = (() => {
     function onPause() {
         state.isPaused = !state.isPaused;
         UI.closeAllFlyouts();
+        const tankEl = document.getElementById('tank');
         if (state.isPaused) {
             ZenAudio.pause();
             releaseWakeLock();
+            if (tankEl) tankEl.classList.add('paused');
             UI.showStatus('Game paused');
         } else {
             ZenAudio.resume();
             requestWakeLock();
+            if (tankEl) tankEl.classList.remove('paused');
             state.lastTime = performance.now();
             UI.showStatus('Game resumed');
         }
@@ -7765,24 +7791,54 @@ function releaseWakeLock() {
 //  VISIBILITY CHANGE — pause when backgrounded
 // ============================================================
 document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) return;
-    if (App && App.state && !App.state.isPaused) {
-        App.state.isPaused = true;
-        ZenAudio.pause();
-        UI.updateButtonStates(App.state.score, App.state.feedCost, App.state.cleanCost, App.state.buyCost, true);
+    if (document.hidden) {
+        if (App && App.state && !App.state.isPaused) {
+            App.state.isPaused = true;
+            ZenAudio.pause();
+            const tankEl = document.getElementById('tank');
+            if (tankEl) tankEl.classList.add('paused');
+            UI.updateButtonStates(App.state.score, App.state.feedCost, App.state.cleanCost, App.state.buyCost, true);
+        }
+        ZenAudio.stopSplashAmbient();
+        UI.pauseSplash();
+        releaseWakeLock();
+    } else {
+        UI.resumeSplash();
+        // Re-start splash ambient if on splash screen and not muted
+        const splash = document.getElementById('splash-screen');
+        if (splash && !splash.classList.contains('hidden')) {
+            const muteBtn = document.getElementById('splash-mute-btn');
+            if (!muteBtn || muteBtn.textContent.trim() !== '🔇') {
+                ZenAudio.startSplashAmbient();
+            }
+        }
+        requestWakeLock();
     }
-    ZenAudio.stopSplashAmbient();
-    releaseWakeLock();
 });
 
 window.addEventListener('blur', () => {
     if (App && App.state && !App.state.isPaused) {
         App.state.isPaused = true;
         ZenAudio.pause();
+        const tankEl = document.getElementById('tank');
+        if (tankEl) tankEl.classList.add('paused');
         UI.updateButtonStates(App.state.score, App.state.feedCost, App.state.cleanCost, App.state.buyCost, true);
     }
     ZenAudio.stopSplashAmbient();
+    UI.pauseSplash();
     releaseWakeLock();
+});
+
+window.addEventListener('focus', () => {
+    UI.resumeSplash();
+    const splash = document.getElementById('splash-screen');
+    if (splash && !splash.classList.contains('hidden')) {
+        const muteBtn = document.getElementById('splash-mute-btn');
+        if (!muteBtn || muteBtn.textContent.trim() !== '🔇') {
+            ZenAudio.startSplashAmbient();
+        }
+    }
+    requestWakeLock();
 });
 
 // ============================================================
