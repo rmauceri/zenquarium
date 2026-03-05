@@ -7,6 +7,10 @@
     <meta name="description" content="Zenquarium - A meditative aquarium experience">
     <title>Zenquarium</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='30' fill='%230a1628'/><text x='90' y='115' font-size='96' text-anchor='middle' font-family='sans-serif'>🐠</text></svg>">
     <style>
 /* ============================================
    ZENQUARIUM - Premium Aquarium PWA Styles
@@ -6204,10 +6208,14 @@ const UI = (() => {
 
         function resizeSplashTetras() {
             const rect = tetraContainer.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
             splashTetras.forEach(t => {
-                t.canvas.width = rect.width;
-                t.canvas.height = rect.height;
+                t.canvas.width = rect.width * dpr;
+                t.canvas.height = rect.height * dpr;
+                t.canvas.style.width = rect.width + 'px';
+                t.canvas.style.height = rect.height + 'px';
                 t.ctx = t.canvas.getContext('2d');
+                t.ctx.scale(dpr, dpr);
                 if (t.needsInit) {
                     t.x = t.initFrac.x * rect.width;
                     t.y = t.initFrac.y * rect.height;
@@ -6415,7 +6423,7 @@ const UI = (() => {
                 t.tailPhase += dt * 8 * (0.5 + Math.abs(t.vx) * 0.3);
 
                 // Draw
-                t.ctx.clearRect(0, 0, t.canvas.width, t.canvas.height);
+                t.ctx.clearRect(0, 0, cw, ch);
                 drawTetra(t.ctx, t.x, t.y, t.scale, t.facingRight, t.tailPhase);
             });
 
@@ -6768,8 +6776,12 @@ const App = (() => {
         // Init audio (needs user gesture)
         ZenAudio.ensureCtx();
 
+        // Fullscreen on mobile (needs user gesture)
+        if ('ontouchstart' in window) requestFullscreen();
+
         UI.hideSplash(() => {
             setupGame();
+            requestWakeLock();
         });
     }
 
@@ -7103,9 +7115,11 @@ const App = (() => {
         UI.closeAllFlyouts();
         if (state.isPaused) {
             ZenAudio.pause();
+            releaseWakeLock();
             UI.showStatus('Game paused');
         } else {
             ZenAudio.resume();
+            requestWakeLock();
             state.lastTime = performance.now();
             UI.showStatus('Game resumed');
         }
@@ -7721,6 +7735,53 @@ const App = (() => {
 
     return { state, getState, scoreEvent };
 })();
+
+// ============================================================
+//  FULLSCREEN REQUEST (mobile)
+// ============================================================
+function requestFullscreen() {
+    const el = document.documentElement;
+    if (document.fullscreenElement) return;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    if (req) req.call(el).catch(() => {});
+}
+
+// ============================================================
+//  WAKE LOCK
+// ============================================================
+let _wakeLock = null;
+
+async function requestWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try { _wakeLock = await navigator.wakeLock.request('screen'); }
+    catch { /* user denied or unsupported */ }
+}
+
+function releaseWakeLock() {
+    if (_wakeLock) { _wakeLock.release().catch(() => {}); _wakeLock = null; }
+}
+
+// ============================================================
+//  VISIBILITY CHANGE — pause when backgrounded
+// ============================================================
+document.addEventListener('visibilitychange', () => {
+    if (!App || !App.state) return;
+    if (document.hidden) {
+        if (!App.state.isPaused) {
+            App.state.isPaused = true;
+            ZenAudio.pause();
+            UI.updateButtonStates(App.state.score, App.state.feedCost, App.state.cleanCost, App.state.buyCost, true);
+        }
+        releaseWakeLock();
+    }
+});
+
+// ============================================================
+//  SERVICE WORKER REGISTRATION
+// ============================================================
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
 
     </script>
 </body>
