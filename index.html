@@ -7765,15 +7765,24 @@ function releaseWakeLock() {
 //  VISIBILITY CHANGE — pause when backgrounded
 // ============================================================
 document.addEventListener('visibilitychange', () => {
-    if (!App || !App.state) return;
-    if (document.hidden) {
-        if (!App.state.isPaused) {
-            App.state.isPaused = true;
-            ZenAudio.pause();
-            UI.updateButtonStates(App.state.score, App.state.feedCost, App.state.cleanCost, App.state.buyCost, true);
-        }
-        releaseWakeLock();
+    if (!document.hidden) return;
+    if (App && App.state && !App.state.isPaused) {
+        App.state.isPaused = true;
+        ZenAudio.pause();
+        UI.updateButtonStates(App.state.score, App.state.feedCost, App.state.cleanCost, App.state.buyCost, true);
     }
+    ZenAudio.stopSplashAmbient();
+    releaseWakeLock();
+});
+
+window.addEventListener('blur', () => {
+    if (App && App.state && !App.state.isPaused) {
+        App.state.isPaused = true;
+        ZenAudio.pause();
+        UI.updateButtonStates(App.state.score, App.state.feedCost, App.state.cleanCost, App.state.buyCost, true);
+    }
+    ZenAudio.stopSplashAmbient();
+    releaseWakeLock();
 });
 
 // ============================================================
